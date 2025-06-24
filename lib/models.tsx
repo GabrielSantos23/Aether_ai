@@ -1,0 +1,534 @@
+import { cn } from "./utils";
+
+export interface ModelInfo {
+  id: string;
+  name: string;
+  description: string;
+  provider:
+    | "gemini"
+    | "openrouter"
+    | "groq"
+    | "google"
+    | "anthropic"
+    | "openai"
+    | "deepseek";
+  category:
+    | "google"
+    | "anthropic"
+    | "openai"
+    | "deepseek"
+    | "meta"
+    | "sarvam"
+    | "qwen";
+  features: ("vision" | "web" | "code" | "imagegen")[];
+  isPro?: boolean;
+  isNew?: boolean;
+  supportsThinking?: boolean;
+  unauthenticated?: boolean;
+  attachmentsSuppport: {
+    pdf: boolean;
+    image: boolean;
+  };
+  isApiKeyOnly?: boolean;
+  toolCalls?: boolean;
+  isFree?: boolean;
+}
+
+export const models: ModelInfo[] = [
+  {
+    id: "claude-opus-4-20250514",
+    name: "Claude Opus 4",
+    description:
+      "Anthropic's most capable model with superior reasoning and analysis",
+    provider: "openrouter",
+    category: "anthropic",
+    features: ["vision", "code"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "claude-sonnet-4-20250514",
+    name: "Claude Sonnet 4",
+    description:
+      "Anthropic's balanced model for everyday use with great performance",
+    provider: "openrouter",
+    category: "anthropic",
+    features: ["vision", "code"],
+    isPro: true,
+    isNew: true,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "anthropic/claude-3.5-sonnet",
+    name: "Claude 3.5 Sonnet",
+    description: "Via OpenRouter",
+    provider: "openrouter",
+    category: "anthropic",
+    features: ["vision", "code"],
+    isPro: false,
+    supportsThinking: false,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isFree: false,
+    isApiKeyOnly: true,
+  },
+  {
+    id: "claude-3-5-haiku-20241022",
+    name: "Claude Haiku 3.5",
+    description: "Anthropic's fastest and most cost-effective model",
+    provider: "openrouter",
+    category: "anthropic",
+    features: ["vision", "code"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "deepseek/deepseek-r1-0528:free",
+    name: "Deepseek R1 0528",
+    description:
+      "DeepSeek's reasoning model with step-by-step thinking capabilities",
+    provider: "openrouter",
+    category: "deepseek",
+    features: ["vision", "code"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "deepseek/deepseek-chat-v3-0324:free",
+    name: "DeepSeek Chat V3",
+    description: "Via OpenRouter",
+    provider: "openrouter",
+    category: "deepseek",
+    features: ["imagegen"],
+    isPro: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: false,
+      image: false,
+    },
+  },
+
+  {
+    id: "meta-llama/llama-4-maverick:free",
+    name: "Llama 4 Maverick",
+    description: "Via OpenRouter",
+    provider: "openrouter",
+    category: "meta",
+    features: ["code"],
+    isPro: false,
+    supportsThinking: false,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: false,
+      image: false,
+    },
+  },
+
+  {
+    id: "meta-llama/llama-3.3-70b-instruct",
+    name: "Llama 3.3 70B",
+    description:
+      "Meta's large 70B parameter model with strong reasoning abilities",
+    provider: "openrouter",
+    category: "meta",
+    features: ["vision", "code"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "meta-llama/llama-3.2-90b-vision-instruct",
+    name: "Llama 3.2 90B Vision",
+    description: "Meta's largest vision-capable model for image understanding",
+    provider: "openrouter",
+    category: "meta",
+    features: ["vision", "code"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "meta-llama/llama-3.2-11b-vision-instruct",
+    name: "Llama 3.2 11B Vision",
+    description:
+      "Meta's mid-sized vision model balancing capability and efficiency",
+    provider: "openrouter",
+    category: "meta",
+    features: ["vision", "code"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "meta-llama/llama-3.2-3b-instruct",
+    name: "Llama 3.2 3B",
+    description: "Meta's compact model for lightweight applications",
+    provider: "openrouter",
+    category: "meta",
+    features: ["vision", "code"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "meta-llama/llama-3.2-1b-instruct",
+    name: "Llama 3.2 1B",
+    description: "Meta's smallest model for basic tasks and edge deployment",
+    provider: "openrouter",
+    category: "meta",
+    features: ["vision", "code"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "gemini-2.0-flash-lite",
+    name: "Gemini 2.0 Flash Lite",
+    description: "Lightweight version for quick tasks",
+    provider: "gemini",
+    category: "google",
+    features: [],
+    isPro: false,
+    isNew: true,
+    supportsThinking: false,
+    unauthenticated: true,
+    attachmentsSuppport: {
+      pdf: false,
+      image: false,
+    },
+    isFree: true,
+  },
+  {
+    id: "gemini-2.0-flash",
+    name: "Gemini 2.0 Flash",
+    description: "Latest and fastest model",
+    provider: "gemini",
+    category: "google",
+    features: ["vision", "web", "code", "imagegen"],
+    isPro: false,
+    supportsThinking: false,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: false,
+      image: true,
+    },
+    toolCalls: true,
+  },
+  {
+    id: "gemini-2.0-flash-thinking-exp-01-21",
+    name: "Gemini 2.0 Flash Thinking",
+    description: "Thinking capabilities",
+    provider: "gemini",
+    category: "google",
+    features: ["vision", "code", "imagegen"],
+    isPro: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: false,
+      image: false,
+    },
+  },
+  {
+    id: "gemini-2.5-flash-preview-04-17",
+    name: "Gemini 2.5 Flash",
+    description: "Google's fastest premium model with comprehensive features",
+    provider: "gemini",
+    category: "google",
+    features: ["vision", "code", "web"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: false,
+    toolCalls: false,
+    isFree: true,
+  },
+  {
+    id: "gemini-2.5-pro-preview-05-06",
+    name: "Gemini 2.5 Pro",
+    description:
+      "Google's most advanced model with superior reasoning and analysis",
+    provider: "gemini",
+    category: "google",
+    features: ["vision", "code", "web"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "google/gemini-flash-1.5",
+    name: "Gemini Flash 1.5",
+    description: "Via OpenRouter",
+    provider: "gemini",
+    category: "google",
+    features: ["vision", "web", "code", "imagegen"],
+    isPro: false,
+    supportsThinking: false,
+    unauthenticated: true,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isFree: true,
+  },
+  {
+    id: "llama-3.3-70b-versatile",
+    name: "Llama 3.3 70B Versatile",
+    description: "Via Groq",
+    provider: "groq",
+    category: "meta",
+    features: ["code"],
+    isPro: false,
+    supportsThinking: false,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: false,
+      image: false,
+    },
+  },
+  {
+    id: "deepseek-r1-distill-llama-70b",
+    name: "DeepSeek R1 Distill Llama 70B",
+    description: "Via Groq",
+    provider: "groq",
+    category: "deepseek",
+    features: ["code", "imagegen"],
+    isPro: false,
+    isFree: true,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: false,
+      image: false,
+    },
+  },
+  {
+    id: "qwen/qwen3-32b",
+    name: "Qwen 3.2B",
+    description: "Via Groq",
+    provider: "groq",
+    category: "qwen",
+    features: ["code", "imagegen"],
+    isPro: false,
+    isFree: true,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: false,
+      image: false,
+    },
+    toolCalls: false,
+  },
+
+  // {
+  //   id: "gemini-2.0-flash-preview-image-generation",
+  //   name: "Gemini 2.0 Flash Image Generation",
+  //   description: "Google's specialized model optimized for image generation",
+  //   provider: "gemini",
+  //   category: "google",
+  //   features: ["vision", "code", "imagegen", "web"],
+  //   isPro: false,
+  //   isNew: false,
+  //   supportsThinking: false,
+  //   unauthenticated: false,
+  //   attachmentsSuppport: {
+  //     pdf: true,
+  //     image: true,
+  //   },
+  //   isApiKeyOnly: false,
+  //   toolCalls: false,
+  //   isFree: true,
+  // },
+  {
+    id: "openai/gpt-4o",
+    name: "GPT-4o",
+    description: "Via OpenRouter",
+    provider: "openai",
+    category: "openai",
+    features: ["vision", "code"],
+    isPro: false,
+    supportsThinking: false,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+  {
+    id: "gpt-4.1-mini",
+    name: "GPT-4.1-mini",
+    description: "OpenAI's efficient model balancing performance and cost",
+    provider: "openai",
+    category: "openai",
+    features: ["vision", "code"],
+    isPro: true,
+    isNew: false,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: false,
+    isFree: false,
+  },
+] as const;
+
+export const getModelDisplayName = (modelId?: string) => {
+  if (!modelId) return null;
+  const model = models.find((m) => m.id === modelId);
+  return model?.name || modelId;
+};
+
+export const getProviderColor = (modelId?: string) => {
+  if (!modelId) return "bg-gray-500";
+
+  const model = models.find((m) => m.id === modelId);
+
+  if (!model) return "bg-gray-500";
+
+  switch (model.provider) {
+    case "gemini":
+      return "bg-red-500";
+    case "openrouter":
+      return "bg-blue-500";
+    case "groq":
+      return "bg-yellow-500";
+    default:
+      return "bg-gray-500";
+  }
+};
+
+export const getVendorColor = (vendor: string): string => {
+  const getFullBgColor = (rest: string) => {
+    return cn("bg-gradient-to-r", rest);
+  };
+  const model = models.find((m) => m.id === vendor);
+  if (model) {
+    return getVendorColor(model.provider);
+  }
+  switch (vendor) {
+    case "google":
+    case "gemini":
+      return getFullBgColor("from-blue-500 to-purple-500");
+    case "anthropic":
+    case "claude":
+      return getFullBgColor("from-purple-500 to-pink-500");
+    case "openai":
+    case "gpt":
+      return getFullBgColor("from-green-500 to-teal-500");
+    case "deepseek":
+      return getFullBgColor("from-cyan-500 to-blue-500");
+    case "meta":
+    case "llama":
+      return getFullBgColor("from-indigo-500 to-blue-500");
+    case "o-series":
+      return getFullBgColor("from-orange-500 to-red-500");
+    case "qwen":
+      return getFullBgColor("from-red-500 to-pink-500");
+    case "sarvam":
+      return getFullBgColor("from-yellow-500 to-orange-500");
+    case "openrouter":
+      return getFullBgColor("from-blue-500 to-green-500");
+    case "qwen":
+      return getFullBgColor("from-red-500 to-pink-500");
+    default:
+      return getFullBgColor("from-gray-500 to-gray-600");
+  }
+};
