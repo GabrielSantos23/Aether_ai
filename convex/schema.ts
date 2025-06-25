@@ -68,6 +68,15 @@ export default defineSchema({
     is_default: v.optional(v.boolean()),
   }).index("by_user_and_service", ["userId", "service"]),
 
+  // Google Drive integration tokens
+  googleDriveTokens: defineTable({
+    userId: v.id("users"),
+    accessToken: v.string(),
+    refreshToken: v.string(),
+    expiresAt: v.number(),
+    scope: v.string(),
+  }).index("by_user", ["userId"]),
+
   chats: defineTable({
     userId: v.id("users"),
     title: v.string(),

@@ -384,6 +384,8 @@ export const useConversations = (
         attachments?: Attachment[];
         modelId?: string;
         webSearch?: boolean;
+        imageGen?: boolean;
+        toolkits?: string[];
       }
     ) => {
       if (isAuthenticated) {
@@ -402,6 +404,8 @@ export const useConversations = (
           modelId: options?.modelId || selectedModel.id,
           attachments: options?.attachments,
           webSearch: options?.webSearch,
+          imageGen: options?.imageGen,
+          toolkits: options?.toolkits,
         });
       } else {
         setIsLocalStreaming(true);

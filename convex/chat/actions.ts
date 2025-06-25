@@ -244,10 +244,11 @@ export const sendMessage = action({
     ),
     webSearch: v.optional(v.boolean()),
     imageGen: v.optional(v.boolean()),
+    toolkits: v.optional(v.array(v.string())),
   },
   handler: async (
     ctx,
-    { chatId, message, modelId, attachments, webSearch, imageGen }
+    { chatId, message, modelId, attachments, webSearch, imageGen, toolkits }
   ): Promise<{
     success: boolean;
     userMessageId: Id<"messages">;
@@ -322,9 +323,15 @@ export const sendMessage = action({
         `Chat history length: ${chatMessages.length}, Model: ${modelId}`
       );
 
-      // Handle attachments or image generation
-      if ((attachments && attachments.length > 0) || imageGen) {
-        console.log("Attachments or Image Gen Found: Using Node Action");
+      // Handle attachments, image generation, or toolkits
+      if (
+        (attachments && attachments.length > 0) ||
+        imageGen ||
+        (toolkits && toolkits.length > 0)
+      ) {
+        console.log(
+          "Attachments, Image Gen, or Toolkits Found: Using Node Action"
+        );
         return await ctx.runAction(api.chat.node.sendMessage, {
           chatMessages,
           modelId,
@@ -334,6 +341,7 @@ export const sendMessage = action({
           webSearch,
           userMessageId,
           imageGen,
+          toolkits,
         });
       }
 

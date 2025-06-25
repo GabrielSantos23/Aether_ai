@@ -79,7 +79,7 @@ export function useChatInterface(
   const handleSend = (
     message: string,
     model: string,
-    options: { webSearch?: boolean }
+    options: { webSearch?: boolean; imageGen?: boolean; toolkits?: string[] }
   ) => {
     if (message.trim() || attachments.length > 0) {
       const mappedAttachments = attachments.map((a) => ({
@@ -95,6 +95,8 @@ export function useChatInterface(
         attachments: mappedAttachments,
         modelId: model,
         webSearch: options.webSearch,
+        imageGen: options.imageGen,
+        toolkits: options.toolkits,
       });
       setInputValue("");
       setAttachments([]);

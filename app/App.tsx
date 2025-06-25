@@ -2,10 +2,11 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuthContext } from "@/app/context/AuthContext";
 import LoginPage from "@/components/routes/Login";
 import { SessionProvider, useSession } from "next-auth/react";
+import { LoadingSpinner } from "@/components/ui/spinner";
 
 // import Auth from "@/components/routes/Auth";
 import Chat from "@/components/routes/Chat";
-// import SettingsPage from "@/components/routes/Settings";
+import SettingsPage from "@/components/routes/Settings";
 import Sidebar from "@/components/_components/_sidebar";
 // import SharedChatPage from "@/components/routes/Shared";
 
@@ -21,14 +22,14 @@ function AppRoutes() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <span>Loading...</span>
+        <LoadingSpinner />
       </div>
     );
   }
 
   return (
     <BrowserRouter>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-screen">
         <Routes>
           <Route path="/" element={<Navigate to="/chat" replace />} />
           {/* Route components will be implemented later */}
@@ -70,7 +71,7 @@ function AppRoutes() {
             path="/settings"
             element={
               isAuthenticated ? (
-                <div>Settings Page (to be implemented)</div>
+                <SettingsPage />
               ) : (
                 <Navigate to="/auth" replace />
               )

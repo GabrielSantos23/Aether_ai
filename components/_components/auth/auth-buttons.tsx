@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { signIn as nextAuthSignIn } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { Spinner } from "@/components/ui/spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 
 interface AuthButtonsProps {
   providers: {
@@ -54,7 +54,7 @@ export const AuthButtons = ({ providers, redirect }: AuthButtonsProps) => {
           }}
         >
           {isLoading === provider.id ? (
-            <Spinner size="sm" />
+            <LoadingSpinner size={16} />
           ) : (
             <AuthProviderIcon provider={provider.name} />
           )}

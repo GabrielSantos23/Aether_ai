@@ -45,7 +45,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useAuthContext } from "@/app/hooks";
-import { Spinner } from "@/components/ui/spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 
 export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
   const { id } = useParams();
@@ -187,7 +187,7 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                   {isLoading ? (
                     <div className="flex justify-center items-center py-4">
-                      <Spinner />
+                      <LoadingSpinner size={16} />
                     </div>
                   ) : threads.length > 0 ? (
                     threads.map((thread) => (
@@ -202,7 +202,7 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
                         >
                           <div
                             className={cn(
-                              "cursor-pointer h-9 flex items-center px-2 py-1 rounded-[8px] overflow-hidden w-full hover:bg-secondary",
+                              "cursor-pointer h-9 flex items-center px-2 py-1 rounded-[8px] overflow-hidden w-full hover:bg-secondary group relative",
                               id === thread.id && "bg-secondary"
                             )}
                             onClick={() => {
@@ -212,9 +212,35 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
                               navigate(`/chat/${thread.id}`);
                             }}
                           >
-                            <span className="flex items-center overflow-hidden max-w-[90%]">
+                            {/* Purple indicator for active chat - similar to settings sidebar */}
+                            {id === thread.id && (
+                              <>
+                                {/* Main gradient background with sharp edges */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/8 dark:via-purple-300/8 to-transparent"></div>
+
+                                {/* Top shadow lighting */}
+                                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 dark:via-purple-300/30 to-transparent"></div>
+
+                                {/* Bottom shadow lighting */}
+                                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 dark:via-purple-300/30 to-transparent"></div>
+
+                                {/* Inner glow */}
+                                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 bg-gradient-to-r from-transparent via-purple-500/5 dark:via-purple-300/5 to-transparent blur-sm"></div>
+                              </>
+                            )}
+
+                            {/* Hover effect for non-active items */}
+                            {id !== thread.id && (
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/3 dark:via-purple-300/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
+                            )}
+
+                            <span className="flex items-center overflow-hidden max-w-[90%] relative z-10">
                               <span
-                                className="block whitespace-nowrap overflow-hidden text-ellipsis"
+                                className={cn(
+                                  "block whitespace-nowrap overflow-hidden text-ellipsis",
+                                  id === thread.id &&
+                                    "text-purple-600 dark:text-purple-300"
+                                )}
                                 style={{ maxWidth: "100%" }}
                                 title={thread.title}
                               >
@@ -341,13 +367,16 @@ function PureHeader({ isLoading, onDeleteAll }: HeaderProps) {
 
   return (
     <SidebarHeader className="flex justify-between items-center gap-2 relative">
-      <h1 className="text-2xl font-bold">{siteConfig.name || "Aether AI"}</h1>
+      <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 dark:from-purple-300 dark:via-purple-200 dark:to-purple-300 bg-clip-text text-transparent tracking-tight leading-none">
+        {siteConfig.name || "Aether AI"}
+      </h1>
       <div className="flex gap-2 w-full">
         <Link
           to="/chat"
           className={buttonVariants({
             variant: "default",
-            className: "flex-1",
+            className:
+              "flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600",
           })}
         >
           New Chat
@@ -358,6 +387,7 @@ function PureHeader({ isLoading, onDeleteAll }: HeaderProps) {
           size="icon"
           title="Delete all chats"
           onClick={onDeleteAll}
+          className="hover:text-purple-600 dark:hover:text-purple-300"
         >
           <Trash2 size={16} />
         </Button>
@@ -375,14 +405,18 @@ const PureFooter = () => {
       {user ? (
         <Link
           to="/settings"
-          className="flex items-center gap-2 w-full hover:bg-accent/50 transition-colors duration-200 rounded-md p-2 cursor-pointer"
+          className="flex items-center gap-2 w-full hover:bg-accent/50 transition-colors duration-200 rounded-md p-2 cursor-pointer group"
         >
-          <Avatar className="w-8 h-8">
+          <Avatar className="w-8 h-8 ring-1 ring-purple-500/20 group-hover:ring-purple-500/40 transition-all">
             <AvatarImage src={user?.image || ""} alt={user?.name || ""} />
-            <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+            <AvatarFallback className="bg-purple-500/10 text-purple-700 dark:text-purple-300">
+              {user?.name?.charAt(0)}
+            </AvatarFallback>
           </Avatar>
           <div className="text-sm flex-col flex text-muted-foreground">
-            <span className="font-bold">{user?.name}</span>
+            <span className="font-bold group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
+              {user?.name}
+            </span>
             <span className="text-xs">{user?.email}</span>
           </div>
         </Link>
@@ -393,7 +427,8 @@ const PureFooter = () => {
             className={buttonVariants({
               variant: "outline",
               size: "sm",
-              className: "w-full text-left",
+              className:
+                "w-full text-left hover:text-purple-600 hover:border-purple-500/30 dark:hover:text-purple-300",
             })}
           >
             <LogIn size={16} className="mr-2" />

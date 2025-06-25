@@ -88,7 +88,7 @@ export function MessageItem({
         <div
           className={`px-4 py-3 break-words overflow-wrap-anywhere ${
             message.role === "user"
-              ? "bg-rose-500/5 dark:bg-rose-300/5 text-black dark:text-white rounded-lg"
+              ? "bg-purple-500/5 dark:bg-purple-300/5 text-black dark:text-white rounded-lg"
               : "text-black dark:text-white"
           }`}
         >
@@ -126,7 +126,7 @@ export function MessageItem({
                           <img
                             src={attachment.url}
                             alt={attachment.name}
-                            className="max-w-sm max-h-64 rounded-lg border border-rose-500/20 dark:border-white/20 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                            className="max-w-sm max-h-64 rounded-lg border border-purple-500/20 dark:border-white/20 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                             onClick={() =>
                               window.open(attachment.url, "_blank")
                             }
@@ -141,10 +141,10 @@ export function MessageItem({
                         </div>
                       ) : (
                         <div
-                          className="flex items-center gap-3 p-3 bg-white/30 dark:bg-black/20 rounded-lg border border-rose-500/20 dark:border-white/20 hover:bg-white/40 dark:hover:bg-black/30 transition-colors cursor-pointer"
+                          className="flex items-center gap-3 p-3 bg-white/30 dark:bg-black/20 rounded-lg border border-purple-500/20 dark:border-white/20 hover:bg-white/40 dark:hover:bg-black/30 transition-colors cursor-pointer"
                           onClick={() => window.open(attachment.url, "_blank")}
                         >
-                          <FileText className="w-8 h-8 text-rose-500/70 dark:text-rose-300/70 flex-shrink-0" />
+                          <FileText className="w-8 h-8 text-purple-500/70 dark:text-purple-300/70 flex-shrink-0" />
                           <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium text-black/80 dark:text-white/80 truncate">
                               {attachment.name}
@@ -192,7 +192,7 @@ export function MessageItem({
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 ease-[0.25,1,0.5,1]">
             <button
               onClick={() => onStartEditing(message.id, message.content)}
-              className="p-1.5 text-rose-500/70 hover:text-rose-600 dark:text-rose-300/70 dark:hover:text-rose-300 hover:bg-rose-500/5 dark:hover:bg-rose-300/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
+              className="p-1.5 text-purple-500/70 hover:text-purple-600 dark:text-purple-300/70 dark:hover:text-purple-300 hover:bg-purple-500/5 dark:hover:bg-purple-300/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
               title="Edit message"
             >
               <Edit3 className="w-4 h-4" />

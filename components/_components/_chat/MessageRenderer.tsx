@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { models } from "@/lib/models";
 import { MarkdownContent } from "./markdown-content";
 import ToolCallDisplay from "./ToolCallDisplay";
+import { clientToolkits } from "@/lib/toolkits-registry";
 
 interface MessageRendererProps {
   content: string;
@@ -134,7 +135,7 @@ const MessageRenderer: React.FC<MessageRendererProps> = memo(
             </button>
 
             {!isThinkingCollapsed && thinking && (
-              <div className="mt-1 ml-6 pl-3 border-l-2 border-rose-500/20 dark:border-rose-300/20">
+              <div className="mt-1 ml-6 pl-3 border-l-2 border-purple-500/20 dark:border-purple-300/20">
                 <div className="text-xs text-black/70 dark:text-white/70 leading-relaxed">
                   <MarkdownContent content={thinking} id={thinkingId} />
                 </div>

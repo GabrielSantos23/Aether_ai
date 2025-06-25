@@ -8,8 +8,7 @@ type Font =
   | "serif"
   | "mono"
   | "roboto-slab"
-  | "comic-sans"
-  | "geist";
+  | "comic-sans";
 type CodeFont =
   | "fira-code"
   | "mono"
@@ -18,7 +17,7 @@ type CodeFont =
   | "source-code-pro";
 
 export function useFont() {
-  const [mainFont, setMainFont] = useState<Font>("geist");
+  const [mainFont, setMainFont] = useState<Font>("inter");
   const [codeFont, setCodeFont] = useState<CodeFont>("fira-code");
 
   useEffect(() => {
@@ -38,7 +37,8 @@ export function useFont() {
       "font-sans",
       "font-serif",
       "font-mono",
-      "font-roboto-slab"
+      "font-roboto-slab",
+      "font-noto-sans"
     );
     switch (mainFont) {
       case "system":
@@ -55,9 +55,6 @@ export function useFont() {
         break;
       case "comic-sans":
         document.body.classList.add("font-comic-sans");
-        break;
-      case "geist":
-        document.body.classList.add("font-geist");
         break;
       default:
         document.body.classList.add("font-sans");

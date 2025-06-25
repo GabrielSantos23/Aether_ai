@@ -39,13 +39,13 @@ export function TopControls({
 
   // Shared styles for consistent button groups
   const buttonGroupStyles =
-    "group relative p-2 rounded-lg bg-white/70 dark:bg-[oklch(0.18_0.015_25)]/30 backdrop-blur-xl border border-rose-500/10 dark:border-white/10 hover:border-rose-500/20 dark:hover:border-rose-300/20 shadow-lg shadow-rose-500/5 dark:shadow-lg dark:shadow-black/20 hover:shadow-xl hover:shadow-rose-500/10 dark:hover:shadow-rose-500/10 flex items-center gap-1.5";
+    "group relative p-2 rounded-lg bg-white/70 dark:bg-[oklch(0.18_0.015_25)]/30 backdrop-blur-xl border border-purple-500/10 dark:border-white/10 hover:border-purple-500/20 dark:hover:border-purple-300/20 shadow-lg shadow-purple-500/5 dark:shadow-lg dark:shadow-black/20 hover:shadow-xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/10 flex items-center gap-1.5";
 
   const buttonStyles =
-    "relative z-10 text-rose-600 dark:text-rose-300 hover:text-rose-700 dark:hover:text-rose-200 h-5.5 w-5.5 p-0 hover:bg-transparent flex items-center justify-center";
+    "relative z-10 text-purple-600 dark:text-purple-300 hover:text-purple-700 dark:hover:text-purple-200 h-5.5 w-5.5 p-0 hover:bg-transparent flex items-center justify-center";
 
   const dividerStyles =
-    "relative z-10 w-px h-4.5 bg-rose-500/20 dark:bg-rose-300/20";
+    "relative z-10 w-px h-4.5 bg-purple-500/20 dark:bg-purple-300/20";
 
   return (
     <>
@@ -53,7 +53,7 @@ export function TopControls({
       <div className="absolute top-2.5 right-2.5 z-10">
         <div className={buttonGroupStyles}>
           {/* Gradient overlays for premium look */}
-          <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 via-transparent to-rose-500/10 dark:from-rose-500/10 dark:via-transparent dark:to-rose-500/20 pointer-events-none rounded-lg"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-purple-500/10 dark:from-purple-500/10 dark:via-transparent dark:to-purple-500/20 pointer-events-none rounded-lg"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/20 dark:to-white/5 pointer-events-none rounded-lg"></div>
 
           <ThemeToggler />
@@ -73,7 +73,7 @@ export function TopControls({
           </Tooltip>
 
           {/* Premium glow effect in dark mode */}
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-rose-300/0 via-rose-300/5 to-rose-300/0 rounded-lg blur-xl opacity-0 dark:opacity-20 pointer-events-none"></div>
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-purple-300/0 via-purple-300/5 to-purple-300/0 rounded-lg blur-xl opacity-0 dark:opacity-20 pointer-events-none"></div>
         </div>
       </div>
 
@@ -86,7 +86,7 @@ export function TopControls({
       >
         <div className={buttonGroupStyles}>
           {/* Gradient overlays for premium look */}
-          <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 via-transparent to-rose-500/10 dark:from-rose-500/10 dark:via-transparent dark:to-rose-500/20 pointer-events-none rounded-lg"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-purple-500/10 dark:from-purple-500/10 dark:via-transparent dark:to-purple-500/20 pointer-events-none rounded-lg"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/20 dark:to-white/5 pointer-events-none rounded-lg"></div>
 
           <Tooltip>
@@ -120,7 +120,7 @@ export function TopControls({
           </Tooltip>
 
           {/* Premium glow effect in dark mode */}
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-rose-300/0 via-rose-300/5 to-rose-300/0 rounded-lg blur-xl opacity-0 dark:opacity-20 pointer-events-none"></div>
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-purple-300/0 via-purple-300/5 to-purple-300/0 rounded-lg blur-xl opacity-0 dark:opacity-20 pointer-events-none"></div>
         </div>
       </div>
     </>

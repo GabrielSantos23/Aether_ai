@@ -86,14 +86,14 @@ export const Sidebar = memo(function Sidebar({
           <div className="p-2 rounded-lg">
             <button
               onClick={onToggleSidebar}
-              className="text-rose-600 dark:text-rose-300 hover:text-rose-700 dark:hover:text-rose-200 h-5.5 w-5.5 p-0 hover:bg-transparent flex items-center justify-center"
+              className="text-purple-600 dark:text-purple-300 hover:text-purple-700 dark:hover:text-purple-200 h-5.5 w-5.5 p-0 hover:bg-transparent flex items-center justify-center"
               title="Close sidebar"
             >
               <Menu className="w-4.5 h-4.5" />
             </button>
           </div>
           <Link href="/">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 dark:from-rose-300 dark:via-rose-200 dark:to-rose-300 bg-clip-text text-transparent tracking-tight leading-none">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 dark:from-purple-300 dark:via-purple-200 dark:to-purple-300 bg-clip-text text-transparent tracking-tight leading-none">
               T2Chat
             </h1>
           </Link>
@@ -103,7 +103,7 @@ export const Sidebar = memo(function Sidebar({
           <Button
             onClick={onNewChat}
             className={cn(
-              "group w-full relative overflow-hidden bg-gradient-to-br from-rose-500/12 via-rose-500/8 to-rose-500/12 dark:from-rose-300/12 dark:via-rose-300/8 dark:to-rose-300/12 text-rose-600 dark:text-rose-300 h-10 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl shadow-rose-500/10 hover:shadow-rose-500/20 dark:shadow-rose-500/10 dark:hover:shadow-rose-500/20 transition-all duration-200 ease-[0.25,1,0.5,1] backdrop-blur-sm",
+              "group w-full relative overflow-hidden bg-gradient-to-br from-purple-500/12 via-purple-500/8 to-purple-500/12 dark:from-purple-300/12 dark:via-purple-300/8 dark:to-purple-300/12 text-purple-600 dark:text-purple-300 h-10 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl shadow-purple-500/10 hover:shadow-purple-500/20 dark:shadow-purple-500/10 dark:hover:shadow-purple-500/20 transition-all duration-200 ease-[0.25,1,0.5,1] backdrop-blur-sm",
               isOnHomePage && "opacity-50 cursor-not-allowed"
             )}
             variant="ghost"

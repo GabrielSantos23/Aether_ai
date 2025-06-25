@@ -26,8 +26,10 @@ import {
   Phone,
   AudioLines,
   ImageIcon,
+  HardDrive,
 } from "lucide-react";
 import Link from "next/link";
+import ToolkitSelector from "../ToolkitSelector";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   getProviderColor,
@@ -56,7 +58,7 @@ interface AIInputProps {
   onSend?: (
     message: string,
     model: string,
-    options: { webSearch?: boolean; imageGen?: boolean }
+    options: { webSearch?: boolean; imageGen?: boolean; toolkits?: string[] }
   ) => void;
   isTyping?: boolean;
   onStop?: () => void;
@@ -99,6 +101,7 @@ export default function AIInput({
   const [thinkingEnabled, setThinkingEnabled] = useState(true);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [imageGenEnabled, setImageGenEnabled] = useState(false);
+  const [selectedToolkits, setSelectedToolkits] = useState<string[]>([]);
   const [groupBy, setGroupBy] = useState<"provider" | "vendor">("provider");
   const [isDragOver, setIsDragOver] = useState(false);
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
@@ -342,6 +345,7 @@ export default function AIInput({
       onSend(value.trim(), selectedModel.id, {
         webSearch: webSearchEnabled,
         imageGen: imageGenEnabled,
+        toolkits: selectedToolkits.length > 0 ? selectedToolkits : undefined,
       });
       if (messagesLength === 0) {
         setTimeout(() => {
@@ -596,6 +600,14 @@ export default function AIInput({
                     )}
                   />
                 </button>
+
+                {/* Toolkit Selector */}
+                {isSignedIn && (
+                  <ToolkitSelector
+                    className="ml-1"
+                    onToolkitsChange={setSelectedToolkits}
+                  />
+                )}
 
                 <AnimatePresence>
                   {showModelSelect && (

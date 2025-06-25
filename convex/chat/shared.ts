@@ -51,7 +51,8 @@ export const generateAIResponse = async (
   modelId: string,
   assistantMessageId: Id<"messages">,
   webSearch?: boolean,
-  isNode = false
+  isNode = false,
+  toolkits?: string[]
 ) => {
   try {
     // Log the chat messages for debugging
@@ -166,6 +167,50 @@ export const generateAIResponse = async (
           apiKey: activeGroqKey,
         })
       : null;
+
+    // Load toolkits if specified
+    let availableTools: any[] = [];
+    if (toolkits && toolkits.length > 0) {
+      console.log(`Loading toolkits: ${toolkits.join(", ")}`);
+
+      // Import toolkits from the registry
+      const { serverToolkits } = await import("../../lib/toolkits-registry");
+
+      // Add tools from each requested toolkit
+      for (const toolkitId of toolkits) {
+        if (serverToolkits[toolkitId]) {
+          const toolkit = serverToolkits[toolkitId];
+          console.log(`Adding tools from toolkit: ${toolkitId}`);
+
+          // Get toolkit tools
+          const toolkitTools = await toolkit.tools({});
+
+          // Add each tool to the available tools
+          Object.values(toolkitTools).forEach((toolConfig) => {
+            try {
+              const newTool = tool({
+                description: toolConfig.description,
+                parameters: toolConfig.inputSchema,
+                execute: async (args: any) => {
+                  try {
+                    return await toolConfig.callback(args, {});
+                  } catch (error) {
+                    console.error(
+                      `Error executing tool ${toolConfig.description}:`,
+                      error
+                    );
+                    throw error;
+                  }
+                },
+              });
+              availableTools.push(newTool);
+            } catch (error) {
+              console.error(`Error creating tool from toolkit:`, error);
+            }
+          });
+        }
+      }
+    }
 
     // Initialize the AI model based on provider
     let aiModel;
@@ -327,6 +372,7 @@ export const generateAIResponse = async (
         // Add Google-specific options to encourage text generation
         candidateCount: 1,
         safetySettings: [],
+        tools: availableTools.length > 0 ? availableTools : undefined,
       },
     };
 

@@ -236,7 +236,7 @@ export default function ChatLayout({
         {children}
 
         {/* Premium subtle glow effect */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-rose-300/0 via-rose-300/5 to-rose-300/0 rounded-xl blur-xl opacity-0 dark:opacity-30 pointer-events-none"></div>
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-purple-300/0 via-purple-300/5 to-purple-300/0 rounded-xl blur-xl opacity-0 dark:opacity-30 pointer-events-none"></div>
       </div>
 
       {/* Delete Confirmation Dialog */}

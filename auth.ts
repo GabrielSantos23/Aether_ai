@@ -37,6 +37,8 @@ interface ExtendedSession extends DefaultSession {
     image?: string | null;
   };
   convexToken?: string;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 // Create the NextAuth configuration
@@ -61,6 +63,14 @@ export const authConfig: NextAuthConfig = {
             clientId: process.env.AUTH_GOOGLE_ID!,
             clientSecret: process.env.AUTH_GOOGLE_SECRET!,
             allowDangerousEmailAccountLinking: true,
+            authorization: {
+              params: {
+                scope:
+                  "openid email profile https://www.googleapis.com/auth/drive.readonly",
+                prompt: "consent",
+                access_type: "offline",
+              },
+            },
           }),
         ]
       : []),
@@ -114,6 +124,14 @@ export const authConfig: NextAuthConfig = {
         }
       }
 
+      // Add access token and refresh token to session if available
+      if (token.accessToken) {
+        session.accessToken = token.accessToken as string;
+      }
+      if (token.refreshToken) {
+        session.refreshToken = token.refreshToken as string;
+      }
+
       // Only add the convex token if we have the necessary environment variables
       if (process.env.CONVEX_AUTH_PRIVATE_KEY) {
         try {
@@ -148,10 +166,18 @@ export const authConfig: NextAuthConfig = {
       }
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
       }
+
+      // Save the access token and refresh token when available
+      if (account && account.provider === "google") {
+        token.accessToken = account.access_token;
+        token.refreshToken = account.refresh_token;
+        token.expiresAt = account.expires_at;
+      }
+
       return token;
     },
   },
@@ -171,11 +197,21 @@ export { authFn as auth, handlers, signIn, signOut };
 declare module "next-auth" {
   interface Session {
     convexToken?: string;
+    accessToken?: string;
+    refreshToken?: string;
     user?: {
       id?: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;
     };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    accessToken?: string;
+    refreshToken?: string;
+    expiresAt?: number;
   }
 }

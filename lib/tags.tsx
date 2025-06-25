@@ -1,0 +1,128 @@
+export type TagCategory = {
+  id: string;
+  name: string;
+  icon: string;
+  tags: string[];
+};
+
+export const PREDEFINED_TAGS: TagCategory[] = [
+  {
+    id: "personality",
+    name: "Personality",
+    icon: "🎭",
+    tags: [
+      "Creative",
+      "Analytical",
+      "Humorous",
+      "Direct",
+      "Patient",
+      "Curious",
+      "Methodical",
+      "Enthusiastic",
+      "Calm",
+      "Detail-oriented",
+    ],
+  },
+  {
+    id: "communication",
+    name: "Communication Style",
+    icon: "💬",
+    tags: [
+      "Conversational",
+      "Professional",
+      "Casual",
+      "Encouraging",
+      "Straightforward",
+      "Supportive",
+      "Inquisitive",
+      "Explanatory",
+      "Concise",
+      "Detailed",
+    ],
+  },
+  {
+    id: "interests",
+    name: "Interests & Hobbies",
+    icon: "🎯",
+    tags: [
+      "Technology",
+      "Science",
+      "Art & Design",
+      "Music",
+      "Sports",
+      "Reading",
+      "Gaming",
+      "Travel",
+      "Cooking",
+      "Photography",
+      "Fitness",
+      "Nature",
+    ],
+  },
+  {
+    id: "profession",
+    name: "Professional Areas",
+    icon: "💼",
+    tags: [
+      "Software Development",
+      "Data Science",
+      "Marketing",
+      "Education",
+      "Healthcare",
+      "Finance",
+      "Design",
+      "Engineering",
+      "Research",
+      "Management",
+      "Consulting",
+      "Writing",
+    ],
+  },
+  {
+    id: "learning",
+    name: "Learning Preferences",
+    icon: "📚",
+    tags: [
+      "Visual learner",
+      "Hands-on learner",
+      "Step-by-step guidance",
+      "Examples preferred",
+      "Theory first",
+      "Practice first",
+      "Quick explanations",
+      "Detailed explanations",
+      "Interactive learning",
+      "Self-paced",
+    ],
+  },
+  {
+    id: "goals",
+    name: "Goals & Objectives",
+    icon: "🎯",
+    tags: [
+      "Career advancement",
+      "Skill development",
+      "Problem solving",
+      "Creative projects",
+      "Learning new topics",
+      "Productivity improvement",
+      "Decision making",
+      "Research assistance",
+      "Writing help",
+      "Technical support",
+    ],
+  },
+];
+
+export const POPULAR_TAGS = [
+  "Creative",
+  "Analytical",
+  "Technology",
+  "Learning",
+  "Professional",
+  "Detailed explanations",
+  "Step-by-step guidance",
+  "Problem solving",
+  "Conversational",
+  "Supportive",
+];

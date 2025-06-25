@@ -1,68 +1,61 @@
-import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import React from "react";
 
-const spinnerVariants = cva(
-  "relative block opacity-[0.65]",
-  {
-    variants: {
-      size: {
-        sm: "w-4 h-4",
-        md: "w-6 h-6",
-        lg: "w-8 h-8",
-      },
-    },
-    defaultVariants: {
-      size: "sm",
-    },
-  }
-);
-
-export interface SpinnerProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
-  VariantProps<typeof spinnerVariants> {
-  loading?: boolean;
-  asChild?: boolean;
+export interface ISVGProps extends React.SVGProps<SVGSVGElement> {
+  size?: number;
+  className?: string;
 }
 
-const Spinner = React.forwardRef<HTMLSpanElement, SpinnerProps>(
-  ({ className, size, loading = true, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "span";
-
-    const [bgColorClass, filteredClassName] = React.useMemo(() => {
-      const bgClass = className?.match(/(?:dark:bg-|bg-)[a-zA-Z0-9-]+/g) || [];
-      const filteredClasses = className?.replace(/(?:dark:bg-|bg-)[a-zA-Z0-9-]+/g, '').trim();
-      return [bgClass, filteredClasses];
-    }, [className]);
-
-    if (!loading) return null;
-
-    return (
-      <Comp
-        className={cn(spinnerVariants({ size, className: filteredClassName }))}
-        ref={ref}
-        {...props}
-      >
-        {Array.from({ length: 8 }).map((_, i) => (
-          <span
-            key={i}
-            className="absolute top-0 left-1/2 w-[12.5%] h-full animate-spinner-leaf-fade"
-            style={{
-              transform: `rotate(${i * 45}deg)`,
-              animationDelay: `${-(7 - i) * 100}ms`,
-            }}
-          >
-            <span
-              className={cn("block w-full h-[30%] rounded-full", bgColorClass)}
-            ></span>
-          </span>
-        ))}
-      </Comp>
-    );
-  }
-);
-
-Spinner.displayName = "Spinner";
-
-export { Spinner, spinnerVariants };
+export const LoadingSpinner = ({
+  size = 24,
+  className,
+  ...props
+}: ISVGProps) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      className={cn(className)}
+      {...props}
+    >
+      <g stroke="currentColor" strokeWidth="1">
+        <circle
+          cx="12"
+          cy="12"
+          r="9.5"
+          fill="none"
+          strokeLinecap="round"
+          strokeWidth="3"
+        >
+          <animate
+            attributeName="stroke-dasharray"
+            calcMode="spline"
+            dur="1.5s"
+            keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1"
+            keyTimes="0;0.475;0.95;1"
+            repeatCount="indefinite"
+            values="0 150;42 150;42 150;42 150"
+          />
+          <animate
+            attributeName="stroke-dashoffset"
+            calcMode="spline"
+            dur="1.5s"
+            keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1"
+            keyTimes="0;0.475;0.95;1"
+            repeatCount="indefinite"
+            values="0;-16;-59;-59"
+          />
+        </circle>
+        <animateTransform
+          attributeName="transform"
+          dur="2s"
+          repeatCount="indefinite"
+          type="rotate"
+          values="0 12 12;360 12 12"
+        />
+      </g>
+    </svg>
+  );
+};

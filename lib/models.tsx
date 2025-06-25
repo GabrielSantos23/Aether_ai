@@ -520,8 +520,6 @@ export const getVendorColor = (vendor: string): string => {
       return getFullBgColor("from-indigo-500 to-blue-500");
     case "o-series":
       return getFullBgColor("from-orange-500 to-red-500");
-    case "qwen":
-      return getFullBgColor("from-red-500 to-pink-500");
     case "sarvam":
       return getFullBgColor("from-yellow-500 to-orange-500");
     case "openrouter":
