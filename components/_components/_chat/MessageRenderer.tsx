@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { models } from "@/lib/models";
 import { MarkdownContent } from "./markdown-content";
 import ToolCallDisplay from "./ToolCallDisplay";
-import { clientToolkits } from "@/lib/toolkits-registry";
+
 
 interface MessageRendererProps {
   content: string;

@@ -29,7 +29,6 @@ import {
   HardDrive,
 } from "lucide-react";
 import Link from "next/link";
-import ToolkitSelector from "../ToolkitSelector";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   getProviderColor,
@@ -44,6 +43,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useSession } from "next-auth/react";
 
 interface Attachment {
   name: string;
@@ -104,6 +104,7 @@ export default function AIInput({
   const [selectedToolkits, setSelectedToolkits] = useState<string[]>([]);
   const [groupBy, setGroupBy] = useState<"provider" | "vendor">("provider");
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isGoogleDriveEnabled, setIsGoogleDriveEnabled] = useState(false);
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: 40,
     maxHeight: 160,
@@ -113,6 +114,9 @@ export default function AIInput({
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
   const originalTextRef = useRef("");
+
+  // Add session for Google Drive connection check
+  const session = useSession();
 
   const apiKeys = useQuery(api.api_keys.getApiKeys) || [];
   const disabledModels = useQuery(api.api_keys.getDisabledModels) || [];
@@ -422,6 +426,18 @@ export default function AIInput({
       {} as Record<string, ModelInfo[]>
     );
 
+  // Fix Google Drive button handling
+  const handleGoogleDriveButtonClick = useCallback(() => {
+    // If Google Drive is not connected, redirect to settings
+
+    // If already connected, just toggle the toolkit without redirection
+    const newToolkits = selectedToolkits.includes("googleDrive")
+      ? selectedToolkits.filter((t) => t !== "googleDrive")
+      : [...selectedToolkits, "googleDrive"];
+
+    setSelectedToolkits(newToolkits);
+  }, [isGoogleDriveEnabled, selectedToolkits, setSelectedToolkits]);
+
   return (
     <div className="relative">
       <div
@@ -600,14 +616,6 @@ export default function AIInput({
                     )}
                   />
                 </button>
-
-                {/* Toolkit Selector */}
-                {isSignedIn && (
-                  <ToolkitSelector
-                    className="ml-1"
-                    onToolkitsChange={setSelectedToolkits}
-                  />
-                )}
 
                 <AnimatePresence>
                   {showModelSelect && (
@@ -949,6 +957,26 @@ export default function AIInput({
                   )}
                 >
                   <ImageIcon className="w-3.5 md:w-4 h-3.5 md:h-4" />
+                </button>
+              )}
+              {isSignedIn && (
+                <button
+                  type="button"
+                  onClick={handleGoogleDriveButtonClick}
+                  className={cn(
+                    "w-7 h-7 md:w-8 md:h-8 text-muted-foreground hover:text-foreground transition-all duration-200 rounded-md bg-muted/50 hover:bg-muted flex items-center justify-center",
+                    selectedToolkits.includes("googleDrive") &&
+                      isGoogleDriveEnabled &&
+                      "bg-primary/10 text-primary",
+                    !isGoogleDriveEnabled && "opacity-50"
+                  )}
+                  title={
+                    isGoogleDriveEnabled
+                      ? "Google Drive Tools"
+                      : "Connect Google Drive in Settings"
+                  }
+                >
+                  <HardDrive className="w-3.5 md:w-4 h-3.5 md:h-4" />
                 </button>
               )}
             </div>

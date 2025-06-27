@@ -4,7 +4,11 @@ import { LoginForm } from "./login-form";
 import { useEffect, useState } from "react";
 import { getProviders } from "next-auth/react";
 
-export default function ProviderList() {
+interface ProviderListProps {
+  customScopes?: Record<string, string>;
+}
+
+export default function ProviderList({ customScopes }: ProviderListProps) {
   const [providers, setProviders] = useState<any[]>([]);
 
   useEffect(() => {
@@ -23,5 +27,5 @@ export default function ProviderList() {
     loadProviders();
   }, []);
 
-  return <LoginForm providers={providers} />;
+  return <LoginForm providers={providers} customScopes={customScopes} />;
 }

@@ -16,9 +16,29 @@ export default defineSchema({
     image: v.string(),
     // This is the user's ID from Clerk, used as the token identifier
     tokenIdentifier: v.string(),
+    scopes: v.optional(v.string()),
+    accessToken: v.optional(v.string()), // IMPORTANT: Encrypt this in production
+    refreshToken: v.optional(v.string()), // IMPORTANT: Encrypt this in production
+    encryptedAccessToken: v.optional(v.string()), // For storing encrypted tokens
+    encryptedRefreshToken: v.optional(v.string()), // For storing encrypted tokens
   })
     .index("by_token", ["tokenIdentifier"])
     .index("by_email", ["email"]),
+
+  // Add this new table for linking accounts
+  accounts: defineTable({
+    userId: v.id("users"),
+    provider: v.string(),
+    providerAccountId: v.string(), // This is the unique Google User ID
+    // Other account fields
+    access_token: v.optional(v.string()),
+    refresh_token: v.optional(v.string()),
+    expires_at: v.optional(v.number()),
+    token_type: v.optional(v.string()),
+    scope: v.optional(v.string()),
+    id_token: v.optional(v.string()),
+    session_state: v.optional(v.string()),
+  }).index("by_provider_account", ["provider", "providerAccountId"]),
 
   userSettings: defineTable({
     userId: v.id("users"),
@@ -67,15 +87,6 @@ export default defineSchema({
     key: v.string(),
     is_default: v.optional(v.boolean()),
   }).index("by_user_and_service", ["userId", "service"]),
-
-  // Google Drive integration tokens
-  googleDriveTokens: defineTable({
-    userId: v.id("users"),
-    accessToken: v.string(),
-    refreshToken: v.string(),
-    expiresAt: v.number(),
-    scope: v.string(),
-  }).index("by_user", ["userId"]),
 
   chats: defineTable({
     userId: v.id("users"),

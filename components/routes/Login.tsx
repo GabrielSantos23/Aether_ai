@@ -9,11 +9,17 @@ import { useTheme } from "next-themes";
 import { Brain } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { useAuthContext } from "@/app/context/AuthContext";
+import { signIn as nextAuthSignIn } from "next-auth/react";
 
 const LoginPage = () => {
   const { theme, systemTheme } = useTheme();
   const [email, setEmail] = useState("");
-  const { signIn, loading } = useAuthContext();
+  const { loading } = useAuthContext();
+
+  // Define custom scopes - using minimal scopes for Google
+  const customScopes = {
+    google: "openid email profile",
+  };
 
   let effectiveTheme = theme;
   if (theme === "system") {
@@ -31,7 +37,7 @@ const LoginPage = () => {
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
-      await signIn({ email });
+      await nextAuthSignIn("email", { email });
     }
   };
 
@@ -103,7 +109,7 @@ const LoginPage = () => {
 
             {/* Wallet Options */}
             <div>
-              <ProviderList />
+              <ProviderList customScopes={customScopes} />
             </div>
           </form>
         </div>

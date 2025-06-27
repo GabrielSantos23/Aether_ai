@@ -47,3 +47,64 @@ npm run dev
 and open your app at http://localhost:3000
 
 See Convex docs at https://docs.convex.dev/home
+
+## Google Drive Integration
+
+The application integrates with Google Drive to allow users to search, view, and download their files directly from the application. This integration uses NextAuth.js for authentication and Convex for data storage.
+
+### Authentication Flow
+
+1. **Initial Authentication**: Users sign in with Google using minimal scopes (email, profile)
+2. **Permission Upgrade**: When accessing Google Drive features, users are prompted to grant additional permissions
+3. **Token Management**: OAuth tokens are securely stored in the Convex database
+4. **Automatic Updates**: The system automatically updates tokens when users re-authenticate with new permissions
+
+### Implementation Details
+
+#### Server-Side Token Management
+
+OAuth tokens are managed on the server side through NextAuth.js events:
+
+```javascript
+// auth.ts
+events: {
+  async signIn({ user, account }) {
+    // This event fires on any sign-in or re-authentication
+    // Updates the user's tokens and scopes in Convex
+  }
+}
+```
+
+#### Database Schema
+
+```javascript
+// convex/schema.ts
+users: defineTable({
+  // User fields
+  scopes: v.optional(v.string()),
+  accessToken: v.optional(v.string()),
+  refreshToken: v.optional(v.string()),
+});
+
+accounts: defineTable({
+  userId: v.id("users"),
+  provider: v.string(),
+  providerAccountId: v.string(),
+  // OAuth fields
+}).index("by_provider_account", ["provider", "providerAccountId"]);
+```
+
+#### Testing the Integration
+
+A test component is available at `/test/googledrive` that demonstrates:
+
+- Authentication with Google Drive
+- File search functionality
+- Content viewing for various file types
+- File download capabilities
+
+### Security Considerations
+
+- OAuth tokens should be encrypted before storage in production
+- The application uses the principle of least privilege, requesting only the scopes it needs
+- Refresh tokens are used to maintain access without requiring frequent re-authentication

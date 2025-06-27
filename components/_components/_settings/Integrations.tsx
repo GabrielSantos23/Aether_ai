@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Search,
   Github,
   Calendar,
   FileText,
   Database,
-  HardDrive,
-  Plus,
   Info,
   Loader2,
+  CheckCircle,
 } from "lucide-react";
 import {
   Tooltip,
@@ -17,12 +16,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { signIn, useSession } from "next-auth/react";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useGoogleDrive } from "@/app/hooks/useGoogleDrive";
 
-type ServiceKey = "github" | "calendar" | "notion" | "drive";
-type ServiceInfoKey = "webSearch" | "github" | "calendar" | "notion" | "drive";
+type ServiceKey = "github" | "calendar" | "notion";
+type ServiceInfoKey = "webSearch" | "github" | "calendar" | "notion";
 
 interface DataSourceItemProps {
   icon: React.ElementType;
@@ -34,16 +30,11 @@ interface DataSourceItemProps {
   isConnected?: boolean;
   infoKey: ServiceInfoKey;
   isLoading?: boolean;
+  scopes?: string[];
 }
 
 export default function Integrations() {
   const session = useSession();
-  const {
-    isConnected: isDriveConnected,
-    isConnecting: isDriveConnecting,
-    connect: connectGoogleDrive,
-    disconnect: disconnectGoogleDrive,
-  } = useGoogleDrive();
 
   const [connectedServices, setConnectedServices] = useState<
     Record<ServiceKey, boolean>
@@ -51,41 +42,13 @@ export default function Integrations() {
     github: false,
     calendar: false,
     notion: false,
-    drive: isDriveConnected,
   });
 
-  // Update connected services when Google Drive connection status changes
-  useEffect(() => {
+  const handleConnect = (service: ServiceKey) => {
     setConnectedServices((prev) => ({
       ...prev,
-      drive: isDriveConnected,
+      [service]: !prev[service],
     }));
-  }, [isDriveConnected]);
-
-  // Handle Google Drive connection
-  const handleGoogleDriveConnect = async () => {
-    if (connectedServices.drive) {
-      // Disconnect Google Drive
-      await disconnectGoogleDrive();
-      setConnectedServices((prev) => ({
-        ...prev,
-        drive: false,
-      }));
-    } else {
-      // Connect Google Drive - use NextAuth to authenticate with Google
-      signIn("google", { callbackUrl: window.location.href });
-    }
-  };
-
-  const handleConnect = (service: ServiceKey) => {
-    if (service === "drive") {
-      handleGoogleDriveConnect();
-    } else {
-      setConnectedServices((prev) => ({
-        ...prev,
-        [service]: !prev[service],
-      }));
-    }
   };
 
   const serviceInfo: Record<ServiceInfoKey, string[]> = {
@@ -112,12 +75,11 @@ export default function Integrations() {
       "Update existing content and properties",
       "Access notes, documentation, and knowledge bases",
     ],
-    drive: [
-      "Search and read files from your Google Drive",
-      "List files and folders in your Google Drive",
-      "Read the content of text files, documents, and spreadsheets",
-      "Find specific information within your Drive documents",
-    ],
+  };
+
+  // Helper function to format scope for display
+  const formatScope = (scope: string) => {
+    return scope.split("/").pop() || scope;
   };
 
   const DataSourceItem: React.FC<DataSourceItemProps> = ({
@@ -130,6 +92,7 @@ export default function Integrations() {
     isConnected,
     isLoading,
     infoKey,
+    scopes,
   }) => (
     <div className="flex items-center justify-between p-4 border border-border rounded-lg">
       <div className="flex items-start gap-3">
@@ -163,6 +126,26 @@ export default function Integrations() {
             </TooltipProvider>
           </div>
           <p className="text-sm text-muted-foreground">{description}</p>
+
+          {/* Show granted scopes if connected */}
+          {isConnected && scopes && scopes.length > 0 && (
+            <div className="mt-2">
+              <div className="flex items-center gap-1 text-xs text-green-400">
+                <CheckCircle className="w-3 h-3" />
+                <span>Granted permissions:</span>
+              </div>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {scopes.map((scope, idx) => (
+                  <span
+                    key={idx}
+                    className="text-xs bg-green-900/30 text-green-300 px-2 py-0.5 rounded"
+                  >
+                    {formatScope(scope)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <button
@@ -240,18 +223,6 @@ export default function Integrations() {
               onAction={() => handleConnect("calendar")}
               isConnected={connectedServices.calendar}
               infoKey="calendar"
-            />
-
-            <DataSourceItem
-              icon={HardDrive}
-              title="Google Drive"
-              description="Search and read files from your Google Drive"
-              buttonText={isDriveConnecting ? "Connecting..." : "Connect"}
-              buttonVariant={connectedServices.drive ? "success" : "outline"}
-              onAction={() => handleConnect("drive")}
-              isConnected={connectedServices.drive}
-              infoKey="drive"
-              isLoading={isDriveConnecting}
             />
           </div>
         </div>

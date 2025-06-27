@@ -353,7 +353,9 @@ export const sendMessage = action({
           chatMessages,
           modelId,
           assistantMessageId,
-          webSearch
+          webSearch,
+          false,
+          toolkits
         );
 
         return {

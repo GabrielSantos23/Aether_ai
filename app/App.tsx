@@ -8,6 +8,7 @@ import { LoadingSpinner } from "@/components/ui/spinner";
 import Chat from "@/components/routes/Chat";
 import SettingsPage from "@/components/routes/Settings";
 import Sidebar from "@/components/_components/_sidebar";
+import GoogleDriveTest from "./test/testgoogledrive";
 // import SharedChatPage from "@/components/routes/Shared";
 
 function AppRoutes() {
@@ -72,6 +73,16 @@ function AppRoutes() {
             element={
               isAuthenticated ? (
                 <SettingsPage />
+              ) : (
+                <Navigate to="/auth" replace />
+              )
+            }
+          />
+          <Route
+            path="/test"
+            element={
+              isAuthenticated ? (
+                <GoogleDriveTest />
               ) : (
                 <Navigate to="/auth" replace />
               )

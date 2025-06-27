@@ -13,11 +13,13 @@ interface LoginFormProps {
     name: string;
     id: string;
   }[];
+  customScopes?: Record<string, string>;
 }
 
 export function LoginForm({
   providers,
   className,
+  customScopes,
   ...props
 }: LoginFormProps & React.ComponentProps<"div">) {
   const searchParams = useSearchParams();
@@ -31,6 +33,7 @@ export function LoginForm({
             <AuthButtons
               providers={providers}
               redirect={redirect ?? undefined}
+              customScopes={customScopes}
             />
           ) : (
             <p className="text-center">Loading authentication providers...</p>
