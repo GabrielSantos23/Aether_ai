@@ -19,7 +19,7 @@ type Authenticator = AdapterAuthenticator & { userId: Id<"users"> };
 // 1. Simplest form, a plain object.
 export const ConvexAdapter: Adapter = {
   async createAuthenticator(authenticator: Authenticator) {
-    await callMutation(api.authAdapter.createAuthenticator, { authenticator });
+    await callMutation(api.authAdapter.createAuthenticator, { authenticator } as any);
     return authenticator;
   },
   async createSession(session: Session) {
@@ -52,11 +52,16 @@ export const ConvexAdapter: Adapter = {
       await callMutation(api.authAdapter.deleteUser, { id }),
     );
   },
-  async getAccount(providerAccountId, provider) {
-    return await callQuery(api.authAdapter.getAccount, {
+  async getAccount(providerAccountId: string, provider: string): Promise<AdapterAccount | null> {
+    const result = await callQuery(api.authAdapter.getAccount, {
       provider,
       providerAccountId,
     });
+    if (!result) return result;
+    if (result.token_type && typeof result.token_type === "string") {
+      result.token_type = result.token_type.toLowerCase() as Lowercase<string>;
+    }
+    return result as AdapterAccount;
   },
   async getAuthenticator(credentialID) {
     return await callQuery(api.authAdapter.getAuthenticator, { credentialID });
@@ -87,8 +92,14 @@ export const ConvexAdapter: Adapter = {
       await callQuery(api.authAdapter.getUserByEmail, { email }),
     );
   },
-  async linkAccount(account: Account) {
-    return await callMutation(api.authAdapter.linkAccount, { account });
+  async linkAccount(account: Account): Promise<AdapterAccount | null | undefined> {
+    const result = await callMutation(api.authAdapter.linkAccount, { account } as any);
+    if (!result) return result;
+    // Fix: ensure token_type is Lowercase<string> if present
+    if (result.token_type && typeof result.token_type === "string") {
+      result.token_type = result.token_type.toLowerCase() as Lowercase<string>;
+    }
+    return result as AdapterAccount;
   },
   async listAuthenticatorsByUserId(userId: Id<"users">) {
     return await callQuery(api.authAdapter.listAuthenticatorsByUserId, {
@@ -100,19 +111,25 @@ export const ConvexAdapter: Adapter = {
       (await callMutation(api.authAdapter.unlinkAccount, {
         provider,
         providerAccountId,
-      })) ?? undefined
+      }) as any) ?? undefined
     );
   },
   async updateAuthenticatorCounter(credentialID, newCounter) {
     return await callMutation(api.authAdapter.updateAuthenticatorCounter, {
       credentialID,
       newCounter,
-    });
+    } as any);
   },
-  async updateSession(session: Session) {
-    return await callMutation(api.authAdapter.updateSession, {
+  async updateSession(session: Session): Promise<AdapterSession | null | undefined> {
+    const result = await callMutation(api.authAdapter.updateSession, {
       session: toDB(session),
-    });
+    } as any);
+    if (!result) return result;
+    // Convert expires from number to Date if necessary
+    if (result.expires && typeof result.expires === "number") {
+      result.expires = new Date(result.expires) as unknown as number;
+    }
+    return result as unknown as AdapterSession;
   },
   async updateUser(user: User) {
     await callMutation(api.authAdapter.updateUser, { user: toDB(user) });

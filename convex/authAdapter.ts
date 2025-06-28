@@ -1,3 +1,5 @@
+// convex/authAdapter.ts
+
 import { partial } from "convex-helpers/validators";
 import {
   customMutation,
@@ -5,14 +7,61 @@ import {
 } from "convex-helpers/server/customFunctions";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import {
-  accountSchema,
-  authenticatorSchema,
-  sessionSchema,
-  userSchema,
-  verificationTokenSchema,
-} from "./schema";
+import { Id } from "./_generated/dataModel";
 
+// Schema definitions required by Auth.js adapter functions
+// These should match the structure of your tables in schema.ts
+
+const userSchema = {
+  email: v.string(),
+  name: v.optional(v.string()),
+  emailVerified: v.optional(v.number()),
+  image: v.optional(v.string()),
+};
+
+const accountSchema = {
+  userId: v.id("users"),
+  type: v.union(
+    v.literal("email"),
+    v.literal("oidc"),
+    v.literal("oauth"),
+    v.literal("webauthn")
+  ),
+  provider: v.string(),
+  providerAccountId: v.string(),
+  refresh_token: v.optional(v.string()),
+  access_token: v.optional(v.string()),
+  expires_at: v.optional(v.number()),
+  token_type: v.optional(v.string()),
+  scope: v.optional(v.string()),
+  id_token: v.optional(v.string()),
+  session_state: v.optional(v.string()),
+};
+
+const sessionSchema = {
+  userId: v.id("users"),
+  expires: v.number(),
+  sessionToken: v.string(),
+};
+
+const verificationTokenSchema = {
+  identifier: v.string(),
+  token: v.string(),
+  expires: v.number(),
+};
+
+const authenticatorSchema = {
+  credentialID: v.string(),
+  userId: v.id("users"),
+  providerAccountId: v.string(),
+  credentialPublicKey: v.string(),
+  counter: v.number(),
+  credentialDeviceType: v.string(),
+  credentialBackedUp: v.boolean(),
+  transports: v.optional(v.string()),
+};
+
+// Adapter logic
 const adapterQuery = customQuery(query, {
   args: { secret: v.string() },
   input: async (_ctx, { secret }) => {
@@ -32,7 +81,7 @@ const adapterMutation = customMutation(mutation, {
 function checkSecret(secret: string) {
   if (process.env.CONVEX_AUTH_ADAPTER_SECRET === undefined) {
     throw new Error(
-      "Missing CONVEX_AUTH_ADAPTER_SECRET Convex environment variable",
+      "Missing CONVEX_AUTH_ADAPTER_SECRET Convex environment variable"
     );
   }
   if (secret !== process.env.CONVEX_AUTH_ADAPTER_SECRET) {
@@ -57,6 +106,19 @@ export const createSession = adapterMutation({
 export const createUser = adapterMutation({
   args: { user: v.object(userSchema) },
   handler: async (ctx, { user }) => {
+    // Attempt to find an existing user by email to avoid creating duplicates
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", user.email))
+      .unique();
+
+    if (existingUser) {
+      // Update the existing user with any new profile data that might have changed
+      await ctx.db.patch(existingUser._id, user);
+      return await ctx.db.get(existingUser._id);
+    }
+
+    // Insert new user if none found
     return await ctx.db.insert("users", user);
   },
 });
@@ -115,7 +177,7 @@ export const getAccount = adapterQuery({
     return await ctx.db
       .query("accounts")
       .withIndex("providerAndAccountId", (q) =>
-        q.eq("provider", provider).eq("providerAccountId", providerAccountId),
+        q.eq("provider", provider).eq("providerAccountId", providerAccountId)
       )
       .unique();
   },
@@ -162,7 +224,7 @@ export const getUserByAccount = adapterQuery({
     const account = await ctx.db
       .query("accounts")
       .withIndex("providerAndAccountId", (q) =>
-        q.eq("provider", provider).eq("providerAccountId", providerAccountId),
+        q.eq("provider", provider).eq("providerAccountId", providerAccountId)
       )
       .unique();
     if (account === null) {
@@ -185,6 +247,22 @@ export const getUserByEmail = adapterQuery({
 export const linkAccount = adapterMutation({
   args: { account: v.object(accountSchema) },
   handler: async (ctx, { account }) => {
+    // Check if an account with the same provider and providerAccountId already exists.
+    const existing = await ctx.db
+      .query("accounts")
+      .withIndex("providerAndAccountId", (q) =>
+        q.eq("provider", account.provider).eq("providerAccountId", account.providerAccountId)
+      )
+      .unique();
+
+    if (existing) {
+      // Remove the outdated account row entirely and insert the new one.
+      // This avoids conflicts with unique indexes while ensuring we store
+      // the latest scope/access token set returned by the provider.
+      await ctx.db.delete(existing._id);
+    }
+
+    // Otherwise insert a new account row.
     const id = await ctx.db.insert("accounts", account);
     return await ctx.db.get(id);
   },
@@ -206,7 +284,7 @@ export const unlinkAccount = adapterMutation({
     const account = await ctx.db
       .query("accounts")
       .withIndex("providerAndAccountId", (q) =>
-        q.eq("provider", provider).eq("providerAccountId", providerAccountId),
+        q.eq("provider", provider).eq("providerAccountId", providerAccountId)
       )
       .unique();
     if (account === null) {
@@ -226,7 +304,7 @@ export const updateAuthenticatorCounter = adapterMutation({
       .unique();
     if (authenticator === null) {
       throw new Error(
-        `Authenticator not found for credentialID: ${credentialID}`,
+        `Authenticator not found for credentialID: ${credentialID}`
       );
     }
     await ctx.db.patch(authenticator._id, { counter: newCounter });
@@ -245,13 +323,14 @@ export const updateSession = adapterMutation({
     const existingSession = await ctx.db
       .query("sessions")
       .withIndex("sessionToken", (q) =>
-        q.eq("sessionToken", session.sessionToken),
+        q.eq("sessionToken", session.sessionToken)
       )
       .unique();
     if (existingSession === null) {
       return null;
     }
     await ctx.db.patch(existingSession._id, session);
+    return existingSession; // Return the original session as per Auth.js spec
   },
 });
 
@@ -265,9 +344,11 @@ export const updateUser = adapterMutation({
   handler: async (ctx, { user: { id, ...data } }) => {
     const user = await ctx.db.get(id);
     if (user === null) {
-      return;
+      return; // Or throw an error, depending on desired behavior
     }
     await ctx.db.patch(user._id, data);
+    const updatedUser = await ctx.db.get(user._id);
+    return updatedUser;
   },
 });
 
@@ -277,13 +358,15 @@ export const useVerificationToken = adapterMutation({
     const verificationToken = await ctx.db
       .query("verificationTokens")
       .withIndex("identifierToken", (q) =>
-        q.eq("identifier", identifier).eq("token", token),
+        q.eq("identifier", identifier).eq("token", token)
       )
       .unique();
     if (verificationToken === null) {
       return null;
     }
+    // Per Auth.js spec, the token should be deleted after use
     await ctx.db.delete(verificationToken._id);
+    // And the original token record (before deletion) should be returned
     return verificationToken;
   },
 });

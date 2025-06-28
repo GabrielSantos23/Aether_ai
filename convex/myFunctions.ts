@@ -1,89 +1,142 @@
 import { v } from "convex/values";
 import { query, mutation, action } from "./_generated/server";
 import { api } from "./_generated/api";
-import { getViewerId } from "./auth";
 
 // Write your Convex functions in any file inside this directory (`convex`).
 // See https://docs.convex.dev/functions for more.
 
-// You can read data from the database via a query:
-export const listNumbers = query({
-  // Validators for arguments.
+// Store or update user information in the database
+export const storeUser = mutation({
   args: {
-    count: v.number(),
+    tokenIdentifier: v.string(),
+    name: v.string(),
+    email: v.string(),
+    image: v.string(),
   },
-
-  // Query implementation.
   handler: async (ctx, args) => {
-    //// Read the database as many times as you need here.
-    //// See https://docs.convex.dev/database/reading-data.
-    const viewerId = await getViewerId(ctx);
-    if (viewerId === null) {
-      throw new Error("User is not authenticated");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
     }
 
-    const numbers = await ctx.db
-      .query("numbers")
-      // Ordered by _creationTime, return most recent
-      .order("desc")
-      .take(args.count);
-    return {
-      viewer: (await ctx.db.get(viewerId))!.email ?? "missing email",
-      numbers: numbers.toReversed().map((number) => number.value),
-    };
+    // First check if user already exists by tokenIdentifier
+    let existingUser = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", args.email))
+      .first();
+
+    // If not found by tokenIdentifier, try to find by email
+    if (!existingUser) {
+      existingUser = await ctx.db
+        .query("users")
+        .withIndex("email", (q) => q.eq("email", args.email))
+        .first();
+    }
+
+    if (existingUser) {
+      // Update existing user and ensure tokenIdentifier is updated
+      await ctx.db.patch(existingUser._id, {
+        name: args.name,
+        email: args.email,
+        image: args.image,
+        tokenIdentifier: args.tokenIdentifier,
+      });
+      return existingUser._id;
+    } else {
+      // Create new user
+      return await ctx.db.insert("users", {
+        name: args.name,
+        email: args.email,
+        image: args.image,
+        tokenIdentifier: args.tokenIdentifier,
+      });
+    }
   },
 });
 
-// You can write data to the database via a mutation:
-export const addNumber = mutation({
-  // Validators for arguments.
-  args: {
-    value: v.number(),
-  },
-
-  // Mutation implementation.
-  handler: async (ctx, args) => {
-    //// Insert or modify documents in the database here.
-    //// Mutations can also read from the database like queries.
-    //// See https://docs.convex.dev/database/writing-data.
-
-    const viewerId = await getViewerId(ctx);
-    if (viewerId === null) {
-      throw new Error("User is not authenticated");
+// Get the current user from the database
+export const getUser = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
     }
 
-    const id = await ctx.db.insert("numbers", { value: args.value });
+    // Get email from identity
+    const email = identity.email;
+    if (!email) {
+      return null;
+    }
 
-    console.log("Added new document with id:", id);
-    // Optionally, return a value from your mutation.
-    // return id;
+    // Look up user by email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", email))
+      .first();
+
+    return user;
   },
 });
 
-// You can fetch data from and send data to third-party APIs via an action:
-export const myAction = action({
-  // Validators for arguments.
-  args: {
-    first: v.number(),
-    second: v.string(),
+// List todos for the current user
+export const listTodos = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("User is not authenticated");
+    }
+
+    const email = identity.email || "";
+
+    // Get user from database
+    let user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", email))
+      .first();
+
+    // If not found by tokenIdentifier, try to find by email if we have one
+    if (!user && email) {
+      user = await ctx.db
+        .query("users")
+        .withIndex("email", (q) => q.eq("email", email))
+        .first();
+    }
+
+    if (!user) {
+      throw new Error("User not found");
+    }
   },
+});
 
-  // Action implementation.
+// Update a user's tokenIdentifier
+export const updateUserTokenIdentifier = mutation({
+  args: {
+    email: v.string(),
+    tokenIdentifier: v.string(),
+  },
   handler: async (ctx, args) => {
-    //// Use the browser-like `fetch` API to send HTTP requests.
-    //// See https://docs.convex.dev/functions/actions#calling-third-party-apis-and-using-npm-packages.
-    // const response = await ctx.fetch("https://api.thirdpartyservice.com");
-    // const data = await response.json();
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
 
-    //// Query data by running Convex queries.
-    const data = await ctx.runQuery(api.myFunctions.listNumbers, {
-      count: 10,
-    });
-    console.log(data);
+    // Find user by email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", args.email))
+      .first();
 
-    //// Write data by running Convex mutations.
-    await ctx.runMutation(api.myFunctions.addNumber, {
-      value: args.first,
-    });
+    if (user) {
+      // Update the tokenIdentifier
+      await ctx.db.patch(user._id, {
+        email: args.email,
+        tokenIdentifier: args.tokenIdentifier,
+      });
+      return user._id;
+    }
+
+    return null;
   },
 });
