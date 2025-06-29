@@ -10,9 +10,10 @@ import {
   SidebarMenuItem,
   SidebarFooter,
   SidebarTrigger,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { useNavigate, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import {
   X,
   Trash2,
@@ -45,6 +46,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Spinner } from "@/components/ui/spinner";
+import SidebarLogo from "@/components/sidebar-logo";
 
 export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
   const { id } = useParams();
@@ -68,6 +70,7 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
   const deleteChat = useMutation(api.chat.mutations.deleteChat);
   const renameChat = useMutation(api.chat.mutations.renameChat);
   const shareChat = useMutation(api.chat.mutations.shareChat);
+  
 
   // Fetch chats from Convex
   const chats = useQuery(api.chat.queries.listChats, {});
@@ -174,72 +177,116 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
 
   return (
     <>
-      <Sidebar variant={"inset"} {...props}>
-        <div className="flex flex-col h-full p-2">
-          <Header
-            isLoading={isLoading}
-            onDeleteAll={() => setDeleteDialogOpen(true)}
-          />
-          <SidebarContent className="no-scrollbar">
+      <Sidebar className="!bg-transparent" collapsible="offcanvas">
+        <SidebarHeader>
+          <SidebarMenu className="space-y-2">
+            <SidebarMenuItem>
+              <div className="flex items-center justify-center h-8 mt-2 flex-1 *:!text-wordmark-color">
+                <NavLink to="/">
+                  <SidebarLogo />
+                </NavLink>
+              </div>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <Button className="w-full p-0" variant="t3">
+                <NavLink
+                  to="/"
+                  className="w-full h-full grid place-items-center"
+                >
+                  New Chat
+                </NavLink>
+              </Button>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              {/* <SearchThreads isSidebar /> */}
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+
+        {/* Chat Threads List */}
+        <SidebarContent>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-4">
+              <Spinner className="size-4" />
+            </div>
+          ) : (
             <SidebarGroup>
               <SidebarGroupContent>
-                <SidebarMenu>
-                  {isLoading ? (
-                    <div className="flex justify-center items-center py-4">
-                      <Spinner />
-                    </div>
-                  ) : threads.length > 0 ? (
-                    threads.map((thread) => (
-                      <SidebarMenuItem key={thread.id}>
-                        <ChatItemContextMenu
-                          chatId={thread.id}
-                          chatTitle={thread.title}
-                          isSignedIn={!!user}
-                          onRename={handleRenameChat}
-                          onDelete={handleDeleteChat}
-                          onShare={handleShareChat}
+                {threads.length === 0 ? (
+                  <p className="text-sm text-muted-foreground px-4 py-2">
+                    No chats yet
+                  </p>
+                ) : (
+                  threads.map((thread) => (
+                    <ChatItemContextMenu
+                      key={thread.id}
+                      chatId={thread.id}
+                      chatTitle={thread.title}
+                      isSignedIn={!!user}
+                      onRename={handleRenameChat}
+                      onDelete={handleDeleteChat}
+                      onShare={handleShareChat}
+                    >
+                      <SidebarMenuItem>
+                        <NavLink
+                          to={`/chat/${thread.id}`}
+                          className={({ isActive }) =>
+                            cn(
+                              "flex w-full items-center gap-2 rounded-lg p-2.5 text-sm font-medium truncate transition-colors",
+                              isActive
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                : "hover:bg-sidebar-accent/50"
+                            )
+                          }
                         >
-                          <div
-                            className={cn(
-                              "cursor-pointer h-9 flex items-center px-2 py-1 rounded-[8px] overflow-hidden w-full hover:bg-secondary",
-                              id === thread.id && "bg-secondary"
-                            )}
-                            onClick={() => {
-                              if (id === thread.id) {
-                                return;
-                              }
-                              navigate(`/chat/${thread.id}`);
-                            }}
-                          >
-                            <span className="flex items-center overflow-hidden max-w-[90%]">
-                              <span
-                                className="block whitespace-nowrap overflow-hidden text-ellipsis"
-                                style={{ maxWidth: "100%" }}
-                                title={thread.title}
-                              >
-                                {thread.title}
-                              </span>
-                              {thread.isShared && (
-                                <span className="ml-1 text-xs text-blue-500 dark:text-blue-400 inline-flex items-center">
-                                  <Share2 className="w-4 h-4" />
-                                </span>
-                              )}
-                            </span>
-                          </div>
-                        </ChatItemContextMenu>
+                          <span className="truncate flex-1">{thread.title}</span>
+                          {thread.isShared && (
+                            <Share2 className="w-4 h-4 shrink-0 opacity-70" />
+                          )}
+                        </NavLink>
                       </SidebarMenuItem>
-                    ))
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      No chats yet
-                    </div>
-                  )}
-                </SidebarMenu>
+                    </ChatItemContextMenu>
+                  ))
+                )}
               </SidebarGroupContent>
             </SidebarGroup>
-          </SidebarContent>
-          <Footer />
-        </div>
+          )}
+        </SidebarContent>
+
+        <SidebarFooter>
+          <SidebarMenu>
+            {user ? (
+              <SidebarMenuItem>
+                <NavLink
+                  to="/settings/subscription"
+                  className="flex rounded-lg  p-2.5 mb-2 w-full hover:bg-sidebar-accent min-w-0 flex-row items-center gap-3"
+                >
+                  <img
+                    src={user?.image || ""}
+                    alt={user?.name || ""}
+                    className="h-8 w-8 bg-accent rounded-full ring-1 ring-muted-foreground/20"
+                  />
+                  <div className="flex min-w-0 flex-col text-foreground">
+                    <span className="truncate text-sm font-medium">
+                      {user?.name}
+                    </span>
+                    <span className="text-xs">Free</span>
+                  </div>
+                </NavLink  >
+              </SidebarMenuItem>
+            ) : (
+              <SidebarMenuItem className="p-1">
+                <NavLink
+                  to="/auth"
+                  className="flex rounded-lg p-2.5 py-4 mb-1 w-full hover:bg-sidebar-accent min-w-0 flex-row items-center gap-4 text-[16px]"
+                >
+                  <LogIn size={18} /> Login
+                </NavLink>
+              </SidebarMenuItem>
+            )}
+          </SidebarMenu>
+        </SidebarFooter>
+        <SidebarRail />
       </Sidebar>
 
       {/* Delete Chat Dialog */}

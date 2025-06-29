@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import {
   SidebarTrigger as OriginalSidebarTrigger,
   useSidebar,
-  useSidebarWithSide,
 } from "@/components/ui/sidebar";
 import { motion, AnimatePresence, LayoutGroup, easeInOut } from "framer-motion";
 import React, { useEffect, useState } from "react";
@@ -63,7 +62,7 @@ function SmallSidebarTrigger({
   [key: string]: any;
 }) {
   const contextSide = side || "left";
-  const { toggleSidebar } = useSidebarWithSide(contextSide);
+  const { toggleSidebar } = useSidebar();
 
   return (
     <Button
@@ -169,7 +168,7 @@ export function SidebarButtons() {
 
 export function SidebarButtonsRight({ threadId }: { threadId: string }) {
   const { open, isMobile, openMobile } = useSidebar();
-  const rightSidebar = useSidebarWithSide("right");
+  const rightSidebar = useSidebar();
   const isSidebarClosed = isMobile ? !openMobile : !open;
   const isRightSidebarOpen = rightSidebar.open;
   const [isPublic, setIsPublic] = useState(false);

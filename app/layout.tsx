@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "./ConvexClientProvider";
 import { auth } from "@/auth";
+import Provider from "./providers/providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,10 +21,13 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={inter.className + " overflow-hidden"}>
+        <Provider>
+
         <ConvexClientProvider session={session}>
           {children}
         </ConvexClientProvider>
+        </Provider>
       </body>
     </html>
   );

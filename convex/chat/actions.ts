@@ -451,3 +451,40 @@ export const generateTitle = action({
     }
   },
 });
+
+
+export const searchChats = query({
+  args: {
+    searchQuery: v.string(),
+  },
+  handler: async (ctx: QueryCtx, { searchQuery }) => {
+    // Ensure the user is authenticated before allowing them to search.
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      // If no user is authenticated, return an empty array.
+      return [];
+    }
+
+    // Retrieve all chats from the database.
+    // For a larger application, you might want to paginate this.
+    const allChats = await ctx.db.query("chats").collect();
+
+    // Filter the chats to only include those belonging to the current user.
+    const userChats = allChats.filter(
+      (chat) => chat.userId === identity.subject
+    );
+
+    // If the search query is empty, return all of the user's chats.
+    if (searchQuery.trim() === "") {
+      return userChats;
+    }
+
+    // Filter the user's chats based on the search query.
+    // This is a case-insensitive search.
+    const filteredChats = userChats.filter((chat) =>
+      chat.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return filteredChats;
+  },
+});

@@ -1,115 +1,109 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-// import LoginPage from "@/components/routes/Login";
-import { SessionProvider, useSession } from "next-auth/react";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  Outlet,
+} from "react-router-dom";
 import { useQuery } from "convex/react";
-import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import Test from "@/components/routes/test";
-import Sidebar from "@/components/_components/_sidebar";
-import { ThemeProvider } from "./providers/ThemeProvider";
-import { Toaster } from "sonner";
-import { Spinner } from "@/components/ui/spinner";
+
+// Components & Layouts
 import LoginPage from "@/components/routes/Login";
 import Chat from "@/components/routes/Chat";
-// import SettingsPage from "@/components/routes/Settings";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 
-// import Auth from "@/components/routes/Auth";
-// import Chat from "@/components/routes/Chat";
-// import SettingsPage from "@/components/routes/Settings";
-// import Sidebar from "@/components/_components/_sidebar";
-// import SharedChatPage from "@/components/routes/Shared";
+// UI Components
+import { Spinner } from "@/components/ui/spinner";
+import Test from "@/components/routes/test";
+import SidebarProvider from "@/components/_components/_sidebar";
+
+// Dummy components for illustration
+const SettingsPage = () => <div>Settings Page (to be implemented)</div>;
+const SharedChatPage = () => <div>Shared Chat Page (to be implemented)</div>;
+const NotFoundPage = () => <p>Not found</p>;
+const TestPage = () => <Test />;
+
+// ----------------------
+// Layouts
+// ----------------------
+
+// Wraps the SidebarProvider around an <Outlet /> so that nested routes are
+// rendered inside the provider (and thus, inside the sidebar layout).
+function SidebarLayout() {
+  return (
+    <SidebarProvider>
+      <Outlet />
+    </SidebarProvider>
+  );
+}
 
 function AppRoutes() {
-
+  // We still need the user here for the initial redirect from "/"
   const user = useQuery(api.myFunctions.getUser);
-  const storeUser = useMutation(api.myFunctions.storeUser);
-  const session = useSession();
-
-  console.log("NextAuth Session:", session);
-
 
   if (user === undefined) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <span><Spinner  /></span>
+        <Spinner />
       </div>
     );
   }
 
-  // Only redirect to /chat if there is a user, otherwise redirect to /auth
   return (
     <BrowserRouter>
-      <div className="flex flex-col h-full">
         <Routes>
+          {/* PUBLIC ROUTES
+            These routes are accessible to everyone.
+          */}
+          <Route
+            path="/auth"
+            element={!user ? <LoginPage /> : <Navigate to="/chat" replace />}
+          />
+          <Route path="/shared/:shareId" element={<SharedChatPage />} />
+
+          {/* PROTECTED ROUTES
+            This group of routes requires an authenticated user.
+            The <ProtectedRoute> component handles the auth check.
+          */}
+          <Route element={<ProtectedRoute />}>
+            {/* Routes with the main sidebar layout.
+              The <MainLayout> component renders the sidebar and an <Outlet />
+              for the nested routes below.
+            */}
+                  <Route element={<SidebarLayout />}>
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/chat/:id" element={<Chat />} />
+              </Route>
+
+            {/* You could also have protected routes *without* the sidebar here */}
+              <Route path="/settings" element={<SettingsPage />} />
+          </Route>
+
+          {/* ROOT & WILDCARD ROUTES
+          */}
           <Route
             path="/"
             element={
-              user
-                ? <Navigate to="/chat" replace />
-                : <Navigate to="/auth" replace />
-            }
-          />
-          {/* Route components will be implemented later */}
-          <Route
-            path="/shared/:shareId"
-            element={<div>Shared Chat Page (to be implemented)</div>}
-          />
-          <Route
-            path="/chat"
-            element={
               user ? (
-                <Sidebar>               
-                  <Chat />
-                </Sidebar>
+                <Navigate to="/chat" replace />
               ) : (
                 <Navigate to="/auth" replace />
               )
             }
           />
-          <Route
-            path="/chat/:id"
-            element={
-              user ? (
-                <Sidebar>
-                  <Chat />
-                </Sidebar>
-              ) : (
-                <Navigate to="/auth" replace />
-              )
-            }
-          />
-          <Route
-            path="/auth"
-            element={
-              !user ? <LoginPage /> : <Navigate to="/chat" replace />
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              user ? (
-                <div>Settings Page (to be implemented)</div>
-              ) : (
-                <Navigate to="/auth" replace />
-              )
-            }
-          />
-          <Route path="*" element={<p>Not found</p>} />
-          <Route path="/test" element={<Test />} />
+          <Route path="/test" element={<TestPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </div>
     </BrowserRouter>
   );
 }
 
 export default function Root() {
+
   return (
-    <ThemeProvider>
-        
-    <SessionProvider>
-    <Toaster richColors />
+    <>
       <AppRoutes />
-    </SessionProvider>
-    </ThemeProvider>
+    </>
   );
 }
