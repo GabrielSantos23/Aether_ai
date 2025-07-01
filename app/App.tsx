@@ -17,9 +17,10 @@ import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import { Spinner } from "@/components/ui/spinner";
 import Test from "@/components/routes/test";
 import SidebarProvider from "@/components/_components/_sidebar";
+import SettingsPage from "@/components/routes/Settings";
+import DebugGoogle from "@/components/routes/debug";
 
 // Dummy components for illustration
-const SettingsPage = () => <div>Settings Page (to be implemented)</div>;
 const SharedChatPage = () => <div>Shared Chat Page (to be implemented)</div>;
 const NotFoundPage = () => <p>Not found</p>;
 const TestPage = () => <Test />;
@@ -71,13 +72,14 @@ function AppRoutes() {
               The <MainLayout> component renders the sidebar and an <Outlet />
               for the nested routes below.
             */}
-                  <Route element={<SidebarLayout />}>
+            <Route element={<SidebarLayout />}>
               <Route path="/chat" element={<Chat />} />
               <Route path="/chat/:id" element={<Chat />} />
-              </Route>
+              <Route path="/debug/google" element={<DebugGoogle />} />
+            </Route>
+              <Route path="/settings" element={<SettingsPage />} />
 
             {/* You could also have protected routes *without* the sidebar here */}
-              <Route path="/settings" element={<SettingsPage />} />
           </Route>
 
           {/* ROOT & WILDCARD ROUTES

@@ -56,24 +56,24 @@ export const ChatItem = memo(function ChatItem({
             className={cn(
               'group px-3 py-2.5 cursor-pointer transition-all duration-150 ease-[0.25,1,0.5,1] relative overflow-hidden',
               isActive
-                ? 'text-rose-600 dark:text-rose-300'
-                : 'hover:text-rose-600 dark:hover:text-rose-300 text-black/70 dark:text-white/70',
+                ? 'text-primary'
+                : 'hover:text-primary text-foreground/70',
             )}
           >
-            {/* Premium background for active state */}
+            {/* Background for active state */}
             {isActive && (
               <>
                 {/* Main gradient background with sharp edges */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/8 dark:via-rose-300/8 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/8 to-transparent"></div>
 
                 {/* Top shadow lighting */}
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 dark:via-rose-300/30 to-transparent"></div>
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
 
                 {/* Bottom shadow lighting */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 dark:via-rose-300/30 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
 
-                {/* Premium inner glow */}
-                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 bg-gradient-to-r from-transparent via-rose-500/5 dark:via-rose-300/5 to-transparent blur-sm"></div>
+                {/* Inner glow */}
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 bg-gradient-to-r from-transparent via-primary/5 to-transparent blur-sm"></div>
               </>
             )}
 
@@ -81,16 +81,16 @@ export const ChatItem = memo(function ChatItem({
             {!isActive && (
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 ease-[0.25,1,0.5,1]">
                 {/* Main gradient background with sharp edges */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/8 dark:via-rose-300/8 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/8 to-transparent"></div>
 
                 {/* Top shadow lighting */}
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 dark:via-rose-300/30 to-transparent"></div>
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
 
                 {/* Bottom shadow lighting */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 dark:via-rose-300/30 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
 
-                {/* Premium inner glow */}
-                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 bg-gradient-to-r from-transparent via-rose-500/5 dark:via-rose-300/5 to-transparent blur-sm"></div>
+                {/* Inner glow */}
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 bg-gradient-to-r from-transparent via-primary/5 to-transparent blur-sm"></div>
               </div>
             )}
 
@@ -116,7 +116,7 @@ export const ChatItem = memo(function ChatItem({
                           onClick={(e) => {
                             e.stopPropagation()
                           }}
-                          className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1 -m-1 text-black/40 dark:text-white/40 hover:text-rose-500 dark:hover:text-rose-400  hover:cursor-pointer transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110 outline-none focus:outline-none"
+                          className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1 -m-1 text-muted-foreground hover:text-primary hover:cursor-pointer transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110 outline-none focus:outline-none"
                         >
                           <MoreVertical className="w-4 h-4" />
                         </button>
@@ -130,9 +130,9 @@ export const ChatItem = memo(function ChatItem({
                     align="start"
                     className={cn(
                       // Glass morphism background
-                      'bg-white/90 dark:bg-[oklch(0.15_0.015_25)]/90 backdrop-blur-2xl',
+                      'bg-background/90 backdrop-blur-2xl',
                       // Border and shadow
-                      'border border-rose-500/20 dark:border-rose-300/20 shadow-2xl shadow-rose-500/10 dark:shadow-black/50',
+                      'border border-border shadow-2xl shadow-primary/10',
                       // Rounded corners
                       'rounded-2xl',
                       // Padding and sizing
@@ -141,8 +141,8 @@ export const ChatItem = memo(function ChatItem({
                       'relative overflow-hidden',
                     )}
                   >
-                    {/* Premium gradient overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 via-transparent to-rose-500/10 dark:from-rose-500/10 dark:via-transparent dark:to-rose-500/15 pointer-events-none rounded-2xl" />
+                    {/* Gradient overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none rounded-2xl" />
                     <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/10 dark:to-white/5 pointer-events-none rounded-2xl" />
 
                     <div className="relative z-10 space-y-1">
@@ -153,10 +153,10 @@ export const ChatItem = memo(function ChatItem({
                           setDropdownOpen(false)
                         }}
                         className={cn(
-                          'text-black/80 dark:text-white/80 hover:text-rose-600 dark:hover:text-rose-300',
-                          'hover:bg-rose-500/10 dark:hover:bg-rose-300/10',
-                          'focus:bg-rose-500/10 dark:focus:bg-rose-300/10',
-                          'focus:text-rose-600 dark:focus:text-rose-300',
+                          'text-foreground/80 hover:text-primary',
+                          'hover:bg-primary/10',
+                          'focus:bg-primary/10',
+                          'focus:text-primary',
                           'transition-all duration-150 cursor-pointer',
                           'px-3 py-2.5 text-sm font-medium flex items-center gap-3',
                           'rounded-xl outline-none ring-0 border-0',
@@ -176,10 +176,10 @@ export const ChatItem = memo(function ChatItem({
                             setDropdownOpen(false)
                           }}
                           className={cn(
-                            'text-black/80 dark:text-white/80 hover:text-rose-600 dark:hover:text-rose-300',
-                            'hover:bg-rose-500/10 dark:hover:bg-rose-300/10',
-                            'focus:bg-rose-500/10 dark:focus:bg-rose-300/10',
-                            'focus:text-rose-600 dark:focus:text-rose-300',
+                            'text-foreground/80 hover:text-primary',
+                            'hover:bg-primary/10',
+                            'focus:bg-primary/10',
+                            'focus:text-primary',
                             'transition-all duration-150 cursor-pointer',
                             'px-3 py-2.5 text-sm font-medium flex items-center gap-3',
                             'rounded-xl outline-none ring-0 border-0',
@@ -192,7 +192,7 @@ export const ChatItem = memo(function ChatItem({
                         </DropdownMenuItem>
                       )}
 
-                      <DropdownMenuSeparator className="my-2 mx-2 h-px bg-gradient-to-r from-transparent via-rose-500/20 dark:via-rose-300/20 to-transparent border-0" />
+                      <DropdownMenuSeparator className="my-2 mx-2 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent border-0" />
 
                       <DropdownMenuItem
                         onClick={(e) => {
@@ -201,10 +201,10 @@ export const ChatItem = memo(function ChatItem({
                           setDropdownOpen(false)
                         }}
                         className={cn(
-                          'text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300',
-                          'hover:bg-red-500/10 dark:hover:bg-red-400/10',
-                          'focus:bg-red-500/10 dark:focus:bg-red-400/10',
-                          'focus:text-red-600 dark:focus:text-red-300',
+                          'text-destructive hover:text-destructive',
+                          'hover:bg-destructive/10',
+                          'focus:bg-destructive/10',
+                          'focus:text-destructive',
                           'transition-all duration-150 cursor-pointer',
                           'px-3 py-2.5 text-sm font-medium flex items-center gap-3',
                           'rounded-xl outline-none ring-0 border-0',
@@ -217,8 +217,8 @@ export const ChatItem = memo(function ChatItem({
                       </DropdownMenuItem>
                     </div>
 
-                    {/* Premium glow effect */}
-                    <div className="absolute inset-0 -z-10 bg-gradient-to-r from-rose-300/0 via-rose-300/15 to-rose-300/0 rounded-2xl blur-2xl opacity-0 dark:opacity-30 pointer-events-none" />
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary/0 via-primary/15 to-primary/0 rounded-2xl blur-2xl opacity-0 dark:opacity-30 pointer-events-none" />
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -229,9 +229,9 @@ export const ChatItem = memo(function ChatItem({
         <ContextMenuContent
           className={cn(
             // Glass morphism background
-            'bg-white/90 dark:bg-[oklch(0.15_0.015_25)]/90 backdrop-blur-2xl',
+            'bg-background/90 backdrop-blur-2xl',
             // Border and shadow
-            'border border-rose-500/20 dark:border-rose-300/20 shadow-2xl shadow-rose-500/10 dark:shadow-black/50',
+            'border border-border shadow-2xl shadow-primary/10',
             // Rounded corners
             'rounded-2xl',
             // Padding and sizing
@@ -246,18 +246,18 @@ export const ChatItem = memo(function ChatItem({
             'relative overflow-hidden',
           )}
         >
-          {/* Premium gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 via-transparent to-rose-500/10 dark:from-rose-500/10 dark:via-transparent dark:to-rose-500/15 pointer-events-none rounded-2xl" />
+          {/* Gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none rounded-2xl" />
           <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/10 dark:to-white/5 pointer-events-none rounded-2xl" />
 
           <div className="relative z-10 space-y-1">
             <ContextMenuItem
               onClick={() => onRename(chat.id, chat.title)}
               className={cn(
-                'text-black/80 dark:text-white/80 hover:text-rose-600 dark:hover:text-rose-300',
-                'hover:bg-rose-500/10 dark:hover:bg-rose-300/10',
-                'focus:bg-rose-500/10 dark:focus:bg-rose-300/10',
-                'focus:text-rose-600 dark:focus:text-rose-300',
+                'text-foreground/80 hover:text-primary',
+                'hover:bg-primary/10',
+                'focus:bg-primary/10',
+                'focus:text-primary',
                 'transition-all duration-150 cursor-pointer',
                 'px-3 py-2.5 text-sm font-medium flex items-center gap-3',
                 'rounded-xl outline-none ring-0 border-0',
@@ -273,10 +273,10 @@ export const ChatItem = memo(function ChatItem({
               <ContextMenuItem
                 onClick={() => onShare(chat.id)}
                 className={cn(
-                  'text-black/80 dark:text-white/80 hover:text-rose-600 dark:hover:text-rose-300',
-                  'hover:bg-rose-500/10 dark:hover:bg-rose-300/10',
-                  'focus:bg-rose-500/10 dark:focus:bg-rose-300/10',
-                  'focus:text-rose-600 dark:focus:text-rose-300',
+                  'text-foreground/80 hover:text-primary',
+                  'hover:bg-primary/10',
+                  'focus:bg-primary/10',
+                  'focus:text-primary',
                   'transition-all duration-150 cursor-pointer',
                   'px-3 py-2.5 text-sm font-medium flex items-center gap-3',
                   'rounded-xl outline-none ring-0 border-0',
@@ -289,15 +289,15 @@ export const ChatItem = memo(function ChatItem({
               </ContextMenuItem>
             )}
 
-            <ContextMenuSeparator className="my-2 mx-2 h-px bg-gradient-to-r from-transparent via-rose-500/20 dark:via-rose-300/20 to-transparent border-0" />
+            <ContextMenuSeparator className="my-2 mx-2 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent border-0" />
 
             <ContextMenuItem
               onClick={() => onDelete(chat.id)}
               className={cn(
-                'text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300',
-                'hover:bg-red-500/10 dark:hover:bg-red-400/10',
-                'focus:bg-red-500/10 dark:focus:bg-red-400/10',
-                'focus:text-red-600 dark:focus:text-red-300',
+                'text-destructive hover:text-destructive',
+                'hover:bg-destructive/10',
+                'focus:bg-destructive/10',
+                'focus:text-destructive',
                 'transition-all duration-150 cursor-pointer',
                 'px-3 py-2.5 text-sm font-medium flex items-center gap-3',
                 'rounded-xl outline-none ring-0 border-0',
@@ -310,8 +310,8 @@ export const ChatItem = memo(function ChatItem({
             </ContextMenuItem>
           </div>
 
-          {/* Premium glow effect */}
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-rose-300/0 via-rose-300/15 to-rose-300/0 rounded-2xl blur-2xl opacity-0 dark:opacity-30 pointer-events-none" />
+          {/* Glow effect */}
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary/0 via-primary/15 to-primary/0 rounded-2xl blur-2xl opacity-0 dark:opacity-30 pointer-events-none" />
         </ContextMenuContent>
       </ContextMenu>
     </>

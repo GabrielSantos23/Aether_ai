@@ -3,7 +3,6 @@
 import { AuthProviderIcon } from "@/components/icons/provider-icon";
 import { Button } from "@/components/ui/button";
 import { signIn as nextAuthSignIn } from "next-auth/react";
-import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 

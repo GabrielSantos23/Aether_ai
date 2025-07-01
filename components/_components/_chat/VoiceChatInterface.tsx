@@ -13,7 +13,6 @@ import {
   Pause,
   Play,
   MessageSquare,
-  Loader2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -21,6 +20,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useVoiceChat } from '@/app/hooks/useVoiceChat'
+import { Spinner } from '@/components/ui/spinner'
 
 interface VoiceChatInterfaceProps {
   isOpen: boolean
@@ -260,7 +260,7 @@ export function VoiceChatInterface({
                       }}
                     >
                       {isProcessing ? (
-                        <Loader2 className="w-12 h-12 text-white animate-spin" />
+                        <Spinner className="w-12 h-12 text-white " />
                       ) : (
                         <Mic className="w-12 h-12 text-white" />
                       )}

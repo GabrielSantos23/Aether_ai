@@ -656,3 +656,24 @@ export const branchChat = mutation({
     return newChatId;
   },
 });
+
+export const pinChat = mutation({
+  args: {
+    chatId: v.id("chats"),
+  },
+  handler: async (ctx, { chatId }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Authentication required");
+    }
+
+    const userId = await getOrCreateUserId(ctx, identity.tokenIdentifier);
+
+    const chat = await ctx.db.get(chatId);
+    if (!chat || chat.userId !== userId) {
+      throw new Error("Chat not found or access denied");
+    }
+
+    await ctx.db.patch(chatId, { isPinned: !chat.isPinned });
+  },
+});

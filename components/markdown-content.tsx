@@ -55,7 +55,7 @@ const CodeBlock = memo(({ inline, className, children, theme = 'dark', ...props 
           </span>
           <button
             onClick={handleCopy}
-            className="opacity-0 group-hover:opacity-100 text-xs text-black/50 dark:text-white/50 hover:text-rose-500 dark:hover:text-rose-300 transition-all duration-200 px-2 py-1 rounded"
+            className="opacity-0 group-hover:opacity-100 text-xs  hover:text-foreground/50  transition-all duration-200 px-2 py-1 rounded"
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>

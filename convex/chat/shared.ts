@@ -12,7 +12,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createGroq } from "@ai-sdk/groq";
 import { z } from "zod";
-import { basePersonality } from "../../components/prompts/base";
+import { basePersonality, getBasePersonality } from "../../components/prompts/base";
 import { models } from "../../lib/models";
 import { generateImage } from "./node";
 
@@ -202,7 +202,7 @@ export const generateAIResponse = async (
 
     // Fetch user settings
     const userSettings = await ctx.runQuery(api.users.getMySettings);
-    let personalizedSystemPrompt = basePersonality;
+    let personalizedSystemPrompt = getBasePersonality();
 
     if (userSettings) {
       let personalization = "### User Personalization\n";
@@ -220,7 +220,7 @@ export const generateAIResponse = async (
       if (userSettings.promptTemplate) {
         personalizedSystemPrompt = `${userSettings.promptTemplate}\n\n${personalization}`;
       } else {
-        personalizedSystemPrompt = `${basePersonality}\n\n${personalization}`;
+        personalizedSystemPrompt = `${getBasePersonality()}\n\n${personalization}`;
       }
     }
 
@@ -229,6 +229,116 @@ export const generateAIResponse = async (
 
     // Prepare tools
     const tools: any = {};
+
+    // Add weather tool - always available
+    tools.getWeather = tool({
+      description:
+        "Get the current weather at a location specified by latitude and longitude. Use this when the user asks about weather conditions. For user's current location, set useCurrentLocation to true.",
+      parameters: z.object({
+        // Use a single object structure with optional fields to maintain compatibility
+        latitude: z.number().optional().describe("The latitude coordinate of the location (not needed if useCurrentLocation is true)"),
+        longitude: z.number().optional().describe("The longitude coordinate of the location (not needed if useCurrentLocation is true)"),
+        useCurrentLocation: z.boolean().optional().describe("Set to true to use the user's current location instead of providing coordinates")
+      }),
+      execute: async (args) => {
+        try {
+          // Handle current location request
+          if (args.useCurrentLocation) {
+            return {
+              needsLocation: true,
+              message: 'Requesting user location permission...'
+            };
+          }
+          
+          // Use provided coordinates
+          const { latitude, longitude } = args;
+          
+          if (latitude === undefined || longitude === undefined) {
+            throw new Error("Latitude and longitude are required when not using current location");
+          }
+          
+          const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`,
+          );
+
+          if (!response.ok) {
+            throw new Error(`Weather API error: ${response.status}`);
+          }
+
+          const weatherData = await response.json();
+          return weatherData;
+        } catch (error) {
+          console.error("Weather API error:", error);
+          return {
+            error: 'Failed to fetch weather data',
+            message: error instanceof Error ? error.message : 'Unknown error'
+          };
+        }
+      },
+    });
+
+    // Add Google Drive tools if the model supports it
+    if (model.features && model.features.includes("googledrive")) {
+      // Add Google Drive search tool
+      tools.searchGoogleDrive = tool({
+        description: 'Search for files in Google Drive with optional query terms.',
+        parameters: z.object({
+          query: z.string().optional().describe("Search query to find specific files (optional)"),
+          limit: z.number().optional().describe("Maximum number of files to return (default: 10)")
+        }),
+        execute: async (args) => {
+          try {
+            // Perform the search using the Convex action so that the AI can immediately
+            // receive and reason over the real results instead of a placeholder.
+            const files = await ctx.runAction(api.files.listGoogleDriveFiles, {
+              query: args.query || '',
+              limit: args.limit || 10,
+            });
+
+            return {
+              type: 'search',
+              query: args.query || '',
+              limit: args.limit || 10,
+              results: files,
+            };
+          } catch (error) {
+            console.error('Google Drive search error:', error);
+            return {
+              error: 'Failed to search Google Drive',
+              message: error instanceof Error ? error.message : 'Unknown error'
+            };
+          }
+        },
+      });
+
+      // Add Google Drive file read tool
+      tools.readGoogleDriveFile = tool({
+        description: 'Read the contents of a file from Google Drive by file ID.',
+        parameters: z.object({
+          fileId: z.string().describe("The Google Drive file ID to read"),
+        }),
+        execute: async (args) => {
+          try {
+            // Fetch the file content via Convex action so the AI can use it immediately.
+            const content = await ctx.runAction(api.files.readGoogleDriveFile, {
+              fileId: args.fileId,
+            });
+
+            return {
+              type: 'read',
+              fileId: args.fileId,
+              ...content,
+            };
+          } catch (error) {
+            console.error('Google Drive read error:', error);
+            return {
+              error: 'Failed to read Google Drive file',
+              message: error instanceof Error ? error.message : 'Unknown error'
+            };
+          }
+        },
+      });
+    }
 
     if (webSearch) {
       tools.search = tool({

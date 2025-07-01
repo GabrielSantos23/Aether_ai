@@ -34,10 +34,10 @@ export function SignIn() {
 
         // Skip sign-in screen if the user is already signed in
         if ((await auth()) !== null) {
-          redirect("/loggedin");
+          redirect("/chat");
         }
 
-        await signIn(undefined, { redirectTo: "/loggedin" });
+        await signIn(undefined, { redirectTo: "/chat" });
       }}
     >
       <Button type="submit">Sign in</Button>

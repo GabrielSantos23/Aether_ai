@@ -123,7 +123,7 @@ export const Sidebar = memo(function Sidebar({
           </div>
           <Link href="/">
             <h1 className="text-xl font-bold bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 dark:from-rose-300 dark:via-rose-200 dark:to-rose-300 bg-clip-text text-transparent tracking-tight leading-none">
-              T2Chat
+              Aether
             </h1>
           </Link>
         </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { Check, Lightbulb, Globe, Eye, Image, Paperclip, FileText, RotateCcw } from 'lucide-react'
+import { Check, Lightbulb, Globe, Eye, Image, Paperclip, FileText, RotateCcw, Cloud, File } from 'lucide-react'
 import { models, ModelInfo } from '@/lib/models'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -114,22 +114,22 @@ export function ModelDropdown({
           exit={{ opacity: 0, y: showAbove ? 8 : -8, scale: 0.95 }}
           transition={{ duration: 0.15, ease: [0.25, 1, 0.5, 1] }}
           className={cn(
-            'absolute left-0 bg-white dark:bg-[oklch(0.18_0.015_25)] rounded-lg border border-rose-200/50 dark:border-rose-500/20 shadow-2xl overflow-hidden w-[320px]',
+            'absolute left-0 bg-background rounded-lg border border-border shadow-2xl overflow-hidden w-[320px]',
             showAbove ? 'bottom-full mb-1' : 'top-full mt-1',
           )}
         >
           <div
             className="max-h-[300px] overflow-y-auto p-2"
-            style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgb(244 63 94 / 0.3) transparent' }}
+            style={{ scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--primary)) transparent' }}
           >
             {/* Retry with same model option at top */}
             <button
               onClick={() => handleModelSelect(selectedModel.id)}
-              className="group w-full p-2 cursor-pointer transition-all duration-150 ease-[0.25,1,0.5,1] relative overflow-hidden text-left rounded-md flex items-center justify-between border-b border-rose-200/30 dark:border-rose-500/20 mb-2"
+              className="group w-full p-2 cursor-pointer transition-all duration-150 ease-[0.25,1,0.5,1] relative overflow-hidden text-left rounded-md flex items-center justify-between border-b border-border mb-2"
             >
               <div className="flex items-center gap-2 min-w-0 flex-1 relative z-10">
-                <RotateCcw className="w-4 h-4 text-rose-500 dark:text-rose-300" />
-                <span className="text-sm font-medium text-rose-600 dark:text-rose-300">
+                <RotateCcw className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-primary">
                   Retry with {selectedModel.name}
                 </span>
               </div>
@@ -142,14 +142,14 @@ export function ModelDropdown({
                 className={cn(
                   'group w-full p-1.5 cursor-pointer transition-all duration-150 ease-[0.25,1,0.5,1] relative overflow-hidden text-left rounded-md flex items-center justify-between',
                   selectedModel.id === model.id
-                    ? 'text-rose-600 dark:text-rose-300'
-                    : 'hover:text-rose-600 dark:hover:text-rose-300 text-black/70 dark:text-white/70',
+                    ? 'text-primary'
+                    : 'hover:text-primary text-foreground/70',
                 )}
               >
                 {selectedModel.id === model.id && (
                   <motion.div
                     layoutId="model-highlight"
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 dark:via-rose-300/10 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent"
                   />
                 )}
                 <div className="flex items-center gap-2 min-w-0 flex-1 relative z-10">
@@ -162,11 +162,11 @@ export function ModelDropdown({
                   <span className="text-sm truncate">{model.name}</span>
                 </div>
                 <div className="relative z-10 flex items-center gap-1">
-                  {/* Feature icons - ordered: web, vision, imagegen */}
+                  {/* Feature icons - ordered: web, vision, imagegen, weather */}
                   {model.features.includes('web') && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                        <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <Globe className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
@@ -176,7 +176,7 @@ export function ModelDropdown({
                   {model.features.includes('vision') && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                        <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <Eye className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
@@ -186,11 +186,31 @@ export function ModelDropdown({
                   {model.features.includes('imagegen') && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                        <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <Image className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
                       <TooltipContent side="top">Image generation enabled</TooltipContent>
+                    </Tooltip>
+                  )}
+                  {model.features.includes('weather') && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
+                          <Cloud className="w-3.5 h-3.5" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">Weather capabilities</TooltipContent>
+                    </Tooltip>
+                  )}
+                  {model.features.includes('googledrive') && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
+                          <File className="w-3.5 h-3.5" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">Google Drive access</TooltipContent>
                     </Tooltip>
                   )}
 
@@ -198,7 +218,7 @@ export function ModelDropdown({
                   {model.attachmentsSuppport?.image && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                        <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <Paperclip className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
@@ -208,7 +228,7 @@ export function ModelDropdown({
                   {model.attachmentsSuppport?.pdf && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                        <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <FileText className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
@@ -220,11 +240,11 @@ export function ModelDropdown({
                   {model.supportsThinking && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                        <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <Lightbulb
                             className={cn(
                               'w-3.5 h-3.5',
-                              selectedModel.id === model.id ? 'text-rose-500' : 'text-rose-400/60 dark:text-rose-500/60',
+                              selectedModel.id === model.id ? 'text-primary' : 'text-primary/60',
                             )}
                           />
                         </span>
@@ -233,7 +253,7 @@ export function ModelDropdown({
                     </Tooltip>
                   )}
                   {selectedModel.id === model.id && (
-                    <Check className="w-3.5 h-3.5 text-rose-500 dark:text-rose-300 flex-shrink-0" />
+                    <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                   )}
                 </div>
               </button>

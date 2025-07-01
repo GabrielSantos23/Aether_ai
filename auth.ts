@@ -63,9 +63,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       authorization: {
         params: {
           prompt: "consent", // Important for re-asking for permissions
-          access_type: "offline",
+          access_type: "offline", // This is crucial for getting refresh tokens
           response_type: "code",
-           // Define the initial, basic scopes for login
+          // Define the initial, basic scopes for login
           scope: "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
         },
       },

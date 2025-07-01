@@ -13,6 +13,7 @@ interface MessageListProps {
   speakingMessageId: string | null
   selectedModel: ModelInfo
   isStreaming: boolean
+  isBranching?: boolean
   editInputRef: React.RefObject<HTMLTextAreaElement | null>
   scrollAreaRef: React.RefObject<HTMLDivElement | null>
   messagesEndRef: React.RefObject<HTMLDivElement | null>
@@ -40,6 +41,7 @@ export function MessageList({
   speakingMessageId,
   selectedModel,
   isStreaming,
+  isBranching,
   editInputRef,
   scrollAreaRef,
   messagesEndRef,
@@ -92,11 +94,11 @@ export function MessageList({
           messages[messages.length - 1]?.role === 'assistant' &&
           !messages[messages.length - 1]?.content && (
             <div className="flex justify-start">
-              <div className="text-black dark:text-white px-4 py-3">
+              <div className="text-foreground px-4 py-3">
                 <div className="flex gap-1.5 items-center">
-                  <div className="w-2 h-2 bg-rose-500/60 dark:bg-rose-300/60 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-rose-500/60 dark:bg-rose-300/60 rounded-full animate-bounce delay-100"></div>
-                  <div className="w-2 h-2 bg-rose-500/60 dark:bg-rose-300/60 rounded-full animate-bounce delay-200"></div>
+                  <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce delay-100"></div>
+                  <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce delay-200"></div>
                 </div>
               </div>
             </div>

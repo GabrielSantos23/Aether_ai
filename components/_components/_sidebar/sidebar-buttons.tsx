@@ -131,7 +131,7 @@ export function SidebarButtons() {
         isSidebarClosed ? "bg-card rounded-md border" : ""
       }`}
     >
-      <SmallSidebarTrigger className=" " />
+      {/* <SmallSidebarTrigger className=" " /> */}
       <AnimatePresence>
         {isSidebarClosed && (
           <motion.div

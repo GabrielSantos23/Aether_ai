@@ -91,6 +91,7 @@ export default defineSchema({
     isShared: v.optional(v.boolean()),
     isGeneratingTitle: v.optional(v.boolean()),
     isBranch: v.optional(v.boolean()),
+    isPinned: v.optional(v.boolean()),
   })
     .index("by_user", ["userId"])
     .index("by_share_id", ["shareId"]),

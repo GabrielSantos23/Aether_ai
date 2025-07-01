@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist, Inter } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "./ConvexClientProvider";
 import { auth } from "@/auth";
 import Provider from "./providers/providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "My App Title",
@@ -21,7 +21,32 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className + " overflow-hidden"}>
+      <head>
+        {/* Script to apply boring theme before React hydration */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  // Check if boring theme is enabled
+                  const boringTheme = localStorage.getItem("boring-theme") === "true";
+                  if (boringTheme) {
+                    // Check if dark mode is active
+                    const isDarkMode = document.documentElement.classList.contains("dark") || 
+                                      window.matchMedia("(prefers-color-scheme: dark)").matches;
+                    
+                    // Apply the appropriate boring theme class
+                    document.documentElement.classList.add(isDarkMode ? "boring-dark" : "boring-light");
+                  }
+                } catch (e) {
+                  console.error("Error applying boring theme:", e);
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className={geist.className + "antialiased selection:bg-primary selection:text-white  overflow-hidden"}>
         <Provider>
 
         <ConvexClientProvider session={session}>

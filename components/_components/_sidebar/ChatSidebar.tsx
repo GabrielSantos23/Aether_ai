@@ -17,7 +17,6 @@ import { NavLink, useNavigate, useParams } from "react-router-dom";
 import {
   X,
   Trash2,
-  Loader2,
   LogIn,
   GitBranch,
   PencilIcon,
@@ -47,6 +46,8 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Spinner } from "@/components/ui/spinner";
 import SidebarLogo from "@/components/sidebar-logo";
+import SearchThreads from "../_chat/search-threads";
+import SidebarThreads from "@/components/global-cmp/sidebar-threads";
 
 export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
   const { id } = useParams();
@@ -188,7 +189,7 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
               </div>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <Button className="w-full p-0" variant="t3">
+              <Button className="w-full p-0" >
                 <NavLink
                   to="/"
                   className="w-full h-full grid place-items-center"
@@ -198,13 +199,13 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
               </Button>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              {/* <SearchThreads isSidebar /> */}
+              <SearchThreads isSidebar />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
 
         {/* Chat Threads List */}
-        <SidebarContent>
+        {/* <SidebarContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-4">
               <Spinner className="size-4" />
@@ -251,14 +252,14 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
               </SidebarGroupContent>
             </SidebarGroup>
           )}
-        </SidebarContent>
-
+        </SidebarContent> */}
+    <SidebarThreads />
         <SidebarFooter>
           <SidebarMenu>
             {user ? (
               <SidebarMenuItem>
                 <NavLink
-                  to="/settings/subscription"
+                  to="/settings"
                   className="flex rounded-lg  p-2.5 mb-2 w-full hover:bg-sidebar-accent min-w-0 flex-row items-center gap-3"
                 >
                   <img

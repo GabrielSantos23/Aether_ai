@@ -381,8 +381,8 @@ export default function AIInput({
     <div className="relative">
       <div
         className={cn(
-          'relative flex flex-col bg-white/70 dark:bg-[oklch(0.18_0.015_25)]/30 backdrop-blur-xl border border-rose-500/10 dark:border-white/10 overflow-visible rounded-2xl shadow-lg shadow-rose-500/5 dark:shadow-lg dark:shadow-black/20 transition-all duration-200',
-          isDragOver && 'border-rose-500/30 dark:border-rose-300/30 bg-rose-500/5 dark:bg-rose-300/5',
+          'relative flex flex-col bg-card/80 backdrop-blur-xl border border-border overflow-visible rounded-2xl shadow-lg shadow-primary/5 dark:shadow-lg dark:shadow-black/20 transition-all duration-200',
+          isDragOver && 'border-primary/30 bg-primary/5',
         )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -390,10 +390,10 @@ export default function AIInput({
       >
         {/* Drag overlay */}
         {isDragOver && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-rose-500/10 dark:bg-rose-300/10 backdrop-blur-sm rounded-2xl border-2 border-dashed border-rose-500/50 dark:border-rose-300/50">
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-primary/10 backdrop-blur-sm rounded-2xl border-2 border-dashed border-primary/50">
             <div className="text-center">
-              <Upload className="w-8 h-8 mx-auto mb-2 text-rose-500 dark:text-rose-300" />
-              <p className="text-sm font-medium text-rose-600 dark:text-rose-300">
+              <Upload className="w-8 h-8 mx-auto mb-2 text-primary" />
+              <p className="text-sm font-medium text-primary">
                 Drop files here ({maxFiles - attachments.length} remaining)
               </p>
             </div>
@@ -401,23 +401,23 @@ export default function AIInput({
         )}
 
         {/* Subtle gradient overlay for premium look */}
-        <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 via-transparent to-rose-500/10 dark:from-rose-500/10 dark:via-transparent dark:to-rose-500/20 pointer-events-none rounded-2xl"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none rounded-2xl"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/20 dark:to-white/5 pointer-events-none rounded-2xl"></div>
 
         {/* Attachments Display */}
         {(attachments.length > 0 || isUploading) && (
-          <div className="relative z-10 px-3 md:px-4 pt-3 border-b border-rose-500/10 dark:border-white/10">
+          <div className="relative z-10 px-3 md:px-4 pt-3 border-b border-border">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-medium text-rose-600 dark:text-rose-300">
+              <span className="text-xs font-medium text-primary">
                 Attachments ({attachments.length}/{maxFiles})
-                {isUploading && <span className="ml-2 text-rose-500/70 dark:text-rose-300/70">Uploading...</span>}
+                {isUploading && <span className="ml-2 text-primary/70">Uploading...</span>}
               </span>
             </div>
             <div className="flex flex-wrap gap-2 pb-2">
               {attachments.map((attachment, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-2 bg-white/50 dark:bg-[oklch(0.22_0.015_25)]/40 rounded-lg px-3 py-2 text-sm border border-rose-500/10 dark:border-white/10"
+                  className="flex items-center gap-2 bg-card/80 rounded-lg px-3 py-2 text-sm border border-border"
                 >
                   {attachment.type.startsWith('image/') ? (
                     <div className="flex items-center gap-2">
@@ -425,25 +425,25 @@ export default function AIInput({
                         <img
                           src={attachment.url}
                           alt={attachment.name}
-                          className="w-8 h-8 object-cover rounded border border-rose-500/20 dark:border-white/20"
+                          className="w-8 h-8 object-cover rounded border border-border"
                         />
                       )}
                     </div>
                   ) : (
-                    <FileText className="w-4 h-4 text-rose-500/70 dark:text-rose-300/70" />
+                    <FileText className="w-4 h-4 text-muted-foreground" />
                   )}
                   <div className="flex flex-col min-w-0">
-                    <span className="text-black/70 dark:text-white/70 truncate max-w-[120px] text-xs font-medium">
+                    <span className="text-muted-foreground truncate max-w-[120px] text-xs font-medium">
                       {attachment.name}
                     </span>
-                    <span className="text-black/40 dark:text-white/40 text-xs">
+                    <span className="text-muted-foreground/80 text-xs">
                       {(attachment.size / 1024).toFixed(1)}KB
                     </span>
                   </div>
                   {onRemoveAttachment && (
                     <button
                       onClick={() => onRemoveAttachment(index)}
-                      className="p-1 text-rose-500/60 hover:text-rose-600 dark:text-rose-300/60 dark:hover:text-rose-300 hover:bg-rose-500/10 dark:hover:bg-rose-300/10 rounded transition-all duration-200"
+                      className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-all duration-200"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -455,32 +455,30 @@ export default function AIInput({
               {Object.entries(uploadProgress).map(([fileName, progress]) => (
                 <div
                   key={`uploading-${fileName}`}
-                  className="flex items-center gap-2 bg-rose-500/5 dark:bg-rose-300/5 rounded-lg px-3 py-2 text-sm border border-rose-500/20 dark:border-rose-300/20"
+                  className="flex items-center gap-2 bg-primary/5 rounded-lg px-3 py-2 text-sm border border-primary/20"
                 >
                   <div className="flex items-center gap-2">
                     <div className="relative">
                       {fileName.toLowerCase().includes('.pdf') ? (
-                        <FileText className="w-4 h-4 text-rose-500/70 dark:text-rose-300/70" />
+                        <FileText className="w-4 h-4 text-primary/70" />
                       ) : (
-                        <Image className="w-4 h-4 text-rose-500/70 dark:text-rose-300/70" />
+                        <Image className="w-4 h-4 text-primary/70" />
                       )}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-6 h-6 border-2 border-rose-500/30 border-t-rose-500 rounded-full animate-spin"></div>
+                        <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
                       </div>
                     </div>
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
-                    <span className="text-rose-600 dark:text-rose-300 truncate max-w-[120px] text-xs font-medium">
-                      {fileName}
-                    </span>
+                    <span className="text-primary truncate max-w-[120px] text-xs font-medium">{fileName}</span>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 bg-rose-200/50 dark:bg-rose-800/30 rounded-full h-1.5 overflow-hidden">
+                      <div className="flex-1 bg-primary/20 rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="h-full bg-rose-500 dark:bg-rose-400 transition-all duration-300 ease-out"
+                          className="h-full bg-primary transition-all duration-300 ease-out"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
-                      <span className="text-rose-500/70 dark:text-rose-300/70 text-xs">{Math.round(progress)}%</span>
+                      <span className="text-primary/70 text-xs">{Math.round(progress)}%</span>
                     </div>
                   </div>
                 </div>
@@ -500,7 +498,7 @@ export default function AIInput({
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
             disabled={isTyping}
-            className="w-full px-3 md:px-4 py-2 resize-none bg-transparent border-0 outline-none text-sm md:text-base min-h-[40px] leading-normal placeholder:text-black/40 dark:placeholder:text-rose-200/30 text-black dark:text-white"
+            className="w-full px-3 md:px-4 py-2 resize-none bg-transparent border-0 outline-none text-sm md:text-base min-h-[40px] leading-normal placeholder:text-muted-foreground text-foreground"
             style={{
               overflow: 'hidden',
               outline: 'none',
@@ -522,11 +520,11 @@ export default function AIInput({
                   onClick={() => setShowModelSelect(!showModelSelect)}
                   className={cn(
                     'h-7 md:h-8 px-2.5 md:px-3 text-xs md:text-sm transition-all duration-200 rounded-md',
-                    'bg-white/50 dark:bg-[oklch(0.22_0.015_25)]/40',
+                    'bg-card/80',
                     'flex items-center gap-1 md:gap-1.5',
-                    'text-black/70 dark:text-white/70',
-                    'hover:text-black dark:hover:text-white',
-                    'hover:bg-black/5 dark:hover:bg-white/5',
+                    'text-muted-foreground',
+                    'hover:text-foreground',
+                    'hover:bg-accent',
                   )}
                 >
                   <div className="flex items-center gap-1 md:gap-1.5">
@@ -555,25 +553,25 @@ export default function AIInput({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
-                      className="absolute z-50 bottom-full mb-2 left-0 bg-white dark:bg-[oklch(0.18_0.015_25)] rounded-lg border border-rose-200/50 dark:border-rose-500/20 shadow-2xl overflow-hidden w-[280px]"
+                      className="absolute z-50 bottom-full mb-2 left-0 bg-popover rounded-lg border border-border shadow-2xl overflow-hidden w-[280px]"
                     >
                       {/* Header */}
-                      <div className="p-3 border-b border-rose-200/30 dark:border-rose-500/20">
+                      <div className="p-3 border-b border-border">
                         <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-sm font-semibold text-rose-900 dark:text-rose-100">Select Model</h3>
-                          <button className="group relative p-2 rounded-xl bg-white/70 dark:bg-[oklch(0.18_0.015_25)]/30 backdrop-blur-xl border border-rose-500/10 dark:border-white/10 hover:border-rose-500/20 dark:hover:border-rose-300/20 transition-all duration-300 ease-out shadow-lg shadow-rose-500/5 dark:shadow-lg dark:shadow-black/20 hover:shadow-xl hover:shadow-rose-500/10 dark:hover:shadow-rose-500/10">
+                          <h3 className="text-sm font-semibold text-popover-foreground">Select Model</h3>
+                          <button className="group relative p-2 rounded-xl bg-card backdrop-blur-xl border border-border hover:border-primary/20 transition-all duration-300 ease-out shadow-lg shadow-primary/5 dark:shadow-lg dark:shadow-black/20 hover:shadow-xl hover:shadow-primary/10">
                             {/* Gradient overlays for premium look */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 via-transparent to-rose-500/10 dark:from-rose-500/10 dark:via-transparent dark:to-rose-500/20 pointer-events-none rounded-xl"></div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none rounded-xl"></div>
                             <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/20 dark:to-white/5 pointer-events-none rounded-xl"></div>
                             <Link href="/settings?tab=models">
                               <div className="relative z-10 flex items-center gap-1">
-                                <span className="text-xs font-medium text-rose-600 dark:text-rose-300">BYOK</span>
-                                <Plus className="w-3 h-3 text-rose-600 dark:text-rose-300" />
+                                <span className="text-xs font-medium text-primary">BYOK</span>
+                                <Plus className="w-3 h-3 text-primary" />
                               </div>
                             </Link>
 
                             {/* Premium glow effect in dark mode */}
-                            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-rose-300/0 via-rose-300/5 to-rose-300/0 rounded-xl blur-xl opacity-0 dark:opacity-30 pointer-events-none"></div>
+                            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 rounded-xl blur-xl opacity-0 dark:opacity-30 pointer-events-none"></div>
                           </button>
                         </div>
 
@@ -581,12 +579,12 @@ export default function AIInput({
                       </div>
 
                       {/* Compact Controls */}
-                      <div className="px-3 py-2 border-b border-rose-200/30 dark:border-rose-500/20">
+                      <div className="px-3 py-2 border-b border-border">
                         <div className="flex items-center justify-between gap-3">
                           {/* Thinking Mode Toggle */}
                           <div className="flex items-center gap-2">
-                            <Lightbulb className="w-3.5 h-3.5 text-rose-500/70 dark:text-rose-300/70" />
-                            <span className="text-xs text-rose-900 dark:text-rose-100">Thinking</span>
+                            <Lightbulb className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="text-xs text-popover-foreground">Thinking</span>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
@@ -594,7 +592,7 @@ export default function AIInput({
                               }}
                               className={cn(
                                 'relative w-8 h-4 rounded-full transition-colors duration-200',
-                                thinkingEnabled ? 'bg-rose-500 dark:bg-rose-400' : 'bg-rose-200 dark:bg-rose-800',
+                                thinkingEnabled ? 'bg-primary' : 'bg-muted',
                               )}
                             >
                               <div
@@ -608,13 +606,13 @@ export default function AIInput({
 
                           {/* Group By Toggle */}
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-rose-900 dark:text-rose-100">Group by</span>
+                            <span className="text-xs text-popover-foreground">Group by</span>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setGroupBy(groupBy === 'provider' ? 'vendor' : 'provider')
                               }}
-                              className="text-xs px-2 py-1 rounded-md bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-900/50 transition-colors duration-200 w-16 text-center"
+                              className="text-xs px-2 py-1 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors duration-200 w-16 text-center"
                             >
                               {groupBy === 'provider' ? 'Provider' : 'Vendor'}
                             </button>
@@ -624,14 +622,11 @@ export default function AIInput({
 
                       <div
                         className="max-h-[300px] overflow-y-auto"
-                        style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgb(244 63 94 / 0.3) transparent' }}
+                        style={{ scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--primary)) transparent' }}
                       >
                         {/* Grouped Models */}
                         {Object.entries(sortedGroupedModels).map(([groupKey, groupModels]) => (
-                          <div
-                            key={groupKey}
-                            className="p-2 border-b border-rose-200/30 dark:border-rose-500/20 last:border-b-0"
-                          >
+                          <div key={groupKey} className="p-2 border-b border-border last:border-b-0">
                             <div className="flex items-center gap-1.5 mb-1.5">
                               <div
                                 className={cn(
@@ -641,12 +636,10 @@ export default function AIInput({
                                   ),
                                 )}
                               ></div>
-                              <span className="text-xs font-medium text-rose-500/70 dark:text-rose-300/70 capitalize">
+                              <span className="text-xs font-medium text-muted-foreground capitalize">
                                 {groupKey === 'openrouter' ? 'OpenRouter' : groupKey}
                               </span>
-                              <span className="text-xs text-rose-400/60 dark:text-rose-400/60">
-                                ({groupModels.length})
-                              </span>
+                              <span className="text-xs text-muted-foreground/80">({groupModels.length})</span>
                             </div>
                             <div className="space-y-1">
                               {groupModels
@@ -663,8 +656,8 @@ export default function AIInput({
                                     className={cn(
                                       'group w-full p-1.5 transition-all duration-150 ease-[0.25,1,0.5,1] relative overflow-hidden text-left',
                                       selectedModel.id === model.id
-                                        ? 'text-rose-600 dark:text-rose-300'
-                                        : 'hover:text-rose-600 dark:hover:text-rose-300 text-black/70 dark:text-white/70',
+                                        ? 'text-primary'
+                                        : 'hover:text-primary text-muted-foreground',
                                       !thinkingEnabled && model.supportsThinking && 'opacity-40 cursor-not-allowed',
                                       !isModelAvailable(model) && 'opacity-40 cursor-not-allowed',
                                     )}
@@ -685,16 +678,16 @@ export default function AIInput({
                                     {selectedModel.id === model.id && (
                                       <>
                                         {/* Main gradient background with sharp edges */}
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/8 dark:via-rose-300/8 to-transparent"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
 
                                         {/* Top shadow lighting */}
-                                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 dark:via-rose-300/30 to-transparent"></div>
+                                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
 
                                         {/* Bottom shadow lighting */}
-                                        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 dark:via-rose-300/30 to-transparent"></div>
+                                        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
 
                                         {/* Premium inner glow */}
-                                        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 bg-gradient-to-r from-transparent via-rose-500/5 dark:via-rose-300/5 to-transparent blur-sm"></div>
+                                        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 bg-gradient-to-r from-transparent via-primary/5 to-transparent blur-sm"></div>
                                       </>
                                     )}
 
@@ -702,16 +695,16 @@ export default function AIInput({
                                     {selectedModel.id !== model.id && (
                                       <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 ease-[0.25,1,0.5,1]">
                                         {/* Main gradient background with sharp edges */}
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/8 dark:via-rose-300/8 to-transparent"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
 
                                         {/* Top shadow lighting */}
-                                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 dark:via-rose-300/30 to-transparent"></div>
+                                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
 
                                         {/* Bottom shadow lighting */}
-                                        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 dark:via-rose-300/30 to-transparent"></div>
+                                        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
 
                                         {/* Premium inner glow */}
-                                        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 bg-gradient-to-r from-transparent via-rose-500/5 dark:via-rose-300/5 to-transparent blur-sm"></div>
+                                        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 bg-gradient-to-r from-transparent via-primary/5 to-transparent blur-sm"></div>
                                       </div>
                                     )}
 
@@ -719,7 +712,7 @@ export default function AIInput({
                                       <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                         <span className="text-sm truncate">{model.name}</span>
                                         {groupBy === 'vendor' && model.provider === 'openrouter' && (
-                                          <span className="text-xs text-rose-500/60 dark:text-rose-300/60 bg-rose-100/50 dark:bg-rose-900/30 px-2 py-0.5 rounded-full">
+                                          <span className="text-xs text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full">
                                             OpenRouter
                                           </span>
                                         )}
@@ -730,7 +723,7 @@ export default function AIInput({
                                         {model.features.includes('web') && (
                                           <Tooltip>
                                             <TooltipTrigger asChild>
-                                              <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                                              <span className="text-xs text-muted-foreground px-1 py-0.5 rounded-full">
                                                 <Globe className="w-3.5 h-3.5" />
                                               </span>
                                             </TooltipTrigger>
@@ -740,7 +733,7 @@ export default function AIInput({
                                         {model.features.includes('vision') && (
                                           <Tooltip>
                                             <TooltipTrigger asChild>
-                                              <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                                              <span className="text-xs text-muted-foreground px-1 py-0.5 rounded-full">
                                                 <Eye className="w-3.5 h-3.5" />
                                               </span>
                                             </TooltipTrigger>
@@ -750,7 +743,7 @@ export default function AIInput({
                                         {model.features.includes('imagegen') && (
                                           <Tooltip>
                                             <TooltipTrigger asChild>
-                                              <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                                              <span className="text-xs text-muted-foreground px-1 py-0.5 rounded-full">
                                                 <Image className="w-3.5 h-3.5" />
                                               </span>
                                             </TooltipTrigger>
@@ -762,7 +755,7 @@ export default function AIInput({
                                         {model.attachmentsSuppport.image && (
                                           <Tooltip>
                                             <TooltipTrigger asChild>
-                                              <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                                              <span className="text-xs text-muted-foreground px-1 py-0.5 rounded-full">
                                                 <Paperclip className="w-3.5 h-3.5" />
                                               </span>
                                             </TooltipTrigger>
@@ -772,7 +765,7 @@ export default function AIInput({
                                         {model.attachmentsSuppport.pdf && (
                                           <Tooltip>
                                             <TooltipTrigger asChild>
-                                              <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                                              <span className="text-xs text-muted-foreground px-1 py-0.5 rounded-full">
                                                 <FileText className="w-3.5 h-3.5" />
                                               </span>
                                             </TooltipTrigger>
@@ -784,13 +777,13 @@ export default function AIInput({
                                         {model.supportsThinking && (
                                           <Tooltip>
                                             <TooltipTrigger asChild>
-                                              <span className="text-xs text-rose-500/60 dark:text-rose-300/60 px-1 py-0.5 rounded-full">
+                                              <span className="text-xs text-muted-foreground px-1 py-0.5 rounded-full">
                                                 <Lightbulb
                                                   className={cn(
                                                     'w-3.5 h-3.5',
                                                     thinkingEnabled && selectedModel.id === model.id
-                                                      ? 'text-rose-500'
-                                                      : 'text-rose-400/60 dark:text-rose-500/60',
+                                                      ? 'text-primary'
+                                                      : 'text-muted-foreground/80',
                                                   )}
                                                 />
                                               </span>
@@ -818,8 +811,8 @@ export default function AIInput({
                   type="button"
                   onClick={() => setWebSearchEnabled(!webSearchEnabled)}
                   className={cn(
-                    'w-7 h-7 md:w-8 md:h-8 text-rose-500/60 dark:text-rose-300/60 hover:text-rose-600 dark:hover:text-rose-300 transition-all duration-200 rounded-md bg-white/50 dark:bg-[oklch(0.22_0.015_25)]/40 hover:bg-rose-500/5 dark:hover:bg-white/5 flex items-center justify-center',
-                    webSearchEnabled && 'bg-rose-500/10 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400',
+                    'w-7 h-7 md:w-8 md:h-8 text-muted-foreground hover:text-primary transition-all duration-200 rounded-md bg-card/80 hover:bg-primary/10 flex items-center justify-center',
+                    webSearchEnabled && 'bg-primary/20 text-primary',
                   )}
                 >
                   <Globe className="w-3.5 md:w-4 h-3.5 md:h-4" />
@@ -830,8 +823,8 @@ export default function AIInput({
                   type="button"
                   onClick={() => setImageGenEnabled(!imageGenEnabled)}
                   className={cn(
-                    'w-7 h-7 md:w-8 md:h-8 text-rose-500/60 dark:text-rose-300/60 hover:text-rose-600 dark:hover:text-rose-300 transition-all duration-200 rounded-md bg-white/50 dark:bg-[oklch(0.22_0.015_25)]/40 hover:bg-rose-500/5 dark:hover:bg-white/5 flex items-center justify-center',
-                    imageGenEnabled && 'bg-rose-500/10 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400',
+                    'w-7 h-7 md:w-8 md:h-8 text-muted-foreground hover:text-primary transition-all duration-200 rounded-md bg-card/80 hover:bg-primary/10 flex items-center justify-center',
+                    imageGenEnabled && 'bg-primary/20 text-primary',
                   )}
                 >
                   <ImageIcon className="w-3.5 md:w-4 h-3.5 md:h-4" />
@@ -847,8 +840,8 @@ export default function AIInput({
                     className={cn(
                       'group p-2 md:p-2.5 transition-all duration-300 rounded-full',
                       isListening
-                        ? 'text-rose-500 dark:text-rose-300 shadow-md shadow-rose-500/20 dark:shadow-rose-500/20 scale-100 hover:bg-rose-500/5 dark:hover:bg-rose-300/5 animate-pulse'
-                        : 'text-rose-500/70 dark:text-rose-300/70 hover:text-rose-500 dark:hover:text-rose-300 scale-95 hover:bg-rose-500/5 dark:hover:bg-rose-300/5 hover:scale-100',
+                        ? 'text-primary shadow-md shadow-primary/20 scale-100 hover:bg-primary/10 animate-pulse'
+                        : 'text-muted-foreground hover:text-primary scale-95 hover:bg-primary/10 hover:scale-100',
                     )}
                   >
                     <Mic className="w-5 md:w-6 h-5 md:h-6" />
@@ -861,7 +854,7 @@ export default function AIInput({
                   type="button"
                   onClick={onStop}
                   title="Stop generation (Esc)"
-                  className="p-2 md:p-2.5 transition-all duration-300 rounded-full text-rose-500 dark:text-rose-300 hover:shadow-md hover:shadow-rose-500/20 dark:hover:shadow-rose-500/20 scale-100"
+                  className="p-2 md:p-2.5 transition-all duration-300 rounded-full text-primary hover:shadow-md hover:shadow-primary/20 scale-100"
                 >
                   <Square className="w-4 md:w-5 h-4 md:h-5 transition-transform duration-300 animate-pulse" />
                 </button>
@@ -872,7 +865,7 @@ export default function AIInput({
                   disabled={isStreaming}
                   className={cn(
                     'group p-2 md:p-2.5 transition-all duration-300 rounded-full',
-                    'text-rose-500 dark:text-rose-300 shadow-md shadow-rose-500/20 dark:shadow-rose-500/20 scale-100 hover:bg-rose-500/5 dark:hover:bg-rose-300/5',
+                    'text-primary shadow-md shadow-primary/20 scale-100 hover:bg-primary/10',
                   )}
                 >
                   <ArrowRight
@@ -913,8 +906,8 @@ export default function AIInput({
                       className={cn(
                         'group p-2 md:p-2.5 transition-all duration-300 rounded-full',
                         onVoiceChatToggle
-                          ? 'text-rose-500 dark:text-rose-300 shadow-md shadow-rose-500/20 dark:shadow-rose-500/20 scale-100 hover:bg-rose-500/5 dark:hover:bg-rose-300/5 cursor-pointer'
-                          : 'text-black/30 dark:text-rose-300/30 scale-95 cursor-not-allowed',
+                          ? 'text-primary shadow-md shadow-primary/20 scale-100 hover:bg-primary/10 cursor-pointer'
+                          : 'text-muted-foreground/50 scale-95 cursor-not-allowed',
                       )}
                     >
                       <AudioLines className="w-5 md:w-6 h-5 md:h-6 transition-transform duration-300 group-hover:scale-110" />
@@ -931,7 +924,7 @@ export default function AIInput({
       </div>
 
       {/* Premium subtle glow effect in dark mode */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-rose-300/0 via-rose-300/5 to-rose-300/0 rounded-2xl blur-xl opacity-0 dark:opacity-30 pointer-events-none"></div>
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 rounded-2xl blur-xl opacity-0 dark:opacity-30 pointer-events-none"></div>
     </div>
   )
 }

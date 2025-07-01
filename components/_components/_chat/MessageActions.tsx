@@ -51,7 +51,7 @@ export function MessageActions({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onCopy(content, messageId)}
-                className="p-1.5 text-rose-500/70 hover:text-rose-600 dark:text-rose-300/70 dark:hover:text-rose-300 hover:bg-rose-500/5 dark:hover:bg-rose-300/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
+                className="p-1.5 text-primary/70 hover:text-primary hover:bg-primary/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
               >
                 {copiedId === messageId ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
@@ -63,7 +63,7 @@ export function MessageActions({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onReadAloud(content, messageId)}
-                className="p-1.5 text-rose-500/70 hover:text-rose-600 dark:text-rose-300/70 dark:hover:text-rose-300 hover:bg-rose-500/5 dark:hover:bg-rose-300/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
+                className="p-1.5 text-primary/70 hover:text-primary hover:bg-primary/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
               >
                 {speakingMessageId === messageId ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
               </button>
@@ -75,7 +75,7 @@ export function MessageActions({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onBranch(messageId)}
-                className="p-1.5 text-rose-500/70 hover:text-rose-600 dark:text-rose-300/70 dark:hover:text-rose-300 hover:bg-rose-500/5 dark:hover:bg-rose-300/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
+                className="p-1.5 text-primary/70 hover:text-primary hover:bg-primary/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
               >
                 <GitFork className="w-4 h-4" />
               </button>
@@ -88,7 +88,7 @@ export function MessageActions({
               <TooltipTrigger asChild>
                 <button
                   onClick={() => onRetryClick(messageId)}
-                  className="p-1.5 text-rose-500/70 hover:text-rose-600 dark:text-rose-300/70 dark:hover:text-rose-300 hover:bg-rose-500/5 dark:hover:bg-rose-300/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
+                  className="p-1.5 text-primary/70 hover:text-primary hover:bg-primary/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
@@ -113,7 +113,7 @@ export function MessageActions({
       {modelId && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex items-center gap-1.5 text-xs text-black/50 dark:text-white/50 cursor-help">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-help">
               <div className={`w-2 h-2 rounded-full ${getVendorColor(modelId)}`} />
               <span>{getModelDisplayName(modelId)}</span>
             </div>

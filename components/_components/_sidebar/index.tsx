@@ -1,6 +1,6 @@
 "use client";
 
-import { SidebarInset, SidebarProvider as SidebarProviderCmp } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider as SidebarProviderCmp, SidebarTrigger } from "@/components/ui/sidebar";
 import ChatSidebar from "./ChatSidebar";
 import { RightSidebar } from "./RightSidebar";
 import { SidebarButtons, SidebarButtonsRight } from "./sidebar-buttons";
@@ -21,6 +21,7 @@ import { LuSettings2 } from "react-icons/lu";
 import ThemeToggler from "@/components/theme-toggle";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import SearchThreads from "../_chat/search-threads";
 
 function ChatLayoutContent({ children }: { children: React.ReactNode }) {
   const user = useQuery(api.myFunctions.getUser);
@@ -44,13 +45,17 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </main>
 
-      <div className="pointer-events-auto t3-header-search fixed h-fit left-2 top-2 z-50 flex flex-row gap-0.5 p-1 inset-0 right-auto text-muted-foreground rounded-md backdrop-blur-sm transition-[width] delay-125 duration-100 bg-sidebar blur-fallback:bg-sidebar max-sm:delay-125 max-sm:duration-100 max-sm:w-[6.75rem] max-sm:bg-sidebar">
-        <div className="transition-[opacity, translate-x] has-[.sidebar-check:not(:checked)]:pointer-events-none flex flex-nowrap duration-200 ease-snappy gap-0.5 has-[.sidebar-check:not(:checked)]:-translate-x-[20px] has-[.sidebar-check:not(:checked)]:opacity-0 has-[.sidebar-check:not(:checked)]:w-0 has-[.sidebar-check:not(:checked)]:-z-50 has-[.sidebar-check:not(:checked)]:h-0">
+      <div className="pointer-events-auto t3-header-search fixed h-fit left-2 top-2 z-50 flex flex-row gap-0.5 p-1 inset-0 right-auto text-muted-foreground rounded-md backdrop-blur-sm transition-[width] delay-125 duration-100  bg-sidebar blur-fallback:bg-sidebar max-sm:delay-125 max-sm:duration-100 max-sm:w-[6.75rem] max-sm:bg-sidebar">
+        <SidebarTrigger />
+        <div
+          className={`transition-[opacity, translate-x] has-[.sidebar-check:not(:checked)]:pointer-events-none  flex flex-nowrap duration-200 ease-snappy gap-0.5 has-[.sidebar-check:not(:checked)]:-translate-x-[20px] has-[.sidebar-check:not(:checked)]:opacity-0 has-[.sidebar-check:not(:checked)]:w-0 has-[.sidebar-check:not(:checked)]:-z-50 has-[.sidebar-check:not(:checked)]:h-0 `}
+        >
           <input
             className="hidden sidebar-check"
             type="checkbox"
             name="sidebar-check"
           />
+          <SearchThreads  />
           <Button variant="ghost" className="p-0" size="icon">
             <NavLink to="/" className="w-full h-full grid place-items-center">
               <FiPlus />
@@ -64,7 +69,7 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
           type="checkbox"
           name="sidebar-check"
         />
-        <NavLink to="/settings/subscription">
+        <NavLink to="/settings">
           <Button variant="ghost" size="icon">
             <LuSettings2 />
           </Button>
@@ -113,7 +118,6 @@ export default function SidebarProvider({ children }: { children?: React.ReactNo
       }}
     >
       <SidebarProviderCmp defaultOpen={defaultOpen}>
-        <SidebarButtons />
         <ChatSidebar />
         <SidebarInset className="overflow-hidden">
           <ChatLayoutContent>{children}</ChatLayoutContent>

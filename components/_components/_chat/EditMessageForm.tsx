@@ -33,7 +33,7 @@ export function EditMessageForm({
       <div className="flex items-center gap-1 justify-end" data-edit-controls>
         <button
           onClick={onCancel}
-          className="p-1.5 text-rose-500/70 hover:text-rose-600 dark:text-rose-300/70 dark:hover:text-rose-300 hover:bg-rose-500/5 dark:hover:bg-rose-300/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
+          className="p-1.5 text-primary/70 hover:text-primary hover:bg-primary/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110"
           title="Cancel edit"
         >
           <X className="w-4 h-4" />
@@ -41,7 +41,7 @@ export function EditMessageForm({
         <button
           onClick={onSave}
           disabled={!content.trim()}
-          className="p-1.5 text-rose-500/70 hover:text-rose-600 dark:text-rose-300/70 dark:hover:text-rose-300 hover:bg-rose-500/5 dark:hover:bg-rose-300/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-1.5 text-primary/70 hover:text-primary hover:bg-primary/5 rounded transition-all duration-150 ease-[0.25,1,0.5,1] hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Save edit"
         >
           <Send className="w-4 h-4" />
