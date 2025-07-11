@@ -8,7 +8,7 @@ import { CheckCircle2, XCircle, File, Search, FileUp } from "lucide-react";
 
 // --- 1. DEFINE THE GOOGLE DRIVE SCOPES YOU CARE ABOUT ---
 // We map the technical scope string to a user-friendly name, description, and icon.
-const ALL_DRIVE_SCOPES = [
+export const ALL_DRIVE_SCOPES = [
   {
     scope: "https://www.googleapis.com/auth/drive.readonly",
     name: "View Files & Metadata",

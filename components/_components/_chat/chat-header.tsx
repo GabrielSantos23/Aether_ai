@@ -2,6 +2,11 @@ import React from "react";
 const ChatHeader = () => {
   return (
     <div className="w-full relative ">
+      {/* Container for model select when sidebar is open */}
+      <div
+        id="model-select-container-open"
+        className="absolute left-2 top-2 z-50"
+      />
       <div
         className="absolute overflow-hidden transition-[top] duration-100 ease-snappy grid place-items-center -right-3 has-[.sidebar-check:checked]:-top-20 top-0 !z-50 h-16 w-32 max-sm:hidden "
         style={{ clipPath: "inset(0px 12px 0px 0px)" }}
@@ -11,9 +16,9 @@ const ChatHeader = () => {
           type="checkbox"
           name="sidebar-check"
         />
-        <div className="group pointer-events-none absolute top-3.5 z-10 -mb-8 h-32 w-full origin-top ease-snappy">
+        <div className="group pointer-events-none absolute top-3.5 z-10 -mb-8 h-32 w-full origin-top ease-snappy ">
           <svg
-            className="absolute  h-9 origin-top-left skew-x-[30deg] overflow-visible"
+            className="absolute h-9 origin-top-left skew-x-[30deg] overflow-visible"
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -21,7 +26,7 @@ const ChatHeader = () => {
             xmlSpace="preserve"
           >
             <line
-              stroke="hsl(var(--background))"
+              stroke="var(--sidebar)"
               strokeWidth="2px"
               shapeRendering="optimizeQuality"
               vectorEffect="non-scaling-stroke"
@@ -33,9 +38,9 @@ const ChatHeader = () => {
               y2="0"
             ></line>
             <path
-              stroke="hsl(var(--chat-border))"
+              stroke="var(--sidebar)"
               className="translate-y-[0.5px]"
-              fill="hsl(var(--background))"
+              fill="var(--sidebar)"
               shapeRendering="optimizeQuality"
               strokeWidth="1px"
               strokeLinecap="round"

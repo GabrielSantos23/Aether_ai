@@ -1,10 +1,14 @@
 "use client";
 
-import { SidebarInset, SidebarProvider as SidebarProviderCmp, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider as SidebarProviderCmp,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import ChatSidebar from "./ChatSidebar";
 import { RightSidebar } from "./RightSidebar";
 import { SidebarButtons, SidebarButtonsRight } from "./sidebar-buttons";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { FiPlus } from "react-icons/fi";
 // Define the Source type
 export type Source = {
@@ -25,13 +29,58 @@ import SearchThreads from "../_chat/search-threads";
 
 function ChatLayoutContent({ children }: { children: React.ReactNode }) {
   const user = useQuery(api.myFunctions.getUser);
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   if (user === undefined) {
     return <div>Loading...</div>;
   }
 
+  useEffect(() => {
+    const checkSidebarState = () => {
+      const sidebarCheckbox = document.querySelector(
+        'input[name="sidebar-check"]'
+      ) as HTMLInputElement;
+      if (sidebarCheckbox) {
+        setIsSidebarOpen(sidebarCheckbox.checked);
+      }
+    };
+
+    // Initial check
+    checkSidebarState();
+
+    // Setup mutation observer to watch for checkbox changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "checked"
+        ) {
+          checkSidebarState();
+        }
+      });
+    });
+
+    const sidebarCheckbox = document.querySelector(
+      'input[name="sidebar-check"]'
+    ) as HTMLInputElement;
+    if (sidebarCheckbox) {
+      observer.observe(sidebarCheckbox, { attributes: true });
+    }
+
+    // Also listen for click events on the sidebar trigger
+    const handleClick = () => {
+      setTimeout(checkSidebarState, 50); // Small delay to ensure checkbox state has updated
+    };
+
+    document.addEventListener("click", handleClick);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("click", handleClick);
+    };
+  }, []);
+
   return (
-    <div className="h-screen w-full flex flex-col overflow-hidden">
+    <div className="h-screen w-full flex flex-col overflow-hidden bg-sidebar">
       <ChatHeader />
       <main className="flex-1 overflow-hidden z-20 border-chat-border bg-chat-background transition-[margin-top,height] mt-3.5 h-full border rounded-tl-xl duration-100 ease-snappy has-[.sidebar-check:checked]:mt-0 has-[.sidebar-check:checked]:h-screen has-[.sidebar-check:checked]:rounded-none">
         <input
@@ -45,7 +94,9 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </main>
 
-      <div className="pointer-events-auto t3-header-search fixed h-fit left-2 top-2 z-50 flex flex-row gap-0.5 p-1 inset-0 right-auto text-muted-foreground rounded-md backdrop-blur-sm transition-[width] delay-125 duration-100  bg-sidebar blur-fallback:bg-sidebar max-sm:delay-125 max-sm:duration-100 max-sm:w-[6.75rem] max-sm:bg-sidebar">
+      <div
+        className={`pointer-events-auto t3-header-search fixed h-fit left-2 top-4 z-50 flex flex-row gap-0.5 p-1 inset-0 right-auto text-muted-foreground ${isSidebarOpen ? "rounded-2xl border bg-sidebar" : "rounded-md"} backdrop-blur-sm transition-[width] delay-125 duration-100 blur-fallback:bg-sidebar max-sm:delay-125 max-sm:duration-100 max-sm:w-[6.75rem] max-sm:bg-sidebar`}
+      >
         <SidebarTrigger />
         <div
           className={`transition-[opacity, translate-x] has-[.sidebar-check:not(:checked)]:pointer-events-none  flex flex-nowrap duration-200 ease-snappy gap-0.5 has-[.sidebar-check:not(:checked)]:-translate-x-[20px] has-[.sidebar-check:not(:checked)]:opacity-0 has-[.sidebar-check:not(:checked)]:w-0 has-[.sidebar-check:not(:checked)]:-z-50 has-[.sidebar-check:not(:checked)]:h-0 `}
@@ -55,15 +106,19 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
             type="checkbox"
             name="sidebar-check"
           />
-          <SearchThreads  />
+          <SearchThreads />
           <Button variant="ghost" className="p-0" size="icon">
             <NavLink to="/" className="w-full h-full grid place-items-center">
               <FiPlus />
             </NavLink>
           </Button>
+          {/* Container for model select dropdown rendered via portal */}
+          <div id="model-select-container" className="ml-1" />
         </div>
       </div>
-      <div className="fixed pointer-events-auto right-2 top-2 z-50 flex flex-row p-1 items-center justify-center rounded-md duration-100 transition-[translate-x] ease-snappy max-sm:w-[6.75rem] gap-2 text-muted-foreground has-[.sidebar-check:checked]:bg-sidebar has-[.sidebar-check:checked]:backdrop-blur-sm has-[.sidebar-check:not(:checked)]:bg-transparent">
+      <div
+        className={`fixed pointer-events-auto right-2 top-2 z-50 flex flex-row p-1 items-center justify-center ${isSidebarOpen ? "rounded-2xl border bg-sidebar" : "rounded-md"} duration-100 transition-[translate-x] ease-snappy max-sm:w-[6.75rem] gap-2 text-muted-foreground has-[.sidebar-check:checked]:backdrop-blur-sm has-[.sidebar-check:not(:checked)]:bg-transparent`}
+      >
         <input
           className="hidden sidebar-check"
           type="checkbox"
@@ -103,7 +158,11 @@ export const SourcesContext = React.createContext<{
 
 export const useSources = () => useContext(SourcesContext);
 
-export default function SidebarProvider({ children }: { children?: React.ReactNode }) {
+export default function SidebarProvider({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   const [defaultOpen] = useState(() =>
     getLocalStorageItem(`${SIDEBAR_STORAGE_KEY}_left`, true)
   );

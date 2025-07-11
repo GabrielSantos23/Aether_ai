@@ -1,30 +1,49 @@
-'use client'
+"use client";
 
-import React, { useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, Phone, PhoneOff, MessageSquare, User, Settings2, Sparkles, X, Volume2, MicOff } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { ModelInfo } from '@/lib/models'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useQuery } from 'convex/react'
-import { api } from '../../../convex/_generated/api'
-import { Badge } from '@/components/ui/badge'
-import MessageRenderer from './MessageRenderer'
-import { useSimpleVoiceChat } from '@/app/hooks/useSimpleVoiceChat'
+import React, { useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Mic,
+  Phone,
+  PhoneOff,
+  MessageSquare,
+  User,
+  Settings2,
+  Sparkles,
+  X,
+  Volume2,
+  MicOff,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ModelInfo } from "@/lib/models";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { Badge } from "@/components/ui/badge";
+import MessageRenderer from "./MessageRenderer";
+import { useSimpleVoiceChat } from "@/app/hooks/useSimpleVoiceChat";
 
 interface SimpleVoiceChatProps {
-  isOpen: boolean
-  onClose: () => void
-  onSaveConversation: (conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>) => Promise<void>
+  isOpen: boolean;
+  onClose: () => void;
+  onSaveConversation: (
+    conversationHistory: Array<{ role: "user" | "assistant"; content: string }>
+  ) => Promise<void>;
   onSendMessage?: (
     message: string,
-    conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>,
-  ) => Promise<string>
-  selectedModel?: ModelInfo
-  onModelChange?: (model: ModelInfo) => void
-  availableModels?: ModelInfo[]
+    conversationHistory: Array<{ role: "user" | "assistant"; content: string }>
+  ) => Promise<string>;
+  selectedModel?: ModelInfo;
+  onModelChange?: (model: ModelInfo) => void;
+  availableModels?: ModelInfo[];
 }
 
 export function SimpleVoiceChat({
@@ -37,13 +56,18 @@ export function SimpleVoiceChat({
   availableModels = [],
 }: SimpleVoiceChatProps) {
   // Fetch user settings for context display
-  const userSettings = useQuery(api.users.getMySettings)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const userSettings = useQuery(api.users.getMySettings);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const sendMessageWithModel = onSendMessage
-    ? (message: string, conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>) =>
-        onSendMessage(message, conversationHistory)
-    : undefined
+    ? (
+        message: string,
+        conversationHistory: Array<{
+          role: "user" | "assistant";
+          content: string;
+        }>
+      ) => onSendMessage(message, conversationHistory)
+    : undefined;
 
   const {
     isActive,
@@ -54,122 +78,125 @@ export function SimpleVoiceChat({
     startVoiceChat,
     endVoiceChat,
     isSupported,
-  } = useSimpleVoiceChat(sendMessageWithModel)
+  } = useSimpleVoiceChat(sendMessageWithModel);
 
   // Auto scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [conversationHistory])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [conversationHistory]);
 
   // Stop audio and voice chat when component closes
   useEffect(() => {
     if (!isOpen) {
       // Stop speech synthesis immediately
       if (window.speechSynthesis) {
-        window.speechSynthesis.cancel()
+        window.speechSynthesis.cancel();
       }
 
       // Stop any ongoing speech synthesis utterances
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        const synth = window.speechSynthesis
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        const synth = window.speechSynthesis;
         if (synth.speaking) {
-          synth.cancel()
+          synth.cancel();
         }
       }
 
       // End voice chat if active
       if (isActive) {
-        endVoiceChat()
+        endVoiceChat();
       }
     }
-  }, [isOpen, isActive, endVoiceChat])
+  }, [isOpen, isActive, endVoiceChat]);
 
   // Also stop audio when component unmounts
   useEffect(() => {
     return () => {
       if (window.speechSynthesis) {
-        window.speechSynthesis.cancel()
+        window.speechSynthesis.cancel();
       }
-    }
-  }, [])
+    };
+  }, []);
 
   const handleStart = () => {
-    startVoiceChat()
-  }
+    startVoiceChat();
+  };
 
   const handleEnd = async () => {
     // Stop speech synthesis immediately
     if (window.speechSynthesis) {
-      window.speechSynthesis.cancel()
+      window.speechSynthesis.cancel();
     }
 
-    endVoiceChat()
+    endVoiceChat();
     if (conversationHistory.length > 0) {
-      await onSaveConversation(conversationHistory)
+      await onSaveConversation(conversationHistory);
     }
-    onClose()
-  }
+    onClose();
+  };
 
   const handleClose = () => {
     // Stop speech synthesis when closing
     if (window.speechSynthesis) {
-      window.speechSynthesis.cancel()
+      window.speechSynthesis.cancel();
     }
 
     // Stop any ongoing speech synthesis utterances
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      const synth = window.speechSynthesis
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      const synth = window.speechSynthesis;
       if (synth.speaking) {
-        synth.cancel()
+        synth.cancel();
       }
     }
 
     if (isActive) {
-      endVoiceChat()
+      endVoiceChat();
     }
-    onClose()
-  }
+    onClose();
+  };
 
   // Handle escape key to close and stop audio
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        handleClose()
+      if (event.key === "Escape" && isOpen) {
+        handleClose();
       }
-    }
+    };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown)
-      return () => document.removeEventListener('keydown', handleKeyDown)
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
     }
-  }, [isOpen, handleClose])
+  }, [isOpen, handleClose]);
 
   const getStatus = () => {
-    if (!isActive) return 'Ready to start voice conversation'
-    if (isListening) return 'Listening to your voice...'
-    if (isSpeaking) return 'AI is speaking...'
-    return ''
-  }
+    if (!isActive) return "Ready to start voice conversation";
+    if (isListening) return "Listening to your voice...";
+    if (isSpeaking) return "AI is speaking...";
+    return "";
+  };
 
   const getStatusColor = () => {
-    if (!isActive) return 'text-rose-500/70 dark:text-rose-300/70'
-    if (isListening) return 'text-white'
-    if (isSpeaking) return 'text-white'
-    return 'text-blue-500 dark:text-blue-400'
-  }
+    if (!isActive) return "text-rose-500/70 dark:text-rose-300/70";
+    if (isListening) return "text-white";
+    if (isSpeaking) return "text-white";
+    return "text-blue-500 dark:text-blue-400";
+  };
 
   const getUserContext = () => {
-    if (!userSettings) return null
+    if (!userSettings) return null;
 
-    const context = []
-    if (userSettings.userName) context.push(`Name: ${userSettings.userName}`)
-    if (userSettings.userRole) context.push(`Role: ${userSettings.userRole}`)
-    if (userSettings.userTraits?.length) context.push(`Interests: ${userSettings.userTraits.join(', ')}`)
+    const context = [];
+    if (userSettings.userName) context.push(`Name: ${userSettings.userName}`);
+    if (userSettings.userRole) context.push(`Role: ${userSettings.userRole}`);
+    if (userSettings.userTraits?.length)
+      context.push(`Interests: ${userSettings.userTraits.join(", ")}`);
 
-    return context.length > 0 ? context : null
-  }
+    return context.length > 0 ? context : null;
+  };
 
-  const hasCustomPrompt = userSettings?.promptTemplate && userSettings.promptTemplate.trim().length > 0
+  const hasCustomPrompt =
+    userSettings?.promptTemplate &&
+    userSettings.promptTemplate.trim().length > 0;
 
   if (!isSupported) {
     return (
@@ -194,10 +221,13 @@ export function SimpleVoiceChat({
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
                     <MicOff className="w-8 h-8 text-rose-500 dark:text-rose-400" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-3">Voice Chat Not Supported</h3>
+                  <h3 className="text-lg font-semibold mb-3">
+                    Voice Chat Not Supported
+                  </h3>
                   <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-                    Your browser doesn't support speech recognition. Please try using Chrome, Edge, or Safari for the
-                    best voice chat experience.
+                    Your browser doesn't support speech recognition. Please try
+                    using Chrome, Edge, or Safari for the best voice chat
+                    experience.
                   </p>
                   <Button onClick={handleClose} className="w-full">
                     Close
@@ -208,7 +238,7 @@ export function SimpleVoiceChat({
           </motion.div>
         )}
       </AnimatePresence>
-    )
+    );
   }
 
   return (
@@ -222,7 +252,7 @@ export function SimpleVoiceChat({
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget && !isActive) {
-              handleClose()
+              handleClose();
             }
           }}
         >
@@ -240,16 +270,20 @@ export function SimpleVoiceChat({
                   <Select
                     value={selectedModel?.id}
                     onValueChange={(value) => {
-                      const model = availableModels.find((m) => m.id === value)
-                      if (model) onModelChange(model)
+                      const model = availableModels.find((m) => m.id === value);
+                      if (model) onModelChange(model);
                     }}
                   >
                     <SelectTrigger className="w-36 h-7 bg-background/80 border-muted hover:bg-background hover:border-border transition-colors text-xs backdrop-blur-sm">
-                      <SelectValue placeholder="Select model" />
+                      <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
                       {availableModels.slice(0, 5).map((model) => (
-                        <SelectItem key={model.id} value={model.id} className="text-xs">
+                        <SelectItem
+                          key={model.id}
+                          value={model.id}
+                          className="text-xs"
+                        >
                           {model.name}
                         </SelectItem>
                       ))}
@@ -275,13 +309,15 @@ export function SimpleVoiceChat({
                 {/* Premium Voice Control - Rose Theme */}
                 <motion.div
                   className={cn(
-                    'flex justify-center transition-all duration-500',
-                    conversationHistory.length === 0 ? 'mb-8 items-center min-h-[300px]' : 'mb-8',
+                    "flex justify-center transition-all duration-500",
+                    conversationHistory.length === 0
+                      ? "mb-8 items-center min-h-[300px]"
+                      : "mb-8"
                   )}
                   animate={{
                     y: conversationHistory.length === 0 ? 0 : -40,
                   }}
-                  transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
                 >
                   <div className="relative">
                     {/* Outer glow rings for voice activity */}
@@ -296,13 +332,13 @@ export function SimpleVoiceChat({
                     <div
                       onClick={!isActive ? handleStart : handleEnd}
                       className={cn(
-                        'relative w-28 h-28 rounded-full cursor-pointer transition-all duration-500 ease-out',
-                        'bg-gradient-to-br from-background via-card to-muted dark:from-card dark:via-background dark:to-muted',
-                        'shadow-md shadow-rose-500/20 dark:shadow-rose-500/20',
-                        'hover:shadow-lg hover:shadow-rose-500/25 dark:hover:shadow-rose-500/25',
-                        'flex items-center justify-center group',
-                        isActive && 'scale-105',
-                        !isActive && '',
+                        "relative w-28 h-28 rounded-full cursor-pointer transition-all duration-500 ease-out",
+                        "bg-gradient-to-br from-background via-card to-muted dark:from-card dark:via-background dark:to-muted",
+                        "shadow-md shadow-rose-500/20 dark:shadow-rose-500/20",
+                        "hover:shadow-lg hover:shadow-rose-500/25 dark:hover:shadow-rose-500/25",
+                        "flex items-center justify-center group",
+                        isActive && "scale-105",
+                        !isActive && ""
                       )}
                     >
                       {/* Premium gradient overlays */}
@@ -312,45 +348,65 @@ export function SimpleVoiceChat({
                       {/* Audio lines visualization */}
                       <div
                         className={cn(
-                          'relative z-10 transition-all duration-300',
-                          isListening && 'scale-110',
-                          isSpeaking && 'scale-125',
+                          "relative z-10 transition-all duration-300",
+                          isListening && "scale-110",
+                          isSpeaking && "scale-125"
                         )}
                       >
                         <div className="flex items-center gap-0.5">
                           <div
                             className={cn(
-                              'w-0.5 bg-rose-600 dark:bg-rose-300 rounded-full transition-all duration-150',
-                              isActive ? (isSpeaking ? 'h-6 animate-pulse' : 'h-2') : 'h-3',
+                              "w-0.5 bg-rose-600 dark:bg-rose-300 rounded-full transition-all duration-150",
+                              isActive
+                                ? isSpeaking
+                                  ? "h-6 animate-pulse"
+                                  : "h-2"
+                                : "h-3"
                             )}
                           />
                           <div
                             className={cn(
-                              'w-0.5 bg-rose-600 dark:bg-rose-300 rounded-full transition-all duration-150',
-                              isActive ? (isSpeaking ? 'h-8 animate-pulse' : 'h-3') : 'h-5',
+                              "w-0.5 bg-rose-600 dark:bg-rose-300 rounded-full transition-all duration-150",
+                              isActive
+                                ? isSpeaking
+                                  ? "h-8 animate-pulse"
+                                  : "h-3"
+                                : "h-5"
                             )}
-                            style={{ animationDelay: '75ms' }}
+                            style={{ animationDelay: "75ms" }}
                           />
                           <div
                             className={cn(
-                              'w-0.5 bg-rose-600 dark:bg-rose-300 rounded-full transition-all duration-150',
-                              isActive ? (isSpeaking ? 'h-4 animate-pulse' : 'h-2') : 'h-2',
+                              "w-0.5 bg-rose-600 dark:bg-rose-300 rounded-full transition-all duration-150",
+                              isActive
+                                ? isSpeaking
+                                  ? "h-4 animate-pulse"
+                                  : "h-2"
+                                : "h-2"
                             )}
-                            style={{ animationDelay: '150ms' }}
+                            style={{ animationDelay: "150ms" }}
                           />
                           <div
                             className={cn(
-                              'w-0.5 bg-rose-600 dark:bg-rose-300 rounded-full transition-all duration-150',
-                              isActive ? (isSpeaking ? 'h-7 animate-pulse' : 'h-4') : 'h-6',
+                              "w-0.5 bg-rose-600 dark:bg-rose-300 rounded-full transition-all duration-150",
+                              isActive
+                                ? isSpeaking
+                                  ? "h-7 animate-pulse"
+                                  : "h-4"
+                                : "h-6"
                             )}
-                            style={{ animationDelay: '225ms' }}
+                            style={{ animationDelay: "225ms" }}
                           />
                           <div
                             className={cn(
-                              'w-0.5 bg-rose-600 dark:bg-rose-300 rounded-full transition-all duration-150',
-                              isActive ? (isSpeaking ? 'h-5 animate-pulse' : 'h-2') : 'h-3',
+                              "w-0.5 bg-rose-600 dark:bg-rose-300 rounded-full transition-all duration-150",
+                              isActive
+                                ? isSpeaking
+                                  ? "h-5 animate-pulse"
+                                  : "h-2"
+                                : "h-3"
                             )}
-                            style={{ animationDelay: '300ms' }}
+                            style={{ animationDelay: "300ms" }}
                           />
                         </div>
                       </div>
@@ -365,7 +421,7 @@ export function SimpleVoiceChat({
                 {conversationHistory.length > 0 && (
                   <div
                     className="max-h-60 overflow-y-auto scrollbar-hide"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                   >
                     <div className="text-sm font-medium mb-4 text-muted-foreground">
                       Conversation ({conversationHistory.length} messages)
@@ -373,37 +429,42 @@ export function SimpleVoiceChat({
                     <div className="space-y-4">
                       {conversationHistory.map((msg, idx) => {
                         // Create a unique key using index, role, and content hash
-                        const contentHash = msg.content.slice(0, 10).replace(/\s/g, '')
-                        const uniqueKey = `message-${idx}-${msg.role}-${contentHash}-${Date.now()}`
+                        const contentHash = msg.content
+                          .slice(0, 10)
+                          .replace(/\s/g, "");
+                        const uniqueKey = `message-${idx}-${msg.role}-${contentHash}-${Date.now()}`;
 
                         return (
                           <div
                             key={uniqueKey}
-                            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                           >
                             <div
                               className={cn(
-                                'group flex flex-col gap-2 min-w-0 focus:outline-none',
-                                msg.role === 'user' ? 'max-w-[85%]' : 'w-full',
+                                "group flex flex-col gap-2 min-w-0 focus:outline-none",
+                                msg.role === "user" ? "max-w-[85%]" : "w-full"
                               )}
                             >
                               <div
                                 className={cn(
-                                  'px-4 py-3 break-words overflow-wrap-anywhere text-base leading-relaxed',
-                                  msg.role === 'user'
-                                    ? 'bg-rose-500/5 dark:bg-rose-300/5 text-black dark:text-white rounded-lg'
-                                    : 'text-black dark:text-white',
+                                  "px-4 py-3 break-words overflow-wrap-anywhere text-base leading-relaxed",
+                                  msg.role === "user"
+                                    ? "bg-rose-500/5 dark:bg-rose-300/5 text-black dark:text-white rounded-lg"
+                                    : "text-black dark:text-white"
                                 )}
                               >
-                                {msg.role === 'assistant' ? (
-                                  <MessageRenderer content={msg.content} modelId={selectedModel?.id} />
+                                {msg.role === "assistant" ? (
+                                  <MessageRenderer
+                                    content={msg.content}
+                                    modelId={selectedModel?.id}
+                                  />
                                 ) : (
                                   msg.content
                                 )}
                               </div>
                             </div>
                           </div>
-                        )
+                        );
                       })}
                       <div ref={messagesEndRef} />
                     </div>
@@ -424,5 +485,5 @@ export function SimpleVoiceChat({
         }
       `}</style>
     </AnimatePresence>
-  )
+  );
 }

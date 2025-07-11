@@ -1,6 +1,8 @@
 "use client";
 
 import { AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
+import ModelSelectDropdown from "../_components/_chat/ModelSelectDropdown";
 import AIInput from "@/components/_components/_chat/kokonutui/ai-input";
 import { useChatInterface } from "@/app/hooks/useChatInterface";
 import { MessageList } from "@/components/_components/_chat/MessageList";
@@ -12,6 +14,7 @@ import { UploadButton } from "@/lib/uploadthing";
 import { Paperclip, FileText, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { useSidebar } from "@/app/hooks/useSidebar";
 import { cn } from "@/lib/utils";
 import { ConvexMessage } from "@/lib/types";
 import { useMutation } from "convex/react";
@@ -81,6 +84,18 @@ export default function ChatInterface({
     scrollToBottom,
     userSettings,
   } = useChatInterface(chatId, initialMessages);
+
+  // Portal target for the model select (placed in _sidebar/index.tsx)
+  const [modelSelectTarget, setModelSelectTarget] = useState<Element | null>(
+    null
+  );
+  const { sidebarOpen } = useSidebar();
+  useEffect(() => {
+    const containerId = sidebarOpen
+      ? "model-select-container-open"
+      : "model-select-container";
+    setModelSelectTarget(document.getElementById(containerId));
+  }, [sidebarOpen]);
 
   const maxFiles = 2;
   const [uploadProgress, setUploadProgress] = useState<{
@@ -270,6 +285,7 @@ export default function ChatInterface({
             onVoiceChatToggle={
               isAuthenticated ? handleVoiceChatToggle : undefined
             }
+            displayModelSelect={false}
             uploadButton={
               selectedModel.attachmentsSuppport.image ||
               selectedModel.attachmentsSuppport.pdf ? (
@@ -359,6 +375,18 @@ export default function ChatInterface({
           />
         </div>
       </div>
+
+      {/* Model Select dropdown rendered in the top bar */}
+      {modelSelectTarget &&
+        createPortal(
+          <ModelSelectDropdown
+            selectedModel={selectedModel}
+            setSelectedModel={setSelectedModel}
+            isSignedIn={isAuthenticated}
+            mounted={mounted}
+          />,
+          modelSelectTarget
+        )}
 
       {/* Simple Voice Chat */}
       {/* TODO: feature: voice */}
