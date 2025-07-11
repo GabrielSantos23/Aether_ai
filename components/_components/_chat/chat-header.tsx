@@ -8,7 +8,7 @@ const ChatHeader = () => {
         className="absolute left-2 top-2 z-50"
       />
       <div
-        className="absolute overflow-hidden transition-[top] duration-100 ease-snappy grid place-items-center -right-3 has-[.sidebar-check:checked]:-top-20 top-0 !z-50 h-16 w-32 max-sm:hidden "
+        className="absolute overflow-hidden transition-[top] duration-100  ease-snappy grid place-items-center -right-3 has-[.sidebar-check:checked]:-top-20 top-0 !z-50 h-16 w-32 max-sm:hidden "
         style={{ clipPath: "inset(0px 12px 0px 0px)" }}
       >
         <input
@@ -46,6 +46,7 @@ const ChatHeader = () => {
               strokeLinecap="round"
               strokeMiterlimit="10"
               vectorEffect="non-scaling-stroke"
+              style={{ stroke: "var(--border)", strokeWidth: "1px" }}
               d="M0,0c5.9,0,10.7,4.8,10.7,10.7v10.7c0,5.9,4.8,10.7,10.7,10.7H128V0"
             ></path>
           </svg>

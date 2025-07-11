@@ -123,7 +123,7 @@ export default function WelcomeScreen({ onPromptClick }: WelcomeScreenProps) {
         transition: { duration: 0.25, ease: [0.25, 1, 0.5, 1] },
       }}
       transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
-      className="absolute inset-0 flex flex-col items-center justify-start p-6 pt-14 pb-24 "
+      className="absolute inset-x-0 top-1/2 bottom-0 z-0 flex flex-col items-center justify-start p-6 pt-12 md:pt-16 pb-24 "
     >
       {/* Navigation Tabs */}
       <div className="flex items-center justify-center gap-2 mb-12  p-1 ">

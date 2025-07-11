@@ -4,7 +4,14 @@ export interface ModelInfo {
   id: string;
   name: string;
   description: string;
-  vendor: 'google' | 'anthropic' | 'openai' | 'deepseek' | 'meta' | 'sarvam' | 'qwen',
+  vendor:
+    | "google"
+    | "anthropic"
+    | "openai"
+    | "deepseek"
+    | "meta"
+    | "sarvam"
+    | "qwen";
   provider:
     | "gemini"
     | "openrouter"
@@ -21,7 +28,14 @@ export interface ModelInfo {
     | "meta"
     | "sarvam"
     | "qwen";
-  features: ("vision" | "web" | "code" | "imagegen" | "weather" | "googledrive")[];
+  features: (
+    | "vision"
+    | "web"
+    | "code"
+    | "imagegen"
+    | "weather"
+    | "googledrive"
+  )[];
   isPro?: boolean;
   isNew?: boolean;
   supportsThinking?: boolean;
@@ -238,7 +252,7 @@ export const models: ModelInfo[] = [
     name: "Llama 3.2 3B",
     description: "Meta's compact model for lightweight applications",
     vendor: "meta",
-        provider: "openrouter",
+    provider: "openrouter",
     category: "meta",
     features: ["vision", "code", "weather"],
     isPro: true,
@@ -458,7 +472,7 @@ export const models: ModelInfo[] = [
     name: "GPT-4o",
     description: "OpenAI's most capable multimodal model",
     vendor: "openai",
-    provider: "openrouter",
+    provider: "openai",
     category: "openai",
     features: ["vision", "code", "weather", "googledrive"],
     isPro: true,
@@ -478,7 +492,7 @@ export const models: ModelInfo[] = [
     name: "GPT-4.1-mini",
     description: "OpenAI's efficient model balancing performance and cost",
     vendor: "openai",
-      provider: "openai",
+    provider: "openai",
     category: "openai",
     features: ["vision", "code", "weather"],
     isPro: true,

@@ -6,7 +6,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useAutoResizeTextarea } from "@/app/hooks/resize-textarea";
 import {
-  ArrowUpCircle,
   Paperclip,
   Globe,
   ChevronDown,
@@ -18,14 +17,14 @@ import {
   FileText,
   Image,
   Upload,
-  ArrowRight,
+  Send,
+  FlaskConical,
   Mic,
   Eye,
   Code,
   MountainIcon,
   Phone,
   AudioLines,
-  ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -105,7 +104,7 @@ export default function AIInput({
   const [groupBy, setGroupBy] = useState<"provider" | "vendor">("provider");
   const [isDragOver, setIsDragOver] = useState(false);
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
-    minHeight: 40,
+    minHeight: 48,
     maxHeight: 160,
   });
   const uploadButtonRef = useRef<HTMLDivElement>(null);
@@ -417,10 +416,10 @@ export default function AIInput({
     );
 
   return (
-    <div className="relative">
+    <div className="relative z-50 w-full  mx-auto">
       <div
         className={cn(
-          "relative flex flex-col bg-card/80 backdrop-blur-xl border border-border overflow-visible rounded-2xl shadow-lg shadow-primary/5 dark:shadow-lg dark:shadow-black/20 transition-all duration-200",
+          "relative flex flex-col w-full bg-sidebar border border-border overflow-visible rounded-2xl transition-all duration-200 hover:border-border/50 focus-within:border-border/50",
           isDragOver && "border-primary/30 bg-primary/5"
         )}
         onDragOver={handleDragOver}
@@ -439,9 +438,7 @@ export default function AIInput({
           </div>
         )}
 
-        {/* Subtle gradient overlay for premium look */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none rounded-2xl"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/20 dark:to-white/5 pointer-events-none rounded-2xl"></div>
+        {/* Removed extra gradient overlays in favour of simpler look */}
 
         {/* Attachments Display */}
         {(attachments.length > 0 || isUploading) && (
@@ -543,7 +540,7 @@ export default function AIInput({
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
             disabled={isTyping}
-            className="w-full px-3 md:px-4 py-2 resize-none bg-transparent border-0 outline-none text-sm md:text-base min-h-[40px] leading-normal placeholder:text-muted-foreground text-foreground"
+            className="w-full bg-transparent border-none text-sm md:text-base min-h-[48px] leading-[1.4] px-2 py-3 resize-none text-slate-200 placeholder:text-slate-400 focus-visible:ring-0"
             style={{
               overflow: "hidden",
               outline: "none",
@@ -551,7 +548,7 @@ export default function AIInput({
               boxShadow: "none",
               WebkitAppearance: "none",
               fontFamily: "inherit",
-              height: "40px", // Match the minHeight to prevent hydration mismatch
+              height: "48px", // Match the new minHeight to prevent hydration mismatch
             }}
           />
         </div>
@@ -918,11 +915,54 @@ export default function AIInput({
                   type="button"
                   onClick={() => setWebSearchEnabled(!webSearchEnabled)}
                   className={cn(
-                    "w-7 h-7 md:w-8 md:h-8 text-muted-foreground hover:text-primary transition-all duration-200 rounded-md bg-card/80 hover:bg-primary/10 flex items-center justify-center",
-                    webSearchEnabled && "bg-primary/20 text-primary"
+                    "rounded-full transition-all flex items-center gap-2 px-2 py-1.5 border h-8 cursor-pointer text-xs font-medium",
+                    webSearchEnabled
+                      ? "bg-sky-500/20 border-sky-400/50 text-sky-400"
+                      : "bg-slate-700/50 border-slate-600/50 text-slate-400 hover:text-slate-200 hover:bg-slate-700/70"
                   )}
                 >
-                  <Globe className="w-3.5 md:w-4 h-3.5 md:h-4" />
+                  <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                    <motion.div
+                      animate={{
+                        rotate: webSearchEnabled ? 180 : 0,
+                        scale: webSearchEnabled ? 1.1 : 1,
+                      }}
+                      whileHover={{
+                        rotate: webSearchEnabled ? 180 : 15,
+                        scale: 1.1,
+                        transition: {
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 10,
+                        },
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 260,
+                        damping: 25,
+                      }}
+                    >
+                      <Globe
+                        className={cn(
+                          "w-4 h-4",
+                          webSearchEnabled ? "text-sky-400" : "text-inherit"
+                        )}
+                      />
+                    </motion.div>
+                  </div>
+                  <AnimatePresence>
+                    {webSearchEnabled && (
+                      <motion.span
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: "auto", opacity: 1 }}
+                        exit={{ width: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-xs overflow-hidden whitespace-nowrap text-sky-400 shrink-0"
+                      >
+                        Search
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </button>
               )}
               {isSignedIn && selectedModel.features.includes("imagegen") && (
@@ -930,11 +970,63 @@ export default function AIInput({
                   type="button"
                   onClick={() => setImageGenEnabled(!imageGenEnabled)}
                   className={cn(
-                    "w-7 h-7 md:w-8 md:h-8 text-muted-foreground hover:text-primary transition-all duration-200 rounded-md bg-card/80 hover:bg-primary/10 flex items-center justify-center",
-                    imageGenEnabled && "bg-primary/20 text-primary"
+                    "rounded-full transition-all flex items-center gap-2 px-2 py-1.5 border h-8 cursor-pointer text-xs font-medium",
+                    imageGenEnabled
+                      ? "bg-purple-500/20 border-purple-400/50 text-purple-400"
+                      : "bg-slate-700/50 border-slate-600/50 text-slate-400 hover:text-slate-200 hover:bg-slate-700/70"
                   )}
                 >
-                  <ImageIcon className="w-3.5 md:w-4 h-3.5 md:h-4" />
+                  <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                    <motion.div
+                      animate={{
+                        rotate: imageGenEnabled ? 360 : 0,
+                        scale: imageGenEnabled ? 1.1 : 1,
+                      }}
+                      whileHover={{
+                        rotate: imageGenEnabled ? 360 : 45,
+                        scale: 1.1,
+                        transition: {
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 10,
+                        },
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 260,
+                        damping: 25,
+                      }}
+                    >
+                      <FlaskConical
+                        className={cn(
+                          "w-4 h-4",
+                          imageGenEnabled ? "text-purple-400" : "text-inherit"
+                        )}
+                      />
+                    </motion.div>
+                  </div>
+                  <AnimatePresence>
+                    {imageGenEnabled && (
+                      <motion.span
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: "auto", opacity: 1 }}
+                        exit={{ width: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-xs overflow-hidden whitespace-nowrap text-purple-400 shrink-0"
+                      >
+                        Research
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  {imageGenEnabled && (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="text-xs bg-purple-500/20 text-purple-300 px-1 py-0.5 rounded text-[10px] font-medium"
+                    >
+                      BETA
+                    </motion.span>
+                  )}
                 </button>
               )}
             </div>
@@ -972,17 +1064,9 @@ export default function AIInput({
                   type="button"
                   onClick={handleSend}
                   disabled={isStreaming}
-                  className={cn(
-                    "group p-2 md:p-2.5 transition-all duration-300 rounded-full",
-                    "text-primary shadow-md shadow-primary/20 scale-100 hover:bg-primary/10"
-                  )}
+                  className="rounded-full p-2 transition-colors ml-1 bg-slate-200 text-slate-800 hover:bg-white cursor-pointer"
                 >
-                  <ArrowRight
-                    className={cn(
-                      "w-5 md:w-6 h-5 md:h-6 transition-transform duration-300 -rotate-90",
-                      "translate-y-[-2px] group-hover:translate-y-[-4px]"
-                    )}
-                  />
+                  <Send className="w-4 h-4" />
                 </button>
               ) : (
                 <Tooltip delayDuration={0}>
