@@ -62,7 +62,7 @@ export default function SearchThreads({
     try {
       // Create a new chat with a default title
       const chatId = await createChat({ title: "New chat" });
-      
+
       if (chatId) {
         // Navigate to the new chat
         router.push(`/chat/${chatId}`);
@@ -93,14 +93,14 @@ export default function SearchThreads({
   // Add keyboard shortcut listener (Ctrl+K or Command+K)
   useEffect(() => {
     const handleKeyboardShortcut = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         e.preventDefault();
-        setIsOpen(prev => !prev); // Toggle the dialog state
+        setIsOpen((prev) => !prev); // Toggle the dialog state
       }
     };
 
-    window.addEventListener('keydown', handleKeyboardShortcut);
-    return () => window.removeEventListener('keydown', handleKeyboardShortcut);
+    window.addEventListener("keydown", handleKeyboardShortcut);
+    return () => window.removeEventListener("keydown", handleKeyboardShortcut);
   }, []);
 
   const filteredResults = searchResults || [];
@@ -116,9 +116,9 @@ export default function SearchThreads({
         className="!w-full gap-3"
         icon2={
           searchQuery.length > 0 ? (
-            <IoMdClose 
+            <IoMdClose
               className="cursor-pointer"
-              onClick={() => setSearchQuery("")} 
+              onClick={() => setSearchQuery("")}
             />
           ) : null
         }
@@ -127,7 +127,9 @@ export default function SearchThreads({
         role="searchbox"
         aria-label="Search your threads..."
         value={searchQuery}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setSearchQuery(e.target.value)
+        }
         onKeyDown={handleKeyDown}
         icon={
           isLoading ? (
@@ -143,7 +145,7 @@ export default function SearchThreads({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className="rounded-xl">
           <FiSearch />
           {/* <kbd className="ml-2 hidden text-xs text-muted-foreground sm:inline-flex items-center gap-1">
             <span className="text-[10px]">{navigator.platform.indexOf("Mac") === 0 ? "⌘" : "Ctrl"}</span>K
@@ -152,7 +154,7 @@ export default function SearchThreads({
       </DialogTrigger>
       <DialogContent
         className={cn(
-          "pointer-events-auto w-full max-w-md rounded-xl bg-popover p-2.5 pt-2 text-secondary-foreground shadow-2xl outline gap-1 outline-border/20 backdrop-blur-md sm:max-w-xl"
+          "pointer-events-auto w-full max-w-md rounded-2xl bg-popover p-2.5 pt-2 text-secondary-foreground shadow-2xl outline gap-1 outline-border/20 backdrop-blur-md sm:max-w-xl"
         )}
       >
         <DialogHeader className="relative border-b border-chat-border">
@@ -260,7 +262,7 @@ export default function SearchThreads({
                   </li>
                 ))}
               </ul>
-              
+
               {/* Add New Chat Button */}
               <div className="mt-2 flex justify-center">
                 <Button

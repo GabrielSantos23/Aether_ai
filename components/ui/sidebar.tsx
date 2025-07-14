@@ -23,6 +23,8 @@ import { mergeButtonRefs } from "@/components/ui/merge-button-refs";
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+// Add key for localStorage persistence
+const SIDEBAR_STORAGE_KEY = "sidebar_state";
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
@@ -97,24 +99,36 @@ const SidebarProvider = React.forwardRef<
       (value: boolean | ((value: boolean) => boolean)) => {
         const openState = typeof value === "function" ? value(open) : value;
         console.log("Sidebar open state changed", openState);
-        
+
         if (setOpenProp) {
           setOpenProp(openState);
         } else {
           _setOpen(openState);
         }
-      
+
         // Target checkbox with name "sidebar-check" and set its checked state
-        const sidebarCheckboxes = document.querySelectorAll('input[type="checkbox"][name="sidebar-check"]') as NodeListOf<HTMLInputElement>;
-       
+        const sidebarCheckboxes = document.querySelectorAll(
+          'input[type="checkbox"][name="sidebar-check"]'
+        ) as NodeListOf<HTMLInputElement>;
+
         if (sidebarCheckboxes.length > 0) {
-          sidebarCheckboxes.forEach(checkbox => {
+          sidebarCheckboxes.forEach((checkbox) => {
             checkbox.checked = !openState;
           });
         }
-      
+
         // This sets the cookie to keep the sidebar state.
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+
+        // Also persist the state in localStorage so it survives page reloads.
+        try {
+          localStorage.setItem(
+            `${SIDEBAR_STORAGE_KEY}_left`,
+            JSON.stringify(openState)
+          );
+        } catch (error) {
+          console.error("Error saving sidebar state to localStorage", error);
+        }
       },
       [setOpenProp, open]
     );
@@ -182,6 +196,20 @@ const SidebarProvider = React.forwardRef<
         isDraggingRail,
       ]
     );
+
+    // Ensure the sidebar checkbox reflects current open state on initial mount and whenever it changes
+    React.useEffect(() => {
+      try {
+        const sidebarCheckboxes = document.querySelectorAll(
+          'input[type="checkbox"][name="sidebar-check"]'
+        ) as NodeListOf<HTMLInputElement>;
+        sidebarCheckboxes.forEach((checkbox) => {
+          checkbox.checked = !open;
+        });
+      } catch (error) {
+        console.error("Error updating sidebar checkbox state", error);
+      }
+    }, [open]);
 
     return (
       <SidebarContext.Provider value={contextValue}>
@@ -344,6 +372,7 @@ const SidebarTrigger = React.forwardRef<
         toggleSidebar();
       }}
       {...props}
+      className="rounded-xl"
     >
       <PanelLeft />
       <span className="sr-only">Toggle Sidebar</span>
@@ -391,7 +420,6 @@ const SidebarRail = React.forwardRef<
       aria-label="Toggle Sidebar"
       tabIndex={-1}
       onMouseDown={handleMouseDown}
-      
       title="Toggle Sidebar"
       className={cn(
         "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-[opacity, translate-x] ease-snappy after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex",
@@ -453,7 +481,10 @@ const SidebarHeader = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="header"
-      className={cn("flex flex-col gap-2 relative m-1 mb-0 space-y-1 p-0 !pt-safe", className)}
+      className={cn(
+        "flex flex-col gap-2 relative m-1 mb-0 space-y-1 p-0 !pt-safe",
+        className
+      )}
       {...props}
     />
   );
@@ -516,7 +547,10 @@ const SidebarGroup = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="group"
-      className={cn("relative flex w-full min-w-0 flex-col p-2 px-3.5 ", className)}
+      className={cn(
+        "relative flex w-full min-w-0 flex-col p-2 px-3.5 ",
+        className
+      )}
       {...props}
     />
   );
@@ -600,7 +634,10 @@ const SidebarMenuItem = React.forwardRef<
   <li
     ref={ref}
     data-sidebar="menu-item"
-    className={cn("group/menu-item text-muted-foreground px-3 relative text-sm", className)}
+    className={cn(
+      "group/menu-item text-muted-foreground px-3 relative text-sm",
+      className
+    )}
     {...props}
   />
 ));

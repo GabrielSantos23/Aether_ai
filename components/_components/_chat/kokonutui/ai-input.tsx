@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useAutoResizeTextarea } from "@/app/hooks/resize-textarea";
 import {
@@ -25,6 +25,7 @@ import {
   MountainIcon,
   Phone,
   AudioLines,
+  Book,
 } from "lucide-react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -41,6 +42,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
 
 interface Attachment {
   name: string;
@@ -55,7 +57,7 @@ interface AIInputProps {
   onSend?: (
     message: string,
     model: string,
-    options: { webSearch?: boolean; imageGen?: boolean }
+    options: { webSearch?: boolean; imageGen?: boolean; research?: boolean }
   ) => void;
   isTyping?: boolean;
   onStop?: () => void;
@@ -101,6 +103,7 @@ export default function AIInput({
   const [thinkingEnabled, setThinkingEnabled] = useState(true);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [imageGenEnabled, setImageGenEnabled] = useState(false);
+  const [researchEnabled, setResearchEnabled] = useState(false);
   const [groupBy, setGroupBy] = useState<"provider" | "vendor">("provider");
   const [isDragOver, setIsDragOver] = useState(false);
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
@@ -240,6 +243,11 @@ export default function AIInput({
       setImageGenEnabled(savedImageGenEnabled === "true");
     }
 
+    const savedResearchEnabled = localStorage.getItem("researchEnabled");
+    if (savedResearchEnabled !== null) {
+      setResearchEnabled(savedResearchEnabled === "true");
+    }
+
     const savedGroupBy = localStorage.getItem("groupBy");
     if (savedGroupBy === "provider" || savedGroupBy === "vendor") {
       setGroupBy(savedGroupBy);
@@ -260,6 +268,11 @@ export default function AIInput({
   useEffect(() => {
     localStorage.setItem("imageGenEnabled", imageGenEnabled.toString());
   }, [imageGenEnabled]);
+
+  // Save research preference
+  useEffect(() => {
+    localStorage.setItem("researchEnabled", researchEnabled.toString());
+  }, [researchEnabled]);
 
   // Save groupBy preference
   useEffect(() => {
@@ -339,6 +352,7 @@ export default function AIInput({
       onSend(value.trim(), selectedModel.id, {
         webSearch: webSearchEnabled,
         imageGen: imageGenEnabled,
+        research: researchEnabled,
       });
       if (messagesLength === 0) {
         setTimeout(() => {
@@ -416,7 +430,7 @@ export default function AIInput({
     );
 
   return (
-    <div className="relative z-50 w-full  mx-auto">
+    <div className="relative">
       <div
         className={cn(
           "relative flex flex-col w-full bg-sidebar border border-border overflow-visible rounded-2xl transition-all duration-200 hover:border-border/50 focus-within:border-border/50",
@@ -965,7 +979,7 @@ export default function AIInput({
                   </AnimatePresence>
                 </button>
               )}
-              {isSignedIn && selectedModel.features.includes("imagegen") && (
+              {isSignedIn && (
                 <button
                   type="button"
                   onClick={() => setImageGenEnabled(!imageGenEnabled)}
@@ -979,11 +993,11 @@ export default function AIInput({
                   <div className="w-4 h-4 flex items-center justify-center shrink-0">
                     <motion.div
                       animate={{
-                        rotate: imageGenEnabled ? 360 : 0,
+                        rotate: imageGenEnabled ? 180 : 0,
                         scale: imageGenEnabled ? 1.1 : 1,
                       }}
                       whileHover={{
-                        rotate: imageGenEnabled ? 360 : 45,
+                        rotate: imageGenEnabled ? 180 : 15,
                         scale: 1.1,
                         transition: {
                           type: "spring",
@@ -1014,15 +1028,70 @@ export default function AIInput({
                         transition={{ duration: 0.2 }}
                         className="text-xs overflow-hidden whitespace-nowrap text-purple-400 shrink-0"
                       >
+                        Image
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+              )}
+              {isSignedIn && (
+                <button
+                  type="button"
+                  onClick={() => setResearchEnabled(!researchEnabled)}
+                  className={cn(
+                    "rounded-full transition-all flex items-center gap-2 px-2 py-1.5 border h-8 cursor-pointer text-xs font-medium",
+                    researchEnabled
+                      ? "bg-emerald-500/20 border-emerald-400/50 text-emerald-400"
+                      : "bg-slate-700/50 border-slate-600/50 text-slate-400 hover:text-slate-200 hover:bg-slate-700/70"
+                  )}
+                >
+                  <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                    <motion.div
+                      animate={{
+                        rotate: researchEnabled ? 360 : 0,
+                        scale: researchEnabled ? 1.1 : 1,
+                      }}
+                      whileHover={{
+                        rotate: researchEnabled ? 360 : 45,
+                        scale: 1.1,
+                        transition: {
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 10,
+                        },
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 260,
+                        damping: 25,
+                      }}
+                    >
+                      <Book
+                        className={cn(
+                          "w-4 h-4",
+                          researchEnabled ? "text-emerald-400" : "text-inherit"
+                        )}
+                      />
+                    </motion.div>
+                  </div>
+                  <AnimatePresence>
+                    {researchEnabled && (
+                      <motion.span
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: "auto", opacity: 1 }}
+                        exit={{ width: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-xs overflow-hidden whitespace-nowrap text-emerald-400 shrink-0"
+                      >
                         Research
                       </motion.span>
                     )}
                   </AnimatePresence>
-                  {imageGenEnabled && (
+                  {researchEnabled && (
                     <motion.span
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="text-xs bg-purple-500/20 text-purple-300 px-1 py-0.5 rounded text-[10px] font-medium"
+                      className="text-xs bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded text-[10px] font-medium"
                     >
                       BETA
                     </motion.span>
@@ -1130,3 +1199,195 @@ export default function AIInput({
     </div>
   );
 }
+
+// -------------------------------------------
+// WelcomeScreen component (moved from components/WelcomeScreen.tsx)
+
+interface WelcomeScreenProps extends AIInputProps {
+  onPromptClick: (prompt: string) => void;
+}
+
+const promptsByCategory = {
+  Create: [
+    "Create three images of a blonde haired black moustached man that get progressively more unhinged",
+    "Generate an image of someone generating an image of a cat",
+    "Design a futuristic cityscape with flying cars",
+    "Create a logo for a sustainable coffee shop",
+    "Write a short story about time travel",
+    "Design a minimalist poster for a music festival",
+    "Create a character design for a sci-fi game",
+    "Write a poem about artificial intelligence",
+  ],
+  Explore: [
+    "How does AI work?",
+    "What would happen if you fell into a black hole?",
+    "Explain quantum physics simply",
+    "What is consciousness?",
+    "How big is the universe?",
+    "What causes the northern lights?",
+    "Are we alone in the universe?",
+    "How do dreams work?",
+  ],
+  Code: [
+    "Help me debug this React component",
+    "Explain APIs in simple terms",
+    "What programming language should I learn first?",
+    "How do you optimize website performance?",
+    "Create a simple Python script for data analysis",
+    "Explain the difference between SQL and NoSQL",
+    "How do you implement authentication in a web app?",
+    "What are the best practices for clean code?",
+  ],
+  Learn: [
+    "How do you learn a new language effectively?",
+    "What makes a good password?",
+    "How do you overcome procrastination?",
+    "What are some healthy meal prep ideas?",
+    "How do you build good habits?",
+    "What makes a great leader?",
+    "How do you manage your time effectively?",
+    "What are the best study techniques?",
+  ],
+} as const;
+
+// Navigation items with icons
+const NAV_ITEMS = [
+  { name: "Create", icon: <Sparkles className="w-4 h-4" /> },
+  { name: "Explore", icon: <Globe className="w-4 h-4" /> },
+  { name: "Code", icon: <Code className="w-4 h-4" /> },
+  { name: "Learn", icon: <Book className="w-4 h-4" /> },
+] as const;
+
+function PromptItem({
+  prompt,
+  onClick,
+}: {
+  prompt: string;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "group p-4 cursor-pointer transition-all duration-200 ease-out relative overflow-hidden"
+      )}
+    >
+      <div className="flex flex-col items-start text-left relative z-10 text-sm leading-relaxed border-b gap-2 group-hover:text-foreground text-muted-foreground transition-colors duration-200">
+        {prompt}
+        <Separator
+          className="w-full opacity-10"
+          style={{ height: "0.5px", minHeight: "0.5px" }}
+        />
+      </div>
+
+      {/* Subtle hover glow */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+    </div>
+  );
+}
+
+export function WelcomeScreen({
+  onPromptClick,
+  ...inputProps
+}: WelcomeScreenProps) {
+  const [activeTab, setActiveTab] =
+    useState<keyof typeof promptsByCategory>("Create");
+
+  const [displayPrompts, setDisplayPrompts] = useState<string[]>([]);
+
+  const isTyping = (inputProps.value || "").trim().length > 0;
+
+  useEffect(() => {
+    const categoryPrompts = promptsByCategory[activeTab];
+    const shuffled = [...categoryPrompts].sort(() => 0.5 - Math.random());
+    setDisplayPrompts(shuffled.slice(0, 4));
+  }, [activeTab]);
+
+  useEffect(() => {
+    const categoryPrompts = promptsByCategory[activeTab];
+    const shuffled = [...categoryPrompts].sort(() => 0.5 - Math.random());
+    setDisplayPrompts(shuffled.slice(0, 4));
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 15, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{
+        opacity: 0,
+        y: -20,
+        scale: 0.9,
+        transition: { duration: 0.25, ease: [0.25, 1, 0.5, 1] },
+      }}
+      transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
+      className="absolute inset-0 z-0 flex flex-col items-center justify-start p-6 pt-32 md:pt-40 pb-24"
+    >
+      {/* Heading */}
+      <h2 className="text-lg md:text-2xl font-semibold mb-6 text-center">
+        What's on your mind?
+      </h2>
+
+      {/* AI Input */}
+      <div className="w-full max-w-3xl mb-10">
+        {/* We hide the model select button to keep UI minimal on welcome screen */}
+        {
+          <AIInput
+            {...(inputProps as AIInputProps)}
+            displayModelSelect={false}
+          />
+        }
+      </div>
+
+      {/* Navigation Tabs */}
+      {!isTyping && (
+        <div className="flex items-center justify-center gap-2 mb-8">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.name}
+              onClick={() =>
+                setActiveTab(item.name as keyof typeof promptsByCategory)
+              }
+              className={cn(
+                "px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 flex items-center gap-2 relative",
+                activeTab === item.name
+                  ? "bg-primary text-secondary"
+                  : "bg-background border hover:bg-accent"
+              )}
+            >
+              <span className="text-xs">{item.icon}</span>
+              {item.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Content Area */}
+      {!isTyping && (
+        <div className="max-w-2xl w-full">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="space-y-3"
+          >
+            {displayPrompts.map((prompt, i) => (
+              <motion.div
+                key={`${prompt}-${i}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.05 }}
+              >
+                <PromptItem
+                  prompt={prompt}
+                  onClick={() => onPromptClick(prompt)}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      )}
+    </motion.div>
+  );
+}
+// -------------------------------------------

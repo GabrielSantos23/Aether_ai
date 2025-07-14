@@ -228,80 +228,88 @@
 }
 
 .boring-light {
-  --background: 293.7 0% 92%;
-  --foreground: 296 0% 21%;
-  --card: 291 0% 97%;
-  --card-foreground: 240 0% 30%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 296 0% 21%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 314.7 0% 85.7%;
-  --secondary-foreground: 295.8 0% 34.5%;
-  --muted: 327.7 0% 78.7%;
-  --muted-foreground: 327 0% 38%;
-  --accent: 314.7 0% 85.7%;
-  --accent-foreground: 240 0% 30%;
-  --destructive: 270 0% 50%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 304.6 0% 90.8%;
-  --input: 317.4 0% 83.1%;
-  --ring: 260 0% 50.6%;
-  --sidebar-background: 290.3 0% 87.6%;
-  --sidebar-foreground: 240 0% 30%;
-  --sidebar-primary: 240 0% 30%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 60 0% 97%;
-  --sidebar-accent-foreground: 240 0% 30%;
-  --sidebar-border: 20 0% 92%;
-  --sidebar-ring: 260 0% 50.6%;
-  --gradient-noise-top: 292 0% 93.1%;
-  --color-heading: 260 0% 19.8%;
-  --chat-border: 304.8 0% 83.9%;
-  --chat-background: 300 0% 98%;
+  --background: hsl(293.7 0% 92%);
+  --foreground: hsl(296 0% 21%);
+  --card: hsl(291 0% 97%);
+  --card-foreground: hsl(240 0% 30%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(296 0% 21%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(314.7 0% 85.7%);
+  --secondary-foreground: hsl(295.8 0% 34.5%);
+  --muted: hsl(327.7 0% 78.7%);
+  --muted-foreground: hsl(327 0% 38%);
+  --accent: hsl(314.7 0% 85.7%);
+  --accent-foreground: hsl(240 0% 30%);
+  --destructive: hsl(270 0% 50%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(304.6 0% 90.8%);
+  --input: hsl(317.4 0% 83.1%);
+  --ring: hsl(260 0% 50.6%);
+  --sidebar-background: hsl(290.3 0% 87.6%);
+  --sidebar-foreground: hsl(240 0% 30%);
+  --sidebar-primary: hsl(240 0% 30%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(60 0% 97%);
+  --sidebar-accent-foreground: hsl(240 0% 30%);
+  --sidebar-border: hsl(20 0% 92%);
+  --sidebar-ring: hsl(260 0% 50.6%);
+  --gradient-noise-top: hsl(292 0% 93.1%);
+  --color-heading: hsl(260 0% 19.8%);
+  --chat-border: hsl(304.8 0% 83.9%);
+  --chat-background: hsl(300 0% 98%);
   --chat-accent: #f3f3f3;
-  --chat-overlay: hsla(309, 0%, 92%, var(--blur-fallback, 0.72));
-  --chat-input-gradient: 295 0% 90%;
-  --chat-input-background: hsla(270, 0%, 100%, var(--blur-fallback, 0.1));
+  --chat-overlay: hsla(309 0% 92% / var(--blur-fallback, 0.72));
+  --chat-input-gradient: hsl(295 0% 90%);
+  --chat-input-background: hsla(270 0% 100% / var(--blur-fallback, 0.1));
   --wordmark-color: #666;
+  --primary: hsl(270 0% 30%);
+  --accent: hsl(270 0% 75%);
+  --chart-1: hsl(270 0% 30%);
+  --sidebar-primary: hsl(270 0% 30%);
 }
 
 .boring-dark {
-  --background: 313.8 0% 8.4%;
-  --foreground: 270 0% 97.8%;
-  --card: 300 0% 3.7%;
-  --card-foreground: 240 0% 95.9%;
-  --popover: 320 0% 5.1%;
-  --popover-foreground: 326 0% 96%;
-  --primary: 260 100% 32%;
-  --primary-foreground: 270 0% 90%;
-  --secondary: 273.8 0% 20.8%;
-  --secondary-foreground: 270 0% 83%;
-  --muted: 283 0% 25%;
-  --muted-foreground: 270 0% 69%;
-  --accent: 272 0% 27%;
-  --accent-foreground: 270 0% 96%;
-  --destructive: 270 0% 35.29%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 262.5 0% 15.7%;
-  --input: 326.3 0% 15.7%;
-  --ring: 260, 0%, 50.6%;
-  --sidebar-background: 240 0% 7.6%;
-  --sidebar-foreground: 240 0% 95.9%;
-  --sidebar-primary: 260 0% 48%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 318.5 0% 12.4%;
-  --sidebar-accent-foreground: 240 0% 95.9%;
-  --sidebar-border: 0 0% 0%;
-  --sidebar-ring: 260 0% 50.6%;
-  --gradient-noise-top: 313.8 0% 8.4%;
-  --color-heading: 270 0% 49.8%;
-  --chat-border: 334.3 0% 16.9%;
-  --chat-background: 270 0% 12.16%;
+  --background: hsl(313.8 0% 8.4%);
+  --foreground: hsl(270 0% 97.8%);
+  --card: hsl(300 0% 3.7%);
+  --card-foreground: hsl(240 0% 95.9%);
+  --popover: hsl(320 0% 5.1%);
+  --popover-foreground: hsl(326 0% 96%);
+  --primary: hsl(270 0% 80%);
+  --primary-foreground: hsl(270 0% 90%);
+  --secondary: hsl(273.8 0% 20.8%);
+  --secondary-foreground: hsl(270 0% 83%);
+  --muted: hsl(283 0% 25%);
+  --muted-foreground: hsl(270 0% 69%);
+  --accent: hsl(272 0% 27%);
+  --accent-foreground: hsl(270 0% 96%);
+  --destructive: hsl(270 0% 35.29%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(262.5 0% 15.7%);
+  --input: hsl(326.3 0% 15.7%);
+  --ring: hsl(260 0% 50.6%);
+  --sidebar-background: hsl(240 0% 7.6%);
+  --sidebar-foreground: hsl(240 0% 95.9%);
+  --sidebar-primary: hsl(260 0% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(318.5 0% 12.4%);
+  --sidebar-accent-foreground: hsl(240 0% 95.9%);
+  --sidebar-border: hsl(0 0% 0%);
+  --sidebar-ring: hsl(260 0% 50.6%);
+  --gradient-noise-top: hsl(313.8 0% 8.4%);
+  --color-heading: hsl(270 0% 49.8%);
+  --chat-border: hsl(334.3 0% 16.9%);
+  --chat-background: hsl(270 0% 12.16%);
   --chat-accent: rgba(26, 26, 26, 0.86);
-  --chat-overlay: hsla(270, 0%, 16%, var(--blur-fallback, 0.71));
-  --chat-input-gradient: 289 0% 21%;
-  --chat-input-background: hsla(270, 0%, 20%, var(--blur-fallback, 0.4));
+  --chat-overlay: hsla(270 0% 16% / var(--blur-fallback, 0.71));
+  --chat-input-gradient: hsl(289 0% 21%);
+  --chat-input-background: hsla(270 0% 20% / var(--blur-fallback, 0.4));
   --wordmark-color: #cfcfcf;
+  --primary: hsl(270 0% 80%);
+  --accent: hsl(270 0% 60%);
+  --chart-1: hsl(270 0% 80%);
+  --sidebar-primary: hsl(270 0% 80%);
 }
 
 @theme inline {
@@ -426,6 +434,17 @@ body {
     linear-gradient(180deg, #9400d300, #9400d3bd, #9400d317),
     linear-gradient(15deg, #9400d31f 50%, #9400d3bd);
   --start: rgba(0, 0, 0, 0.92);
+}
+
+/* Update reflective gradient to be theme-aware */
+.boring-light .border-reflect,
+.boring-dark .border-reflect {
+  --c: var(--primary);
+  --min: hsl(var(--c) / 0.2);
+  --max: hsl(var(--c) / 1);
+  --gradientBorder-gradient:
+    linear-gradient(180deg, var(--min), var(--max), var(--min)),
+    linear-gradient(15deg, var(--min) 50%, var(--max));
 }
 
 .border-reflect:before {

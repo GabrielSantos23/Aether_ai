@@ -31,7 +31,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
     }
     return true;
   });
-  
+
   const [boringTheme, setBoringTheme] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("boring-theme");
@@ -52,20 +52,22 @@ export function AccountSettings({ user }: AccountSettingsProps) {
       localStorage.setItem("privacy-show-email", showEmail.toString());
     }
   }, [showEmail]);
-  
+
   // Handle boring theme toggle
   const handleBoringThemeChange = (checked: boolean) => {
     setBoringTheme(checked);
-    
+
     if (typeof window !== "undefined") {
       localStorage.setItem("boring-theme", checked.toString());
-      
+
       // Apply or remove boring theme classes
       document.documentElement.classList.remove("boring-light", "boring-dark");
-      
+
       if (checked) {
         const isDarkMode = document.documentElement.classList.contains("dark");
-        document.documentElement.classList.add(isDarkMode ? "boring-dark" : "boring-light");
+        document.documentElement.classList.add(
+          isDarkMode ? "boring-dark" : "boring-light"
+        );
       }
     }
   };
@@ -97,8 +99,13 @@ export function AccountSettings({ user }: AccountSettingsProps) {
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-lg font-semibold text-foreground capitalize transition-all duration-200">
-                {showName ? user.name : "••••••••"}
+              <div
+                className={cn(
+                  "text-lg font-semibold text-foreground capitalize transition-all duration-200",
+                  !showName && "blur-sm select-none"
+                )}
+              >
+                {user.name}
               </div>
               <div className="overflow-hidden">
                 <div
@@ -106,10 +113,11 @@ export function AccountSettings({ user }: AccountSettingsProps) {
                     "text-muted-foreground transition-all duration-200 text-sm whitespace-nowrap",
                     showEmail &&
                       user.email.length > 30 &&
-                      "animate-[scroll-x_8s_linear_infinite]"
+                      "animate-[scroll-x_8s_linear_infinite]",
+                    !showEmail && "blur-sm select-none"
                   )}
                 >
-                  {showEmail ? user.email : "••••••••••••••••••••"}
+                  {user.email}
                 </div>
               </div>
             </div>
@@ -161,11 +169,15 @@ export function AccountSettings({ user }: AccountSettingsProps) {
                     Boring Theme
                   </span>
                   <p className="text-xs text-muted-foreground">
-                    If you think the purple is too much, turn this on to tone it down.
+                    If you think the purple is too much, turn this on to tone it
+                    down.
                   </p>
                 </div>
               </div>
-              <Switch checked={boringTheme} onCheckedChange={handleBoringThemeChange} />
+              <Switch
+                checked={boringTheme}
+                onCheckedChange={handleBoringThemeChange}
+              />
             </div>
           </div>
         </div>

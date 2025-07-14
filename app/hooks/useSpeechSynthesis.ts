@@ -1,138 +1,197 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from "react";
+import { toast } from "sonner";
 
 const sanitizeText = (text: string) => {
   // Remove code blocks
-  let sanitizedText = text.replace(/```[\s\S]*?```/g, 'a code block is shown here.')
+  let sanitizedText = text.replace(
+    /```[\s\S]*?```/g,
+    "a code block is shown here."
+  );
   // Remove inline code
-  sanitizedText = sanitizedText.replace(/`[^`]+`/g, '')
+  sanitizedText = sanitizedText.replace(/`[^`]+`/g, "");
   // Remove markdown images
-  sanitizedText = sanitizedText.replace(/!\[.*?\]\(.*?\)/g, '')
+  sanitizedText = sanitizedText.replace(/!\[.*?\]\(.*?\)/g, "");
   // Remove markdown links
-  sanitizedText = sanitizedText.replace(/\[(.*?)\]\(.*?\)/g, '$1')
+  sanitizedText = sanitizedText.replace(/\[(.*?)\]\(.*?\)/g, "$1");
   // Remove bold, italics
-  sanitizedText = sanitizedText.replace(/(\*\*|__|\*|_)(.*?)\1/g, '$2')
+  sanitizedText = sanitizedText.replace(/(\*\*|__|\*|_)(.*?)\1/g, "$2");
   // Remove headings
-  sanitizedText = sanitizedText.replace(/^#+\s/gm, '')
+  sanitizedText = sanitizedText.replace(/^#+\s/gm, "");
   // Remove horizontal rules
-  sanitizedText = sanitizedText.replace(/---/g, '')
+  sanitizedText = sanitizedText.replace(/---/g, "");
 
-  return sanitizedText.trim()
-}
+  return sanitizedText.trim();
+};
 
 export function useSpeechSynthesis() {
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
-  const [selectedVoice, setSelectedVoice] = useState<string | null>(null)
-  const [isSpeaking, setIsSpeaking] = useState(false)
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
-  const isStopped = useRef(false)
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const isStopped = useRef(false);
 
   useEffect(() => {
-    const handleVoicesChanged = () => {
-      const availableVoices = window.speechSynthesis.getVoices()
-      setVoices(availableVoices)
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      // Speech synthesis is not supported in this environment.
+      return;
+    }
+
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      setVoices(availableVoices);
 
       // Always prioritize Google voices for better quality
       if (availableVoices.length > 0) {
         // First try to find Google US English voices (highest priority)
         const googleUSVoice = availableVoices.find(
-          (v) => v.name.includes('Google') && (v.lang === 'en-US' || v.lang.startsWith('en-US')),
-        )
+          (v) =>
+            v.name.includes("Google") &&
+            (v.lang === "en-US" || v.lang.startsWith("en-US"))
+        );
 
         // Then try any Google English voice
-        const googleEnglishVoice = availableVoices.find((v) => v.name.includes('Google') && v.lang.startsWith('en'))
+        const googleEnglishVoice = availableVoices.find(
+          (v) => v.name.includes("Google") && v.lang.startsWith("en")
+        );
 
         // Fallback to any English voice
-        const englishVoice = availableVoices.find((v) => v.lang.startsWith('en'))
+        const englishVoice = availableVoices.find((v) =>
+          v.lang.startsWith("en")
+        );
 
-        // Check if user has a stored preference, but only if it's a Google voice
-        const storedVoiceURI = localStorage.getItem('selectedVoiceURI')
-        const storedVoice = storedVoiceURI ? availableVoices.find((v) => v.voiceURI === storedVoiceURI) : null
-        const isStoredVoiceGoogle = storedVoice?.name.includes('Google') ?? false
+        const storedVoiceURI = localStorage.getItem("selectedVoiceURI");
+        const storedVoice = storedVoiceURI
+          ? availableVoices.find((v) => v.voiceURI === storedVoiceURI)
+          : null;
+        const isStoredVoiceGoogle =
+          storedVoice?.name.includes("Google") ?? false;
 
-        // Prefer Google voices over stored preference (unless stored is also Google)
         const preferredVoice =
-          (isStoredVoiceGoogle && storedVoice) || googleUSVoice || googleEnglishVoice || englishVoice
+          (isStoredVoiceGoogle && storedVoice) ||
+          googleUSVoice ||
+          googleEnglishVoice ||
+          englishVoice;
 
         if (preferredVoice) {
-          setSelectedVoice(preferredVoice.voiceURI)
-          localStorage.setItem('selectedVoiceURI', preferredVoice.voiceURI)
+          setSelectedVoice(preferredVoice.voiceURI);
+          localStorage.setItem("selectedVoiceURI", preferredVoice.voiceURI);
         }
       }
-    }
+    };
 
-    window.speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged)
-    // Initial call in case voices are already loaded
-    handleVoicesChanged()
+    // Some browsers (especially on Linux) never fire the 'voiceschanged' event.
+    // We attempt to load voices immediately and, if none are returned, poll until we get some
+    loadVoices();
+
+    const voicesChangedHandler = () => loadVoices();
+    window.speechSynthesis.addEventListener(
+      "voiceschanged",
+      voicesChangedHandler
+    );
+
+    // If no voices are available yet, keep polling until they load or we give up after ~5 seconds
+    let pollingInterval: NodeJS.Timeout | null = null;
+    if (window.speechSynthesis.getVoices().length === 0) {
+      let elapsed = 0;
+      pollingInterval = setInterval(() => {
+        elapsed += 250;
+        if (window.speechSynthesis.getVoices().length > 0 || elapsed > 5000) {
+          loadVoices();
+          if (pollingInterval) clearInterval(pollingInterval);
+        }
+      }, 250);
+    }
 
     return () => {
-      window.speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged)
+      window.speechSynthesis.removeEventListener(
+        "voiceschanged",
+        voicesChangedHandler
+      );
+      if (pollingInterval) clearInterval(pollingInterval);
       if (isSpeaking) {
-        window.speechSynthesis.cancel()
+        window.speechSynthesis.cancel();
       }
-    }
-  }, [isSpeaking])
+    };
+  }, [isSpeaking]);
 
   const stop = useCallback(() => {
-    isStopped.current = true
+    isStopped.current = true;
     if (window.speechSynthesis) {
-      window.speechSynthesis.cancel()
+      window.speechSynthesis.cancel();
     }
-    setIsSpeaking(false)
-    utteranceRef.current = null
-  }, [])
+    setIsSpeaking(false);
+    utteranceRef.current = null;
+  }, []);
 
   const speak = useCallback(
     (text: string, onEnd: () => void) => {
-      // Reset stopped flag when starting new speech
-      isStopped.current = false
-
-      if (isSpeaking) {
-        window.speechSynthesis.cancel()
-        setIsSpeaking(false)
-        onEnd() // Ensure onEnd is called when stopping
-        return
+      if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+        console.warn("Speech synthesis is not supported in this environment.");
+        toast.error("Speech synthesis is not supported in this environment.");
+        onEnd();
+        return;
       }
 
-      const sanitizedText = sanitizeText(text)
-      const utterance = new SpeechSynthesisUtterance(sanitizedText)
+      // Reset stopped flag when starting new speech
+      isStopped.current = false;
+
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+        onEnd(); // Ensure onEnd is called when stopping
+        return;
+      }
+
+      const sanitizedText = sanitizeText(text);
+      const utterance = new SpeechSynthesisUtterance(sanitizedText);
+
+      if (voices.length === 0) {
+        toast.error(
+          "No speech synthesis voices are available in this browser."
+        );
+      }
 
       if (selectedVoice) {
-        const voice = voices.find((v) => v.voiceURI === selectedVoice)
+        const voice = voices.find((v) => v.voiceURI === selectedVoice);
         if (voice) {
-          utterance.voice = voice
+          utterance.voice = voice;
         }
       }
 
       utterance.onstart = () => {
         if (!isStopped.current) {
-          setIsSpeaking(true)
+          setIsSpeaking(true);
         }
-      }
+      };
 
       utterance.onend = () => {
-        setIsSpeaking(false)
+        setIsSpeaking(false);
         if (!isStopped.current) {
-          onEnd()
+          onEnd();
         }
-      }
+      };
 
-      utterance.onerror = () => {
-        setIsSpeaking(false)
+      utterance.onerror = (event) => {
+        console.error("Speech synthesis error", event);
+        toast.error(
+          "Failed to read the message aloud. Your browser may not support speech synthesis or no voices are installed."
+        );
+        setIsSpeaking(false);
         if (!isStopped.current) {
-          onEnd()
+          onEnd();
         }
-      }
+      };
 
-      utteranceRef.current = utterance
-      window.speechSynthesis.speak(utterance)
+      utteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
     },
-    [selectedVoice, voices, isSpeaking],
-  )
+    [selectedVoice, voices, isSpeaking]
+  );
 
   const setVoice = (voiceURI: string) => {
-    setSelectedVoice(voiceURI)
-    localStorage.setItem('selectedVoiceURI', voiceURI)
-  }
+    setSelectedVoice(voiceURI);
+    localStorage.setItem("selectedVoiceURI", voiceURI);
+  };
 
   return {
     voices,
@@ -141,5 +200,5 @@ export function useSpeechSynthesis() {
     speak,
     stop,
     isSpeaking,
-  }
+  };
 }

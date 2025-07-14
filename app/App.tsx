@@ -53,56 +53,55 @@ function AppRoutes() {
 
   return (
     <BrowserRouter>
-        <Routes>
-          {/* PUBLIC ROUTES
+      <Routes>
+        {/* PUBLIC ROUTES
             These routes are accessible to everyone.
           */}
-          <Route
-            path="/auth"
-            element={!user ? <LoginPage /> : <Navigate to="/chat" replace />}
-          />
-          <Route path="/shared/:shareId" element={<SharedChatPage />} />
+        <Route
+          path="/auth"
+          element={!user ? <LoginPage /> : <Navigate to="/chat" replace />}
+        />
+        <Route path="/shared/:shareId" element={<SharedChatPage />} />
 
-          {/* PROTECTED ROUTES
+        {/* PROTECTED ROUTES
             This group of routes requires an authenticated user.
             The <ProtectedRoute> component handles the auth check.
           */}
-          <Route element={<ProtectedRoute />}>
-            {/* Routes with the main sidebar layout.
+        <Route element={<ProtectedRoute />}>
+          {/* Routes with the main sidebar layout.
               The <MainLayout> component renders the sidebar and an <Outlet />
               for the nested routes below.
             */}
-            <Route element={<SidebarLayout />}>
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/chat/:id" element={<Chat />} />
-              <Route path="/debug/google" element={<DebugGoogle />} />
-            </Route>
-              <Route path="/settings" element={<SettingsPage />} />
-
-            {/* You could also have protected routes *without* the sidebar here */}
+          <Route element={<SidebarLayout />}>
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/chat/:id" element={<Chat />} />
+            <Route path="/debug/google" element={<DebugGoogle />} />
           </Route>
+          <Route path="/settings" element={<SettingsPage />} />
 
-          {/* ROOT & WILDCARD ROUTES
-          */}
-          <Route
-            path="/"
-            element={
-              user ? (
-                <Navigate to="/chat" replace />
-              ) : (
-                <Navigate to="/auth" replace />
-              )
-            }
-          />
-          <Route path="/test" element={<TestPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+          {/* You could also have protected routes *without* the sidebar here */}
+        </Route>
+
+        {/* ROOT & WILDCARD ROUTES
+         */}
+        <Route
+          path="/"
+          element={
+            user ? (
+              <Navigate to="/chat" replace />
+            ) : (
+              <Navigate to="/auth" replace />
+            )
+          }
+        />
+        <Route path="/test" element={<TestPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </BrowserRouter>
   );
 }
 
 export default function Root() {
-
   return (
     <>
       <AppRoutes />

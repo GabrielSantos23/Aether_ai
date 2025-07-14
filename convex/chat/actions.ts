@@ -452,7 +452,6 @@ export const generateTitle = action({
   },
 });
 
-
 export const searchChats = query({
   args: {
     searchQuery: v.string(),

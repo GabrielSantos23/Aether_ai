@@ -21,6 +21,7 @@ import type * as chat_mutations from "../chat/mutations.js";
 import type * as chat_node from "../chat/node.js";
 import type * as chat_queries from "../chat/queries.js";
 import type * as chat_shared from "../chat/shared.js";
+import type * as deepResearch from "../deepResearch.js";
 import type * as files from "../files.js";
 import type * as http from "../http.js";
 import type * as myFunctions from "../myFunctions.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   "chat/node": typeof chat_node;
   "chat/queries": typeof chat_queries;
   "chat/shared": typeof chat_shared;
+  deepResearch: typeof deepResearch;
   files: typeof files;
   http: typeof http;
   myFunctions: typeof myFunctions;

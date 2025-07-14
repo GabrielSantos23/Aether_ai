@@ -2,21 +2,19 @@ import { ConvexAdapter } from "@/app/ConvexAdapter";
 import { SignJWT, importPKCS8 } from "jose";
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
-import Resend from "next-auth/providers/resend";
-import Notion from "next-auth/providers/notion";
 
 // --- 1. ADD GOOGLE PROVIDER IMPORT ---
 import Google from "next-auth/providers/google";
 
 if (process.env.CONVEX_AUTH_PRIVATE_KEY === undefined) {
   throw new Error(
-    "Missing CONVEX_AUTH_PRIVATE_KEY Next.js environment variable",
+    "Missing CONVEX_AUTH_PRIVATE_KEY Next.js environment variable"
   );
 }
 
 if (process.env.NEXT_PUBLIC_CONVEX_URL === undefined) {
   throw new Error(
-    "Missing NEXT_PUBLIC_CONVEX_URL Next.js environment variable",
+    "Missing NEXT_PUBLIC_CONVEX_URL Next.js environment variable"
   );
 }
 
@@ -37,7 +35,7 @@ if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
 
 const CONVEX_SITE_URL = process.env.NEXT_PUBLIC_CONVEX_URL!.replace(
   /.cloud$/,
-  ".site",
+  ".site"
 );
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -52,10 +50,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
       },
     }),
-    Resend({
-      name: "email",
-      from: "My App <onboarding@resend.dev>",
-    }),
     // --- 2. ADD AND CONFIGURE GOOGLE PROVIDER ---
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -66,22 +60,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           access_type: "offline", // This is crucial for getting refresh tokens
           response_type: "code",
           // Define the initial, basic scopes for login
-          scope: "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
+          scope:
+            "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
         },
       },
     }),
-    // --- NOTION PROVIDER ---
-    Notion({
-      clientId: process.env.NOTION_CLIENT_ID,
-      clientSecret: process.env.NOTION_CLIENT_SECRET,
-      authorization: {
-        params: {
-          scope:
-            "databases:read databases:write pages:read pages:write blocks:read blocks:write users:read",
-        },
-      },
-      redirectUri: `${process.env.NEXTAUTH_URL}/api/auth/callback/notion`,
-    } as any),
   ],
   // Cast to `any` to sidestep type incompatibility between duplicated @auth/core versions.
   adapter: ConvexAdapter as any,
@@ -106,7 +89,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     async session({ session, token }) {
       // Obtain Convex user id from JWT token if present, else existing session
-      const userId = (token?.sub as string | undefined) ?? (session.user as any)?.id;
+      const userId =
+        (token?.sub as string | undefined) ?? (session.user as any)?.id;
 
       // Attach id to session
       (session.user as any).id = userId;
@@ -114,7 +98,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       const privateKey = await importPKCS8(
         process.env.CONVEX_AUTH_PRIVATE_KEY!,
-        "RS256",
+        "RS256"
       );
       const convexToken = await new SignJWT({
         sub: userId,

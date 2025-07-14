@@ -79,7 +79,7 @@ export function useChatInterface(
   const handleSend = (
     message: string,
     model: string,
-    options: { webSearch?: boolean }
+    options: { webSearch?: boolean; imageGen?: boolean; research?: boolean }
   ) => {
     if (message.trim() || attachments.length > 0) {
       const mappedAttachments = attachments.map((a) => ({
@@ -106,10 +106,7 @@ export function useChatInterface(
   };
 
   const showWelcomeScreen =
-    !isNewChat &&
-    !currentChatId &&
-    activeMessages.length === 0 &&
-    inputValue.length === 0;
+    !isNewChat && !currentChatId && activeMessages.length === 0;
 
   const isCurrentlyStreaming = (messageId: string) => {
     return (

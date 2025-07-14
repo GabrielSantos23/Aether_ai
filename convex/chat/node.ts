@@ -154,7 +154,9 @@ export async function generateImage(
           success: true,
           prompt: prompt,
           description: description,
-          imageUrl: imageUrl,
+          // Store only the lightweight public URL to avoid exceeding the 1 MB Convex document limit
+          url: imageUrl, // alias for convenience
+          imageUrl: imageUrl, // keep original for compatibility
           storageId: storageId,
           timestamp: new Date().toISOString(),
           usedUserKey: !!userGeminiKey,

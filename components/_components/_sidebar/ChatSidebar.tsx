@@ -14,14 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import {
-  X,
-  Trash2,
-  LogIn,
-  GitBranch,
-  PencilIcon,
-  Share2,
-} from "lucide-react";
+import { X, Trash2, LogIn, GitBranch, PencilIcon, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ComponentProps, memo, useEffect, useState, useCallback } from "react";
 import { siteConfig } from "@/app/config/site.config";
@@ -54,6 +47,32 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
   const navigate = useNavigate();
   const user = useQuery(api.myFunctions.getUser);
 
+  // Privacy settings from localStorage
+  const [showName, setShowName] = useState(true);
+  const [showEmail, setShowEmail] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const namePref = localStorage.getItem("privacy-show-name");
+    setShowName(namePref !== null ? namePref === "true" : true);
+
+    const emailPref = localStorage.getItem("privacy-show-email");
+    setShowEmail(emailPref !== null ? emailPref === "true" : true);
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "privacy-show-name" && e.newValue !== null) {
+        setShowName(e.newValue === "true");
+      }
+      if (e.key === "privacy-show-email" && e.newValue !== null) {
+        setShowEmail(e.newValue === "true");
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   const [threads, setThreads] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -71,7 +90,6 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
   const deleteChat = useMutation(api.chat.mutations.deleteChat);
   const renameChat = useMutation(api.chat.mutations.renameChat);
   const shareChat = useMutation(api.chat.mutations.shareChat);
-  
 
   // Fetch chats from Convex
   const chats = useQuery(api.chat.queries.listChats, {});
@@ -189,7 +207,7 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
               </div>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <Button className="w-full p-0" >
+              <Button className="w-full p-0">
                 <NavLink
                   to="/"
                   className="w-full h-full grid place-items-center"
@@ -253,7 +271,7 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
             </SidebarGroup>
           )}
         </SidebarContent> */}
-    <SidebarThreads />
+        <SidebarThreads />
         <SidebarFooter>
           <SidebarMenu>
             {user ? (
@@ -268,12 +286,17 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
                     className="h-8 w-8 bg-accent rounded-full ring-1 ring-muted-foreground/20"
                   />
                   <div className="flex min-w-0 flex-col text-foreground">
-                    <span className="truncate text-sm font-medium">
+                    <span
+                      className={cn(
+                        "truncate text-sm font-medium",
+                        !showName && "blur-sm select-none"
+                      )}
+                    >
                       {user?.name}
                     </span>
                     <span className="text-xs">Free</span>
                   </div>
-                </NavLink  >
+                </NavLink>
               </SidebarMenuItem>
             ) : (
               <SidebarMenuItem className="p-1">
@@ -417,6 +440,32 @@ const Header = memo(PureHeader);
 
 const PureFooter = () => {
   const user = useQuery(api.myFunctions.getUser);
+
+  const [showName, setShowName] = useState(true);
+  const [showEmail, setShowEmail] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const namePref = localStorage.getItem("privacy-show-name");
+    setShowName(namePref !== null ? namePref === "true" : true);
+
+    const emailPref = localStorage.getItem("privacy-show-email");
+    setShowEmail(emailPref !== null ? emailPref === "true" : true);
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "privacy-show-name" && e.newValue !== null) {
+        setShowName(e.newValue === "true");
+      }
+      if (e.key === "privacy-show-email" && e.newValue !== null) {
+        setShowEmail(e.newValue === "true");
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   return (
     <SidebarFooter>
       {user ? (
@@ -429,8 +478,16 @@ const PureFooter = () => {
             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="text-sm flex-col flex text-muted-foreground">
-            <span className="font-bold">{user?.name}</span>
-            <span className="text-xs">{user?.email}</span>
+            <span
+              className={cn("font-bold", !showName && "blur-sm select-none")}
+            >
+              {user?.name}
+            </span>
+            <span
+              className={cn("text-xs", !showEmail && "blur-sm select-none")}
+            >
+              {user?.email}
+            </span>
           </div>
         </Link>
       ) : (

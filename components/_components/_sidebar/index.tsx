@@ -6,8 +6,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import ChatSidebar from "./ChatSidebar";
-import { RightSidebar } from "./RightSidebar";
-import { SidebarButtons, SidebarButtonsRight } from "./sidebar-buttons";
 import { useState, useContext, useEffect } from "react";
 import { FiPlus } from "react-icons/fi";
 // Define the Source type
@@ -44,10 +42,8 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Initial check
     checkSidebarState();
 
-    // Setup mutation observer to watch for checkbox changes
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (
@@ -66,9 +62,8 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
       observer.observe(sidebarCheckbox, { attributes: true });
     }
 
-    // Also listen for click events on the sidebar trigger
     const handleClick = () => {
-      setTimeout(checkSidebarState, 50); // Small delay to ensure checkbox state has updated
+      setTimeout(checkSidebarState, 50);
     };
 
     document.addEventListener("click", handleClick);
@@ -97,7 +92,7 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
       <div
         className={`pointer-events-auto t3-header-search fixed h-fit left-2 top-4 z-50 flex flex-row gap-0.5 p-1 inset-0 right-auto text-muted-foreground ${isSidebarOpen ? "rounded-2xl border bg-sidebar" : "rounded-md"} backdrop-blur-sm transition-[width] delay-125 duration-100 blur-fallback:bg-sidebar max-sm:delay-125 max-sm:duration-100 max-sm:w-[6.75rem] max-sm:bg-sidebar`}
       >
-        <SidebarTrigger />
+        <SidebarTrigger className="rounded-xl" />
         <div
           className={`transition-[opacity, translate-x] has-[.sidebar-check:not(:checked)]:pointer-events-none  flex flex-nowrap duration-200 ease-snappy gap-0.5 has-[.sidebar-check:not(:checked)]:-translate-x-[20px] has-[.sidebar-check:not(:checked)]:opacity-0 has-[.sidebar-check:not(:checked)]:w-0 has-[.sidebar-check:not(:checked)]:-z-50 has-[.sidebar-check:not(:checked)]:h-0 `}
         >
@@ -107,8 +102,11 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
             name="sidebar-check"
           />
           <SearchThreads />
-          <Button variant="ghost" className="p-0" size="icon">
-            <NavLink to="/" className="w-full h-full grid place-items-center">
+          <Button variant="ghost" className="p-0 rounded-xl" size="icon">
+            <NavLink
+              to="/"
+              className="w-full h-full grid place-items-center rounded-xl"
+            >
               <FiPlus />
             </NavLink>
           </Button>
@@ -119,17 +117,16 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
       <div
         className={`fixed pointer-events-auto right-2 top-2 z-50 flex flex-row p-1 items-center justify-center ${isSidebarOpen ? "rounded-2xl border bg-sidebar" : "rounded-md"} duration-100 transition-[translate-x] ease-snappy max-sm:w-[6.75rem] gap-2 text-muted-foreground has-[.sidebar-check:checked]:backdrop-blur-sm has-[.sidebar-check:not(:checked)]:bg-transparent`}
       >
-        <input
-          className="hidden sidebar-check"
-          type="checkbox"
-          name="sidebar-check"
-        />
         <NavLink to="/settings">
-          <Button variant="ghost" size="icon">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-xl hover:bg-red-500"
+          >
             <LuSettings2 />
           </Button>
         </NavLink>
-        <ThemeToggler />
+        <ThemeToggler className="rounded-xl" />
       </div>
     </div>
   );

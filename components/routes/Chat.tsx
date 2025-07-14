@@ -22,7 +22,7 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { ScrollToBottomButton } from "@/components/_components/_chat/ScrollToBottomButton";
-import WelcomeScreen from "../WelcomeScreen";
+import { WelcomeScreen } from "@/components/_components/_chat/kokonutui/ai-input";
 
 interface ChatInterfaceProps {
   chatId?: string;
@@ -217,11 +217,113 @@ export default function ChatInterface({
     );
   };
 
+  // Shared upload button element
+  const uploadButtonElement =
+    selectedModel.attachmentsSuppport.image ||
+    selectedModel.attachmentsSuppport.pdf ? (
+      <div
+        className={cn(
+          "flex gap-1",
+          attachments.length >= maxFiles && "opacity-50 pointer-events-none"
+        )}
+      >
+        <UploadButton
+          endpoint="fileUploader"
+          onBeforeUploadBegin={(files) => {
+            setIsUploading(true);
+            const supportedFiles = files.filter((file) => {
+              const isImage =
+                selectedModel.attachmentsSuppport.image &&
+                file.type.startsWith("image/");
+              const isPdf =
+                selectedModel.attachmentsSuppport.pdf &&
+                file.type === "application/pdf";
+              return isImage || isPdf;
+            });
+
+            if (supportedFiles.length === 0) {
+              setIsUploading(false);
+              const supportedTypes = [];
+              if (selectedModel.attachmentsSuppport.image)
+                supportedTypes.push("images");
+              if (selectedModel.attachmentsSuppport.pdf)
+                supportedTypes.push("PDFs");
+              toast.error(
+                `This model only supports ${supportedTypes.join(" and ")}`
+              );
+              return [];
+            }
+
+            const initialProgress: { [key: string]: number } = {};
+            supportedFiles.forEach((file) => {
+              initialProgress[file.name] = 0;
+            });
+            setUploadProgress(initialProgress);
+            return supportedFiles;
+          }}
+          onUploadProgress={(progress) => {
+            setUploadProgress((prev) => {
+              const updated = { ...prev };
+              Object.keys(updated).forEach((fn) => (updated[fn] = progress));
+              return updated;
+            });
+          }}
+          onClientUploadComplete={handleUploadComplete}
+          onUploadError={(error: Error) => handleUploadError(error, "file")}
+          appearance={{
+            button:
+              "w-7 h-7 md:w-8 md:h-8 text-primary/60 dark:text-primary/60 hover:text-primary dark:hover:text-primary transition-all duration-200 rounded-lg bg-white/50 dark:bg-[oklch(0.22_0.015_25)]/40 hover:bg-primary/5 dark:hover:bg-white/5 flex items-center justify-center max-w-7 max-h-7 md:max-w-8 md:max-h-8",
+            container: "w-auto h-auto",
+            allowedContent: "hidden",
+          }}
+          content={{
+            button({ isUploading }) {
+              if (isUploading)
+                return (
+                  <div className="w-3.5 md:w-4 h-3.5 md:h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                );
+              return (
+                <Paperclip className="w-3.5 md:w-4 h-3.5 md:h-4 text-primary/60 hover:text-primary" />
+              );
+            },
+            allowedContent() {
+              return null;
+            },
+          }}
+        />
+      </div>
+    ) : null;
+
   return (
     <>
       <AnimatePresence mode="wait">
         {showWelcomeScreen ? (
-          <WelcomeScreen key="welcome" onPromptClick={handlePromptClick} />
+          <WelcomeScreen
+            key="welcome"
+            onPromptClick={handlePromptClick}
+            value={inputValue}
+            onValueChange={setInputValue}
+            onSend={handleSend}
+            isStreaming={isStreaming}
+            isTyping={isTyping}
+            onStop={handleStopGeneration}
+            messagesLength={activeMessages.length}
+            selectedModel={selectedModel}
+            setSelectedModel={setSelectedModel}
+            isSignedIn={isAuthenticated}
+            attachments={attachments}
+            onRemoveAttachment={(index) =>
+              setAttachments(attachments.filter((_, i) => i !== index))
+            }
+            uploadProgress={uploadProgress}
+            isUploading={isUploading}
+            mounted={mounted}
+            sendBehavior={userSettings?.sendBehavior || "enter"}
+            onVoiceChatToggle={
+              isAuthenticated ? handleVoiceChatToggle : undefined
+            }
+            uploadButton={uploadButtonElement}
+          />
         ) : (
           <ChatErrorBoundary>
             <MessageList
@@ -261,131 +363,37 @@ export default function ChatInterface({
         onScrollToBottom={() => scrollToBottom("smooth")}
       />
 
-      <div
-        className={cn(
-          showWelcomeScreen
-            ? "absolute inset-0 flex items-center justify-center z-40"
-            : "fixed md:absolute bottom-0 left-0 right-0 z-30"
-        )}
-      >
-        <div
-          className={cn(
-            "max-w-4xl w-full px-4 md:px-4",
-            showWelcomeScreen ? "" : "mx-auto pb-4"
-          )}
-        >
-          <AIInput
-            value={inputValue}
-            onValueChange={setInputValue}
-            onSend={handleSend}
-            isStreaming={isStreaming}
-            isTyping={isTyping}
-            onStop={handleStopGeneration}
-            messagesLength={activeMessages.length}
-            selectedModel={selectedModel}
-            setSelectedModel={setSelectedModel}
-            isSignedIn={isAuthenticated}
-            attachments={attachments}
-            onRemoveAttachment={(index) =>
-              setAttachments(attachments.filter((_, i) => i !== index))
-            }
-            uploadProgress={uploadProgress}
-            isUploading={isUploading}
-            mounted={mounted}
-            sendBehavior={userSettings?.sendBehavior || "enter"}
-            onVoiceChatToggle={
-              isAuthenticated ? handleVoiceChatToggle : undefined
-            }
-            displayModelSelect={false}
-            uploadButton={
-              selectedModel.attachmentsSuppport.image ||
-              selectedModel.attachmentsSuppport.pdf ? (
-                <div
-                  className={cn(
-                    "flex gap-1",
-                    attachments.length >= maxFiles &&
-                      "opacity-50 pointer-events-none"
-                  )}
-                >
-                  <UploadButton
-                    endpoint="fileUploader"
-                    onBeforeUploadBegin={(files) => {
-                      setIsUploading(true);
-                      // Filter files based on model support
-                      const supportedFiles = files.filter((file) => {
-                        const isImage =
-                          selectedModel.attachmentsSuppport.image &&
-                          file.type.startsWith("image/");
-                        const isPdf =
-                          selectedModel.attachmentsSuppport.pdf &&
-                          file.type === "application/pdf";
-                        return isImage || isPdf;
-                      });
-
-                      if (supportedFiles.length === 0) {
-                        setIsUploading(false);
-                        const supportedTypes = [];
-                        if (selectedModel.attachmentsSuppport.image)
-                          supportedTypes.push("images");
-                        if (selectedModel.attachmentsSuppport.pdf)
-                          supportedTypes.push("PDFs");
-                        toast.error(
-                          `This model only supports ${supportedTypes.join(" and ")}`
-                        );
-                        return [];
-                      }
-
-                      // Set initial progress for supported files
-                      const initialProgress: { [key: string]: number } = {};
-                      supportedFiles.forEach((file) => {
-                        initialProgress[file.name] = 0;
-                      });
-                      setUploadProgress(initialProgress);
-                      return supportedFiles;
-                    }}
-                    onUploadProgress={(progress) => {
-                      // Update progress for all current files
-                      setUploadProgress((prev) => {
-                        const updated = { ...prev };
-                        Object.keys(updated).forEach((fileName) => {
-                          updated[fileName] = progress;
-                        });
-                        return updated;
-                      });
-                    }}
-                    onClientUploadComplete={(res) => {
-                      handleUploadComplete(res);
-                    }}
-                    onUploadError={(error: Error) => {
-                      handleUploadError(error, "file");
-                    }}
-                    appearance={{
-                      button:
-                        "w-7 h-7 md:w-8 md:h-8 text-primary/60 dark:text-primary/60 hover:text-primary dark:hover:text-primary transition-all duration-200 rounded-lg bg-white/50 dark:bg-[oklch(0.22_0.015_25)]/40 hover:bg-primary/5 dark:hover:bg-white/5 flex items-center justify-center max-w-7 max-h-7 md:max-w-8 md:max-h-8",
-                      container: "w-auto h-auto",
-                      allowedContent: "hidden",
-                    }}
-                    content={{
-                      button({ ready, isUploading }) {
-                        if (isUploading)
-                          return (
-                            <div className="w-3.5 md:w-4 h-3.5 md:h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                          );
-                        return (
-                          <Paperclip className="w-3.5 md:w-4 h-3.5 md:h-4 text-primary/60 hover:text-primary" />
-                        );
-                      },
-                      allowedContent() {
-                        return null;
-                      },
-                    }}
-                  />
-                </div>
-              ) : null
-            }
-          />
+      {activeMessages.length > 0 && (
+        <div className="fixed md:absolute bottom-0 left-0 right-0 z-30">
+          <div className={cn("max-w-4xl w-full px-4 md:px-4", "mx-auto pb-4")}>
+            <AIInput
+              value={inputValue}
+              onValueChange={setInputValue}
+              onSend={handleSend}
+              isStreaming={isStreaming}
+              isTyping={isTyping}
+              onStop={handleStopGeneration}
+              messagesLength={activeMessages.length}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              isSignedIn={isAuthenticated}
+              attachments={attachments}
+              onRemoveAttachment={(index) =>
+                setAttachments(attachments.filter((_, i) => i !== index))
+              }
+              uploadProgress={uploadProgress}
+              isUploading={isUploading}
+              mounted={mounted}
+              sendBehavior={userSettings?.sendBehavior || "enter"}
+              onVoiceChatToggle={
+                isAuthenticated ? handleVoiceChatToggle : undefined
+              }
+              displayModelSelect={false}
+              uploadButton={uploadButtonElement}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Model Select dropdown rendered in the top bar */}
       {modelSelectTarget &&

@@ -46,12 +46,16 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={geist.className + "antialiased selection:bg-primary selection:text-white  overflow-hidden"}>
+      <body
+        className={
+          geist.className +
+          "antialiased selection:bg-primary selection:text-white  overflow-hidden"
+        }
+      >
         <Provider>
-
-        <ConvexClientProvider session={session}>
-          {children}
-        </ConvexClientProvider>
+          <ConvexClientProvider session={session}>
+            {children}
+          </ConvexClientProvider>
         </Provider>
       </body>
     </html>

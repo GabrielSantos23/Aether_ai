@@ -1,46 +1,67 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { AnimatePresence, motion } from 'framer-motion'
-import Link from 'next/link'
-import { UserMetadata } from '@/lib/types'
-import React, { memo, useMemo, useCallback, useState } from 'react'
-import { Settings, LogOut, Github, MessageCircle, ChevronDown } from 'lucide-react'
-import { signOut } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { Button } from "@/components/ui/button";
+import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
+import { UserMetadata } from "@/lib/types";
+import React, { memo, useMemo, useCallback, useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import {
+  Settings,
+  LogOut,
+  Github,
+  MessageCircle,
+  ChevronDown,
+} from "lucide-react";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface UserProfileProps {
-  isSignedIn: boolean
-  userMetadata: UserMetadata
-  onSettingsClick: () => void
+  isSignedIn: boolean;
+  userMetadata: UserMetadata;
+  onSettingsClick: () => void;
 }
 
 // Memoized components to prevent unnecessary rerenders
-const ProfileAvatar = memo(({ userMetadata }: { userMetadata: UserMetadata }) => {
-  const avatarContent = useMemo(() => {
-    if (userMetadata.image) {
+const ProfileAvatar = memo(
+  ({ userMetadata }: { userMetadata: UserMetadata }) => {
+    const avatarContent = useMemo(() => {
+      if (userMetadata.image) {
+        return (
+          <img
+            src={userMetadata.image}
+            alt="User profile"
+            className="w-8 h-8 rounded-full flex-shrink-0 object-cover"
+          />
+        );
+      }
+
       return (
-        <img src={userMetadata.image} alt="User profile" className="w-8 h-8 rounded-full flex-shrink-0 object-cover" />
-      )
-    }
-
-    return (
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/20 flex items-center justify-center flex-shrink-0">
-        <div className="text-primary font-medium text-sm">
-          {userMetadata.name?.[0] || userMetadata.email?.[0] || '?'}
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/20 flex items-center justify-center flex-shrink-0">
+          <div className="text-primary font-medium text-sm">
+            {userMetadata.name?.[0] || userMetadata.email?.[0] || "?"}
+          </div>
         </div>
-      </div>
-    )
-  }, [userMetadata.image, userMetadata.name, userMetadata.email])
+      );
+    }, [userMetadata.image, userMetadata.name, userMetadata.email]);
 
-  return avatarContent
-})
+    return avatarContent;
+  }
+);
 
-ProfileAvatar.displayName = 'ProfileAvatar'
+ProfileAvatar.displayName = "ProfileAvatar";
 
 const ProfileDropdown = memo(
-  ({ isOpen, onSettingsClick, onSignOut }: { isOpen: boolean; onSettingsClick: () => void; onSignOut: () => void }) => {
-    if (!isOpen) return null
+  ({
+    isOpen,
+    onSettingsClick,
+    onSignOut,
+  }: {
+    isOpen: boolean;
+    onSettingsClick: () => void;
+    onSignOut: () => void;
+  }) => {
+    if (!isOpen) return null;
 
     return (
       <motion.div
@@ -122,31 +143,64 @@ const ProfileDropdown = memo(
           </button>
         </div>
       </motion.div>
-    )
-  },
-)
+    );
+  }
+);
 
-ProfileDropdown.displayName = 'ProfileDropdown'
+ProfileDropdown.displayName = "ProfileDropdown";
 
 const SignedInProfile = memo(
-  ({ userMetadata, onSettingsClick }: { userMetadata: UserMetadata; onSettingsClick: () => void }) => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-    const router = useRouter()
+  ({
+    userMetadata,
+    onSettingsClick,
+  }: {
+    userMetadata: UserMetadata;
+    onSettingsClick: () => void;
+  }) => {
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    // Privacy settings
+    const [showName, setShowName] = useState(true);
+    const [showEmail, setShowEmail] = useState(true);
+
+    useEffect(() => {
+      if (typeof window === "undefined") return;
+
+      const namePref = localStorage.getItem("privacy-show-name");
+      setShowName(namePref !== null ? namePref === "true" : true);
+
+      const emailPref = localStorage.getItem("privacy-show-email");
+      setShowEmail(emailPref !== null ? emailPref === "true" : true);
+
+      const handleStorage = (e: StorageEvent) => {
+        if (e.key === "privacy-show-name" && e.newValue !== null) {
+          setShowName(e.newValue === "true");
+        }
+        if (e.key === "privacy-show-email" && e.newValue !== null) {
+          setShowEmail(e.newValue === "true");
+        }
+      };
+
+      window.addEventListener("storage", handleStorage);
+      return () => window.removeEventListener("storage", handleStorage);
+    }, []);
+
+    const router = useRouter();
 
     const handleToggleDropdown = useCallback(() => {
-      setIsDropdownOpen((prev) => !prev)
-    }, [])
+      setIsDropdownOpen((prev) => !prev);
+    }, []);
 
     const handleSettingsClick = useCallback(() => {
-      setIsDropdownOpen(false)
-      onSettingsClick()
-    }, [onSettingsClick])
+      setIsDropdownOpen(false);
+      onSettingsClick();
+    }, [onSettingsClick]);
 
     const handleSignOut = useCallback(async () => {
-      setIsDropdownOpen(false)
-      await signOut({ redirect: false })
-      router.push('/auth')
-    }, [router])
+      setIsDropdownOpen(false);
+      await signOut({ redirect: false });
+      router.push("/auth");
+    }, [router]);
 
     return (
       <div className="relative">
@@ -158,25 +212,37 @@ const SignedInProfile = memo(
             <ProfileAvatar userMetadata={userMetadata} />
           </div>
           <div className="flex flex-col flex-1 overflow-hidden">
-            <div className="text-sm font-semibold truncate text-foreground/90 group-hover:text-primary transition-colors duration-200">
+            <div
+              className={cn(
+                "text-sm font-semibold truncate text-foreground/90 group-hover:text-primary transition-colors duration-200",
+                !(userMetadata.name ? showName : showEmail) &&
+                  "blur-sm select-none"
+              )}
+            >
               {userMetadata.name || userMetadata.email}
             </div>
-            <div className="text-[10px] text-muted-foreground/50 truncate">Free</div>
+            <div className="text-[10px] text-muted-foreground/50 truncate">
+              Free
+            </div>
           </div>
           <ChevronDown
-            className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
           />
         </div>
 
         <AnimatePresence>
-          <ProfileDropdown isOpen={isDropdownOpen} onSettingsClick={handleSettingsClick} onSignOut={handleSignOut} />
+          <ProfileDropdown
+            isOpen={isDropdownOpen}
+            onSettingsClick={handleSettingsClick}
+            onSignOut={handleSignOut}
+          />
         </AnimatePresence>
       </div>
-    )
-  },
-)
+    );
+  }
+);
 
-SignedInProfile.displayName = 'SignedInProfile'
+SignedInProfile.displayName = "SignedInProfile";
 
 const SignInButton = memo(() => (
   <Link href="/auth">
@@ -206,17 +272,26 @@ const SignInButton = memo(() => (
         </AnimatePresence>
         <div className="w-4 h-4 text-foreground/40 group-hover:text-primary transition-colors duration-150 ease-[0.25,1,0.5,1] flex-shrink-0">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </div>
       </div>
     </Button>
   </Link>
-))
+));
 
-SignInButton.displayName = 'SignInButton'
+SignInButton.displayName = "SignInButton";
 
-export const UserProfile = memo(function UserProfile({ isSignedIn, userMetadata, onSettingsClick }: UserProfileProps) {
+export const UserProfile = memo(function UserProfile({
+  isSignedIn,
+  userMetadata,
+  onSettingsClick,
+}: UserProfileProps) {
   return (
     <div className="p-4 flex-shrink-0">
       <AnimatePresence mode="wait">
@@ -228,7 +303,10 @@ export const UserProfile = memo(function UserProfile({ isSignedIn, userMetadata,
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
           >
-            <SignedInProfile userMetadata={userMetadata} onSettingsClick={onSettingsClick} />
+            <SignedInProfile
+              userMetadata={userMetadata}
+              onSettingsClick={onSettingsClick}
+            />
           </motion.div>
         ) : (
           <motion.div
@@ -243,5 +321,5 @@ export const UserProfile = memo(function UserProfile({ isSignedIn, userMetadata,
         )}
       </AnimatePresence>
     </div>
-  )
-})
+  );
+});
