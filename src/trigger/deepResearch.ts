@@ -1,74 +1,377 @@
-// @ts-nocheck
-import { task } from "@trigger.dev/sdk/v3";
-import { eventTrigger } from "@trigger.dev/sdk";
-import { PDFDocument, StandardFonts } from "pdf-lib";
+import { google, createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGroq } from "@ai-sdk/groq";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { models } from "@/lib/models";
+import { metadata, schemaTask } from "@trigger.dev/sdk/v3";
+import { generatePdfAndUpload } from "./generatePdfAndUpload";
+import { generateObject, generateText, tool } from "ai";
+import { generateReport } from "./generateReport";
+import { Exa } from "exa-js";
+import { z } from "zod";
 
-/**
- * Deep research task powered by Trigger.dev v3.
- * Listens for the `deep.research.requested` event (emitted by Convex) and
- * orchestrates the multi-stage research → PDF → Upload flow.
- */
-export const deepResearch = task({
+// We'll assign this dynamically per run
+export let mainModel = google("gemini-2.5-flash-preview-04-17");
+
+// Helper to map a modelId to an AI-SDK model instance so we can use different providers
+export const getAIModel = (modelId: string) => {
+  const modelMeta = models.find((m) => m.id === modelId);
+  if (!modelMeta) {
+    console.warn(`Model ${modelId} not found, defaulting to Gemini Flash.`);
+    return google("gemini-2.5-flash-preview-04-17");
+  }
+
+  const { provider, id } = modelMeta;
+
+  try {
+    if (provider === "gemini") {
+      const googleClient = createGoogleGenerativeAI({
+        apiKey: process.env.GEMINI_API_KEY,
+      });
+      return googleClient(id);
+    }
+    if (provider === "groq") {
+      const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+      return groq(id);
+    }
+    if (provider === "openrouter") {
+      const openrouter = createOpenRouter({
+        apiKey: process.env.OPENROUTER_API_KEY,
+      });
+      return openrouter(id);
+    }
+    if (provider === "moonshot") {
+      const moonshot = createOpenAICompatible({
+        apiKey: process.env.MOONSHOT_KEY,
+        name: "moonshot",
+        baseURL: "https://api.moonshot.ai/v1",
+      });
+      return moonshot(id);
+    }
+    console.warn(`Unknown provider ${provider}, falling back to Gemini Flash.`);
+    return google("gemini-2.5-flash-preview-04-17");
+  } catch (err) {
+    console.error("Error creating AI model", err);
+    return google("gemini-2.5-flash-preview-04-17");
+  }
+};
+
+type Learning = {
+  learning: string;
+  followUpQuestions: string[];
+};
+
+type Research = {
+  query: string | undefined;
+  queries: string[];
+  searchResults: SearchResult[];
+  learnings: Learning[];
+  completedQueries: string[];
+};
+
+const accumulatedResearch: Research = {
+  query: undefined,
+  queries: [],
+  searchResults: [],
+  learnings: [],
+  completedQueries: [],
+};
+
+export const deepResearchOrchestrator = schemaTask({
   id: "deep-research",
-  trigger: eventTrigger({ name: "deep.research.requested" }),
-  async run(payload, ctx) {
-    const { query, depth, userId } = payload as {
-      query: string;
-      depth: number;
-      userId: string;
+  schema: z.object({
+    prompt: z.string().min(1),
+    modelId: z.string().optional(),
+    // How many levels of queries to generate
+    depth: z.number().min(1).max(5).optional().default(2),
+    // How many queries to generate for each depth level
+    breadth: z.number().min(1).max(10).optional().default(2),
+  }),
+  run: async (payload: {
+    prompt: string;
+    depth: number;
+    breadth: number;
+    modelId?: string;
+  }) => {
+    // Set the model for this run
+    mainModel = getAIModel(payload.modelId || "gemini-2.0-flash");
+    metadata.set("status", {
+      progress: 0,
+      label: `Researching ${payload.prompt}. Depth: ${
+        payload.depth ?? 2
+      }. Breadth: ${payload.breadth ?? 3}`,
+    });
+
+    const research = await deepResearch(
+      payload.prompt,
+      payload.depth,
+      payload.breadth
+    );
+
+    metadata.set("status", {
+      progress: 50,
+      label: "Research complete. Generating report...",
+    });
+
+    const report = await generateReport.triggerAndWait({
+      research: research,
+      modelId: payload.modelId || "gemini-2.0-flash",
+    });
+
+    metadata.set("status", {
+      progress: 60,
+      label: "Creating PDF and uploading to R2 storage...",
+    });
+
+    if (!report.ok) {
+      throw new Error("No report generated");
+    }
+
+    const reportName = `research-report-${Date.now()}`;
+
+    const pdf = await generatePdfAndUpload.triggerAndWait({
+      report: report.output.report,
+      name: reportName,
+    });
+
+    if (!pdf.ok) {
+      throw new Error("No PDF generated");
+    }
+
+    metadata.set("status", {
+      progress: 100,
+      label: "Deep research complete!",
+    });
+
+    // Set the PDF name in metadata so the frontend can access it
+    metadata.set("pdfName", pdf.output.key);
+
+    return {
+      report: report.output.report,
+      pdf: pdf.output.pdfLocation,
     };
-
-    // 1. Recursive research (placeholder – replace with your own logic)
-    const notes: string[] = [];
-    let prompt = query;
-    for (let i = 0; i < (depth ?? 3); i++) {
-      const step = i + 1;
-      prompt = `Step ${step}/${depth}: ${prompt}`;
-      // TODO: Integrate real LLM / search API. For now, generate placeholder.
-      notes.push(`Results for ${prompt}...`);
-    }
-
-    // 2. Build markdown report
-    const mdLines = [`# Deep Research Report`, `**Topic:** ${query}`, ""];
-    notes.forEach((n, idx) => {
-      mdLines.push(`## Layer ${idx + 1}`, n, "");
-    });
-    const markdown = mdLines.join("\n");
-
-    // 3. Convert to PDF (quick implementation)
-    // Generate PDF
-    const doc = await PDFDocument.create();
-    let page = doc.addPage();
-    const { width, height } = page.getSize();
-    const font = await doc.embedFont(StandardFonts.Helvetica);
-    const lines = markdown.split("\n");
-    const lineHeight = 14;
-    let cursorY = height - 50;
-    for (const line of lines) {
-      if (cursorY < 50) {
-        page = doc.addPage();
-        cursorY = height - 50;
-      }
-      page.drawText(line, { x: 50, y: cursorY, size: 12, font });
-      cursorY -= lineHeight;
-    }
-    const pdfBytes = await doc.save();
-
-    // 4. Upload via UploadThing
-    const res = await fetch("https://uploadthing.com/api/upload", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/pdf",
-        "x-uploadthing-api-key": process.env.UPLOADTHING_TOKEN,
-        "x-uploadthing-version": "5",
-        "x-uploadthing-slug": "pdfUploader",
-      },
-      body: Buffer.from(pdfBytes),
-    });
-    if (!res.ok) throw new Error(await res.text());
-    const uploadResp = (await res.json()) as { url: string };
-
-    // 5. Return
-    return { pdfUrl: uploadResp.url };
   },
 });
+
+export const deepResearch = async (
+  prompt: string,
+  depth: number,
+  breadth: number,
+  currentProgress: number = 10 // Starting progress
+) => {
+  if (!accumulatedResearch.query) {
+    accumulatedResearch.query = prompt;
+  }
+
+  if (depth === 0) {
+    return accumulatedResearch;
+  }
+
+  metadata.set("status", {
+    progress: 25,
+    label: `Generating ${breadth} search queries for: "${prompt}"...`,
+  });
+
+  const queries = await generateSearchQueries(prompt, breadth);
+  accumulatedResearch.queries = queries;
+
+  metadata.set("status", {
+    progress: 25,
+    label: `Depth ${depth}: Search queries: ${accumulatedResearch.queries.join(
+      ", "
+    )}`,
+  });
+
+  for (const query of queries) {
+    console.log(`Searching the web for: ${query}`);
+
+    metadata.set("status", {
+      progress: 25,
+      label: `Searching the web for: "${query}"`,
+    });
+
+    const searchResults = await searchAndProcess(
+      query,
+      accumulatedResearch.searchResults
+    );
+    accumulatedResearch.searchResults.push(...searchResults);
+
+    for (const searchResult of searchResults) {
+      console.log(`Processing search result: ${searchResult.url}`);
+
+      metadata.set("status", {
+        progress: 25,
+        label: `Processing search result: "${searchResult.url}"`,
+      });
+
+      const learnings = await generateLearnings(query, searchResult);
+      accumulatedResearch.learnings.push(learnings);
+      accumulatedResearch.completedQueries.push(query);
+
+      const newQuery = `Overall research goal: ${prompt}
+        Previous search queries: ${accumulatedResearch.completedQueries.join(
+          ", "
+        )}
+ 
+        Follow-up questions: ${learnings.followUpQuestions.join(", ")}
+        `;
+
+      metadata.set("status", {
+        progress: 25,
+        label: `Generating learnings for ${newQuery}...`,
+      });
+
+      await deepResearch(
+        newQuery,
+        depth - 1,
+        Math.ceil(breadth / 2),
+        currentProgress
+      );
+    }
+  }
+  return accumulatedResearch;
+};
+
+const generateSearchQueries = async (query: string, n: number = 3) => {
+  try {
+    const {
+      object: { queries },
+    } = await generateObject({
+      model: mainModel,
+      prompt: `Generate ${n} search queries for the following query: ${query}`,
+      schema: z.object({
+        queries: z.array(z.string()).min(1).max(5),
+      }),
+    });
+    return queries;
+  } catch (error) {
+    console.error(`Error generating search queries for "${query}":`, error);
+    // Return a fallback query
+    return [query];
+  }
+};
+
+const exa = new Exa(process.env.EXA_API_KEY);
+
+type SearchResult = {
+  title: string;
+  url: string;
+  content: string;
+};
+
+const searchWeb = async (query: string) => {
+  const { results } = await exa.searchAndContents(query, {
+    numResults: 1,
+    livecrawl: "always",
+  });
+  return results.map(
+    (r) =>
+      ({
+        title: r.title,
+        url: r.url,
+        content: r.text,
+      }) as SearchResult
+  );
+};
+
+const searchAndProcess = async (
+  query: string,
+  searchResults: SearchResult[]
+) => {
+  const pendingSearchResults: SearchResult[] = [];
+  const finalSearchResults: SearchResult[] = [];
+
+  try {
+    await generateText({
+      model: mainModel,
+      prompt: `Search the web for information about ${query}`,
+      system:
+        "You are a researcher. For each query, search the web and then evaluate if the results are relevant and will help answer the following query",
+      maxSteps: 5,
+      tools: {
+        searchWeb: tool({
+          description: "Search the web for information about a given query",
+          parameters: z.object({
+            query: z.string().min(1),
+          }),
+          async execute({ query }) {
+            const results = await searchWeb(query);
+            pendingSearchResults.push(...results);
+            return results;
+          },
+        }),
+        evaluate: tool({
+          description: "Evaluate the search results",
+          parameters: z.object({}),
+          async execute() {
+            const pendingResult = pendingSearchResults.pop()!;
+            const { object: evaluation } = await generateObject({
+              model: mainModel,
+              prompt: `Evaluate whether the search results are relevant and will help answer the following query: ${query}. If the page already exists in the existing results, mark it as irrelevant.
+ 
+            <search_results>
+            ${JSON.stringify(pendingResult)}
+            </search_results>
+            `,
+              output: "enum",
+              enum: ["relevant", "irrelevant"],
+            });
+            if (evaluation === "relevant") {
+              finalSearchResults.push(pendingResult);
+            }
+            console.log("Found:", pendingResult.url);
+            metadata.set("status", {
+              progress: 25,
+              label: `Found relevant search result: "${pendingResult.url}"`,
+            });
+
+            console.log("Evaluation completed:", evaluation);
+
+            metadata.set("status", {
+              progress: 25,
+              label: `Search result: "${pendingResult.url} is ${evaluation}"`,
+            });
+
+            return evaluation === "irrelevant"
+              ? "Search results are irrelevant. Please search again with a more specific query."
+              : "Search results are relevant. End research for this query.";
+          },
+        }),
+      },
+    });
+  } catch (error) {
+    console.error(`Error in searchAndProcess for query "${query}":`, error);
+    // If we hit server errors, fall back to direct search
+    const fallbackResults = await searchWeb(query);
+    return fallbackResults.slice(0, 1); // Return at most 1 result as fallback
+  }
+
+  return finalSearchResults;
+};
+
+const generateLearnings = async (query: string, searchResult: SearchResult) => {
+  try {
+    const { object } = await generateObject({
+      model: mainModel,
+      prompt: `The user is researching "${query}". The following search result were deemed relevant.
+      Generate a learning and a follow-up question from the following search result:
+   
+      <search_result>
+      ${JSON.stringify(searchResult)}
+      </search_result>
+      `,
+      schema: z.object({
+        learning: z.string(),
+        followUpQuestions: z.array(z.string()),
+      }),
+    });
+    return object;
+  } catch (error) {
+    console.error(`Error generating learnings for query "${query}":`, error);
+    // Return a basic fallback learning
+    return {
+      learning: `Found relevant information about "${query}" from ${searchResult.url}`,
+      followUpQuestions: [`What are the key implications of ${query}?`],
+    };
+  }
+};

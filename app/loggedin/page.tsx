@@ -12,6 +12,7 @@ import { ConnectGoogleDriveButton } from "@/components/ConnectGoogleDrive";
 import { GoogleDriveScopeChecker } from "@/components/GoogleDriveScopeChecker";
 import { ConnectNotionButton } from "@/components/ConnectNotion";
 import { ConnectGitHubButton } from "@/components/ConnectGitHub";
+import { DeepResearch } from "../components/DeepResearch";
 
 export default function LoggedInHome() {
   const user = useQuery(api.myFunctions.getUser);
@@ -42,6 +43,7 @@ export default function LoggedInHome() {
 
   return (
     <>
+      <DeepResearch />
       <p className="mt-8">Welcome {user?.email ?? "N/A"}!</p>
       <p>
         Click the button below and open this page in another window - this data

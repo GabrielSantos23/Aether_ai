@@ -11,6 +11,7 @@ import {
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createGroq } from "@ai-sdk/groq";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { z } from "zod";
 import {
   basePersonality,
@@ -99,15 +100,21 @@ export const generateAIResponse = async (
       api.api_keys.getUserDefaultApiKey,
       { service: "openrouter" }
     );
+    const userMoonshotKey = await ctx.runQuery(
+      api.api_keys.getUserDefaultApiKey,
+      { service: "moonshot" }
+    );
 
     // Get environment API keys
     const envGeminiKey = process.env.GEMINI_API_KEY;
     const envGroqKey = process.env.GROQ_API_KEY;
     const envOpenRouterKey = process.env.OPENROUTER_API_KEY;
+    const envMoonshotKey = process.env.MOONSHOT_KEY;
 
     let activeGeminiKey = userGeminiKey || envGeminiKey;
     let activeGroqKey = userGroqKey || envGroqKey;
     let activeOpenRouterKey = userOpenRouterKey || envOpenRouterKey;
+    let activeMoonshotKey = userMoonshotKey || envMoonshotKey;
 
     if (provider === "gemini") {
       if (userGeminiKey) {
@@ -151,6 +158,20 @@ export const generateAIResponse = async (
           "No valid OpenRouter API key available. Please add an OpenRouter API key in settings."
         );
       }
+    } else if (provider === "moonshot") {
+      if (userMoonshotKey) {
+        console.log("Using user's Moonshot API key");
+      } else if (envMoonshotKey) {
+        console.log("Using environment Moonshot API key");
+      } else {
+        console.error("No Moonshot API key available - request will fail");
+      }
+
+      if (!activeMoonshotKey) {
+        throw new Error(
+          "No valid Moonshot API key available. Please add a Moonshot API key in settings."
+        );
+      }
     }
 
     // Initialize AI clients with the active API keys
@@ -167,6 +188,14 @@ export const generateAIResponse = async (
     const groq = activeGroqKey
       ? createGroq({
           apiKey: activeGroqKey,
+        })
+      : null;
+
+    const moonshot = activeMoonshotKey
+      ? createOpenAICompatible({
+          apiKey: activeMoonshotKey,
+          baseURL: "https://api.moonshot.ai/v1",
+          name: "moonshot",
         })
       : null;
 
@@ -190,6 +219,16 @@ export const generateAIResponse = async (
         }
         console.log(`Initializing Groq model: ${model.id}`);
         aiModel = groq(model.id);
+      } else if (provider === "moonshot") {
+        if (!moonshot) {
+          throw new Error(
+            "Moonshot client not initialized due to missing API key"
+          );
+        }
+        console.log(`Initializing Moonshot model: ${model.id}`);
+        aiModel = moonshot.chatModel
+          ? moonshot.chatModel(model.id)
+          : moonshot(model.id);
       } else {
         console.log(
           `Unknown provider ${provider}, falling back to Gemini 2.0 Flash`
@@ -449,6 +488,32 @@ export const generateAIResponse = async (
         },
       });
     }
+
+    // Add deep research tool - always available
+    tools.startDeepResearch = tool({
+      description:
+        "Perform an in-depth multi-layered web research on a given topic and deliver a structured PDF report. Use this when the user explicitly requests a comprehensive research report.",
+      parameters: z.object({
+        topic: z
+          .string()
+          .describe("The research topic the user wants to investigate"),
+        depth: z
+          .number()
+          .min(1)
+          .max(5)
+          .optional()
+          .describe("Number of recursive research layers (default 3)"),
+      }),
+      execute: async ({ topic, depth }) => {
+        // The actual Trigger.dev workflow will be started client-side.
+        // We simply return a payload the UI can use to kick it off.
+        return {
+          type: "deep-research",
+          query: topic,
+          depth: depth ?? 3,
+        };
+      },
+    });
     // Stream the response
     console.log(
       `Starting stream with provider: ${provider}, model: ${model.id}`

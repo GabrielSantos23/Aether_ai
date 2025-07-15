@@ -62,6 +62,7 @@ export const hasApiKeyForProvider = query({
       v.literal("gemini"),
       v.literal("groq"),
       v.literal("openrouter"),
+      v.literal("moonshot"),
       v.literal("deepgram")
     ),
   },
@@ -95,6 +96,7 @@ export const saveApiKey = mutation({
       v.literal("gemini"),
       v.literal("groq"),
       v.literal("openrouter"),
+      v.literal("moonshot"),
       v.literal("deepgram")
     ),
     key: v.string(),
@@ -211,6 +213,7 @@ export const getUserDefaultApiKey = query({
       v.literal("gemini"),
       v.literal("groq"),
       v.literal("openrouter"),
+      v.literal("moonshot"),
       v.literal("deepgram")
     ),
   },

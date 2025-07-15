@@ -101,6 +101,7 @@ export const addMessage = mutation({
                   | "gemini"
                   | "groq"
                   | "openrouter"
+                  | "moonshot"
                   | "deepgram"
               )
           )
@@ -115,6 +116,11 @@ export const addMessage = mutation({
         } else if (
           modelInfo.provider === "openrouter" &&
           process.env.OPENROUTER_API_KEY
+        ) {
+          hasEnvKey = true;
+        } else if (
+          modelInfo.provider === "moonshot" &&
+          process.env.MOONSHOT_KEY
         ) {
           hasEnvKey = true;
         }

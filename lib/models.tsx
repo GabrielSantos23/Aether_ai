@@ -11,7 +11,8 @@ export interface ModelInfo {
     | "deepseek"
     | "meta"
     | "sarvam"
-    | "qwen";
+    | "qwen"
+    | "moonshot";
   provider:
     | "gemini"
     | "openrouter"
@@ -19,7 +20,8 @@ export interface ModelInfo {
     | "google"
     | "anthropic"
     | "openai"
-    | "deepseek";
+    | "deepseek"
+    | "moonshot";
   category:
     | "google"
     | "anthropic"
@@ -27,7 +29,8 @@ export interface ModelInfo {
     | "deepseek"
     | "meta"
     | "sarvam"
-    | "qwen";
+    | "qwen"
+    | "moonshot";
   features: (
     | "vision"
     | "web"
@@ -47,6 +50,11 @@ export interface ModelInfo {
   isApiKeyOnly?: boolean;
   toolCalls?: boolean;
   isFree?: boolean;
+  /**
+   * Flag indicating that this model is suitable for multi-step web research tasks.
+   * When true it will appear in the Deep Research agent’s model selector.
+   */
+  canResearch?: boolean;
 }
 
 export const models: ModelInfo[] = [
@@ -70,6 +78,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    canResearch: true,
   },
   {
     id: "claude-sonnet-4-20250514",
@@ -91,6 +100,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    canResearch: true,
   },
   {
     id: "anthropic/claude-3.5-sonnet",
@@ -109,6 +119,7 @@ export const models: ModelInfo[] = [
     },
     isFree: false,
     isApiKeyOnly: true,
+    canResearch: true,
   },
   {
     id: "claude-3-5-haiku-20241022",
@@ -129,6 +140,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    canResearch: true,
   },
   {
     id: "deepseek/deepseek-r1-0528:free",
@@ -304,6 +316,7 @@ export const models: ModelInfo[] = [
       image: false,
     },
     isFree: true,
+    canResearch: true,
   },
   {
     id: "gemini-2.0-flash",
@@ -321,6 +334,7 @@ export const models: ModelInfo[] = [
       image: true,
     },
     toolCalls: true,
+    canResearch: true,
   },
   {
     id: "gemini-2.0-flash-thinking-exp-01-21",
@@ -357,6 +371,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: false,
     toolCalls: false,
     isFree: true,
+    canResearch: true,
   },
   {
     id: "gemini-2.5-pro-preview-05-06",
@@ -378,6 +393,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    canResearch: true,
   },
   {
     id: "google/gemini-flash-1.5",
@@ -411,6 +427,26 @@ export const models: ModelInfo[] = [
       pdf: false,
       image: false,
     },
+  },
+  {
+    id: "moonshotai/kimi-k2:free",
+    name: "MoonshotAI: Kimi K2",
+    description: "Via OpenRouter",
+    vendor: "moonshot",
+    provider: "openrouter",
+    category: "moonshot",
+    features: ["code", "weather"],
+    isPro: false,
+    supportsThinking: false,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: false,
+      image: false,
+    },
+    isFree: true,
+    canResearch: true,
+    isApiKeyOnly: false,
+    toolCalls: true,
   },
   {
     id: "deepseek-r1-distill-llama-70b",
@@ -486,6 +522,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    canResearch: true,
   },
   {
     id: "gpt-4.1-mini",
@@ -506,6 +543,28 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    canResearch: true,
+  },
+  {
+    id: "kimi-k2-0711-preview",
+    name: "Kimi v2",
+    description: "Moonshot's advanced chat model",
+    vendor: "moonshot",
+    provider: "moonshot",
+    category: "moonshot",
+    features: ["vision", "code", "weather"],
+    isPro: false,
+    isNew: true,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: true,
+    toolCalls: true,
+    isFree: false,
+    canResearch: true,
   },
   {
     id: "gemini-1.5-pro-latest",
@@ -549,6 +608,8 @@ export const getProviderColor = (modelId?: string) => {
       return "bg-blue-500";
     case "groq":
       return "bg-yellow-500";
+    case "moonshot":
+      return "bg-purple-500";
     default:
       return "bg-gray-500";
   }
@@ -585,6 +646,8 @@ export const getVendorColor = (vendor: string): string => {
       return getFullBgColor("from-blue-500 to-green-500");
     case "qwen":
       return getFullBgColor("from-red-500 to-pink-500");
+    case "moonshot":
+      return getFullBgColor("from-purple-500 to-indigo-500");
     default:
       return getFullBgColor("from-gray-500 to-gray-600");
   }

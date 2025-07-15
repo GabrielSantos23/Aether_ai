@@ -19,6 +19,7 @@ import Test from "@/components/routes/test";
 import SidebarProvider from "@/components/_components/_sidebar";
 import SettingsPage from "@/components/routes/Settings";
 import DebugGoogle from "@/components/routes/debug";
+import TestDeepResearch from "@/components/routes/testDeepResearch";
 
 // Dummy components for illustration
 const SharedChatPage = () => <div>Shared Chat Page (to be implemented)</div>;
@@ -95,6 +96,7 @@ function AppRoutes() {
           }
         />
         <Route path="/test" element={<TestPage />} />
+        <Route path="/test-deep-research" element={<TestDeepResearch />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
