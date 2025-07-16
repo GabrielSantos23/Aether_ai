@@ -156,19 +156,62 @@ const SidebarThreads = () => {
     );
   }
 
+  // Helper function to get date boundaries
+  const getDateBoundaries = () => {
+    const now = new Date();
+
+    // Today (start of today)
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+
+    // Yesterday (start of yesterday)
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setDate(todayStart.getDate() - 1);
+
+    // Last 7 days (start of 7 days ago)
+    const last7DaysStart = new Date(todayStart);
+    last7DaysStart.setDate(todayStart.getDate() - 7);
+
+    // Last month (start of 30 days ago)
+    const lastMonthStart = new Date(todayStart);
+    lastMonthStart.setDate(todayStart.getDate() - 30);
+
+    return {
+      todayStart: todayStart.getTime(),
+      yesterdayStart: yesterdayStart.getTime(),
+      last7DaysStart: last7DaysStart.getTime(),
+      lastMonthStart: lastMonthStart.getTime(),
+    };
+  };
+
   // Group chats by pinned status and date
   const pinnedChats = chats.filter((chat) => chat.isPinned);
   const unpinnedChats = chats.filter((chat) => !chat.isPinned);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayTimestamp = today.getTime();
+  const { todayStart, yesterdayStart, last7DaysStart, lastMonthStart } =
+    getDateBoundaries();
 
+  // Filter chats by date ranges
   const todayChats = unpinnedChats.filter(
-    (chat) => chat.updatedAt >= todayTimestamp
+    (chat) => chat.updatedAt >= todayStart
   );
-  const earlierChats = unpinnedChats.filter(
-    (chat) => chat.updatedAt < todayTimestamp
+
+  const yesterdayChats = unpinnedChats.filter(
+    (chat) => chat.updatedAt >= yesterdayStart && chat.updatedAt < todayStart
+  );
+
+  const last7DaysChats = unpinnedChats.filter(
+    (chat) =>
+      chat.updatedAt >= last7DaysStart && chat.updatedAt < yesterdayStart
+  );
+
+  const lastMonthChats = unpinnedChats.filter(
+    (chat) =>
+      chat.updatedAt >= lastMonthStart && chat.updatedAt < last7DaysStart
+  );
+
+  const olderChats = unpinnedChats.filter(
+    (chat) => chat.updatedAt < lastMonthStart
   );
 
   // Render chat item component
@@ -305,12 +348,60 @@ const SidebarThreads = () => {
           </SidebarGroup>
         )}
 
-        {/* Earlier Chats */}
-        {earlierChats.length > 0 && (
+        {/* Yesterday's Chats */}
+        {yesterdayChats.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>Earlier</SidebarGroupLabel>
+            <SidebarGroupLabel>Yesterday</SidebarGroupLabel>
             <SidebarMenu>
-              {earlierChats.map((chat) => (
+              {yesterdayChats.map((chat) => (
+                <ChatItem
+                  key={chat._id}
+                  chat={chat}
+                  showBranchIcon={chat.isBranch}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+
+        {/* Last 7 Days Chats */}
+        {last7DaysChats.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Last 7 days</SidebarGroupLabel>
+            <SidebarMenu>
+              {last7DaysChats.map((chat) => (
+                <ChatItem
+                  key={chat._id}
+                  chat={chat}
+                  showBranchIcon={chat.isBranch}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+
+        {/* Last Month Chats */}
+        {lastMonthChats.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Last month</SidebarGroupLabel>
+            <SidebarMenu>
+              {lastMonthChats.map((chat) => (
+                <ChatItem
+                  key={chat._id}
+                  chat={chat}
+                  showBranchIcon={chat.isBranch}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+
+        {/* Older Chats */}
+        {olderChats.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Older</SidebarGroupLabel>
+            <SidebarMenu>
+              {olderChats.map((chat) => (
                 <ChatItem
                   key={chat._id}
                   chat={chat}
