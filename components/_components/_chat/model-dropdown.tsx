@@ -1,47 +1,62 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react'
-import { Check, Lightbulb, Globe, Eye, Image, Paperclip, FileText, RotateCcw, Cloud, File } from 'lucide-react'
-import { models, ModelInfo } from '@/lib/models'
-import { cn } from '@/lib/utils'
-import { AnimatePresence, motion } from 'framer-motion'
-import { useQuery } from 'convex/react'
-import { api } from '../../../convex/_generated/api'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Check,
+  Lightbulb,
+  Globe,
+  Eye,
+  Image,
+  Paperclip,
+  FileText,
+  RotateCcw,
+  Cloud,
+  File,
+} from "lucide-react";
+import { models, ModelInfo } from "@/lib/models";
+import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ModelDropdownProps {
-  selectedModel: ModelInfo
-  onModelSelect: (modelId: string) => void
-  onClose: () => void
-  className?: string
-  isSignedIn: boolean
-  apiKeys?: Array<{ service: string }>
+  selectedModel: ModelInfo;
+  onModelSelect: (modelId: string) => void;
+  onClose: () => void;
+  className?: string;
+  isSignedIn: boolean;
+  apiKeys?: Array<{ service: string }>;
 }
 
 const getVendorColor = (vendor: string) => {
   switch (vendor) {
-    case 'google':
-    case 'gemini':
-      return 'from-blue-500 to-purple-500'
-    case 'anthropic':
-    case 'claude':
-      return 'from-purple-500 to-pink-500'
-    case 'openai':
-    case 'gpt':
-      return 'from-green-500 to-teal-500'
-    case 'deepseek':
-      return 'from-cyan-500 to-blue-500'
-    case 'meta':
-    case 'llama':
-      return 'from-indigo-500 to-blue-500'
-    case 'o-series':
-      return 'from-orange-500 to-red-500'
-    case 'openrouter':
-      return 'from-gray-500 to-gray-600'
+    case "google":
+    case "gemini":
+      return "from-blue-500 to-purple-500";
+    case "anthropic":
+    case "claude":
+      return "from-purple-500 to-pink-500";
+    case "openai":
+    case "gpt":
+      return "from-green-500 to-teal-500";
+    case "deepseek":
+      return "from-cyan-500 to-blue-500";
+    case "meta":
+    case "llama":
+      return "from-indigo-500 to-blue-500";
+    case "o-series":
+      return "from-orange-500 to-red-500";
+    case "openrouter":
+      return "from-gray-500 to-gray-600";
     default:
-      return 'from-gray-500 to-gray-600'
+      return "from-gray-500 to-gray-600";
   }
-}
+};
 
 export function ModelDropdown({
   selectedModel,
@@ -51,61 +66,67 @@ export function ModelDropdown({
   isSignedIn,
   apiKeys = [],
 }: ModelDropdownProps) {
-  const [isOpen, setIsOpen] = useState(true)
-  const [showAbove, setShowAbove] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const disabledModels = useQuery(api.api_keys.getDisabledModels) || []
+  const [isOpen, setIsOpen] = useState(true);
+  const [showAbove, setShowAbove] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const disabledModels = useQuery(api.api_keys.getDisabledModels) || [];
 
   useEffect(() => {
     if (dropdownRef.current) {
-      const rect = dropdownRef.current.getBoundingClientRect()
-      const buttonRect = dropdownRef.current.parentElement?.getBoundingClientRect()
+      const rect = dropdownRef.current.getBoundingClientRect();
+      const buttonRect =
+        dropdownRef.current.parentElement?.getBoundingClientRect();
 
       if (buttonRect) {
-        const spaceBelow = window.innerHeight - buttonRect.bottom
-        const dropdownHeight = 250
-        setShowAbove(spaceBelow < dropdownHeight && buttonRect.top > dropdownHeight)
+        const spaceBelow = window.innerHeight - buttonRect.bottom;
+        const dropdownHeight = 250;
+        setShowAbove(
+          spaceBelow < dropdownHeight && buttonRect.top > dropdownHeight
+        );
       }
     }
-  }, [])
+  }, []);
 
   const handleModelSelect = (modelId: string) => {
-    onModelSelect(modelId)
-    setIsOpen(false)
-    onClose()
-  }
+    onModelSelect(modelId);
+    setIsOpen(false);
+    onClose();
+  };
 
   const handleBackdropClick = () => {
-    setIsOpen(false)
-    onClose()
-  }
+    setIsOpen(false);
+    onClose();
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const availableModels = models.filter((model) => {
     // Check if model is disabled by user
     if (disabledModels.includes(model.id)) {
-      return false
+      return false;
     }
 
     // Free models are always available
-    if (model.isFree) return true
+    if (model.isFree) return true;
 
     // For non-authenticated users, only show free models
-    if (!isSignedIn) return false
+    if (!isSignedIn) return false;
 
     // For pro models, check if user has the required API key
     if (model.isApiKeyOnly) {
-      return apiKeys.some((key) => key.service === model.provider)
+      return apiKeys.some((key) => key.service === model.provider);
     }
 
     // For other models, they're available to signed-in users
-    return true
-  })
+    return true;
+  });
 
   return (
-    <div className={cn('relative z-50', className)}>
-      <div className="fixed inset-0 bg-black/20 dark:bg-black/40" onClick={handleBackdropClick} />
+    <div className={cn("relative z-50", className)}>
+      <div
+        className="fixed inset-0 bg-black/20 dark:bg-black/40"
+        onClick={handleBackdropClick}
+      />
       <AnimatePresence>
         <motion.div
           ref={dropdownRef}
@@ -114,13 +135,16 @@ export function ModelDropdown({
           exit={{ opacity: 0, y: showAbove ? 8 : -8, scale: 0.95 }}
           transition={{ duration: 0.15, ease: [0.25, 1, 0.5, 1] }}
           className={cn(
-            'absolute left-0 bg-background rounded-lg border border-border shadow-2xl overflow-hidden w-[320px]',
-            showAbove ? 'bottom-full mb-1' : 'top-full mt-1',
+            "absolute left-0 bg-background rounded-lg border border-border shadow-2xl overflow-hidden w-[320px]",
+            showAbove ? "bottom-full mb-1" : "top-full mt-1"
           )}
         >
           <div
             className="max-h-[300px] overflow-y-auto p-2"
-            style={{ scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--primary)) transparent' }}
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "hsl(var(--primary)) transparent",
+            }}
           >
             {/* Retry with same model option at top */}
             <button
@@ -134,16 +158,16 @@ export function ModelDropdown({
                 </span>
               </div>
             </button>
-            
+
             {availableModels.map((model) => (
               <button
                 key={model.id}
                 onClick={() => handleModelSelect(model.id)}
                 className={cn(
-                  'group w-full p-1.5 cursor-pointer transition-all duration-150 ease-[0.25,1,0.5,1] relative overflow-hidden text-left rounded-md flex items-center justify-between',
+                  "group w-full p-1.5 cursor-pointer transition-all duration-150 ease-[0.25,1,0.5,1] relative overflow-hidden text-left rounded-md flex items-center justify-between",
                   selectedModel.id === model.id
-                    ? 'text-primary'
-                    : 'hover:text-primary text-foreground/70',
+                    ? "text-primary"
+                    : "hover:text-primary text-foreground/70"
                 )}
               >
                 {selectedModel.id === model.id && (
@@ -153,64 +177,84 @@ export function ModelDropdown({
                   />
                 )}
                 <div className="flex items-center gap-2 min-w-0 flex-1 relative z-10">
+                  {/* Model logo */}
+                  {model.logo ? (
+                    <model.logo
+                      size={20}
+                      color="oklch(0.5547 0.2503 297.0156)"
+                      className="rounded object-contain mr-1 dark:[&>svg]:fill-[oklch(0.7871_0.1187_304.7693)]"
+                    />
+                  ) : (
+                    <div className="w-5 h-5 mr-1" />
+                  )}
                   <div
                     className={cn(
-                      'w-2 h-2 rounded-full bg-gradient-to-r flex-shrink-0',
-                      getVendorColor(model.vendor),
+                      "w-2 h-2 rounded-full bg-gradient-to-r flex-shrink-0",
+                      getVendorColor(model.vendor)
                     )}
                   />
                   <span className="text-sm truncate">{model.name}</span>
                 </div>
                 <div className="relative z-10 flex items-center gap-1">
                   {/* Feature icons - ordered: web, vision, imagegen, weather */}
-                  {model.features.includes('web') && (
+                  {model.features.includes("web") && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <Globe className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent side="top">Web search enabled</TooltipContent>
+                      <TooltipContent side="top">
+                        Web search enabled
+                      </TooltipContent>
                     </Tooltip>
                   )}
-                  {model.features.includes('vision') && (
+                  {model.features.includes("vision") && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <Eye className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent side="top">Vision capabilities</TooltipContent>
+                      <TooltipContent side="top">
+                        Vision capabilities
+                      </TooltipContent>
                     </Tooltip>
                   )}
-                  {model.features.includes('imagegen') && (
+                  {model.features.includes("imagegen") && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <Image className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent side="top">Image generation enabled</TooltipContent>
+                      <TooltipContent side="top">
+                        Image generation enabled
+                      </TooltipContent>
                     </Tooltip>
                   )}
-                  {model.features.includes('weather') && (
+                  {model.features.includes("weather") && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <Cloud className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent side="top">Weather capabilities</TooltipContent>
+                      <TooltipContent side="top">
+                        Weather capabilities
+                      </TooltipContent>
                     </Tooltip>
                   )}
-                  {model.features.includes('googledrive') && (
+                  {model.features.includes("googledrive") && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <File className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent side="top">Google Drive access</TooltipContent>
+                      <TooltipContent side="top">
+                        Google Drive access
+                      </TooltipContent>
                     </Tooltip>
                   )}
 
@@ -222,7 +266,9 @@ export function ModelDropdown({
                           <Paperclip className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent side="top">Supports attachments</TooltipContent>
+                      <TooltipContent side="top">
+                        Supports attachments
+                      </TooltipContent>
                     </Tooltip>
                   )}
                   {model.attachmentsSuppport?.pdf && (
@@ -232,7 +278,9 @@ export function ModelDropdown({
                           <FileText className="w-3.5 h-3.5" />
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent side="top">Supports PDF attachments</TooltipContent>
+                      <TooltipContent side="top">
+                        Supports PDF attachments
+                      </TooltipContent>
                     </Tooltip>
                   )}
 
@@ -243,13 +291,17 @@ export function ModelDropdown({
                         <span className="text-xs text-primary/60 px-1 py-0.5 rounded-full">
                           <Lightbulb
                             className={cn(
-                              'w-3.5 h-3.5',
-                              selectedModel.id === model.id ? 'text-primary' : 'text-primary/60',
+                              "w-3.5 h-3.5",
+                              selectedModel.id === model.id
+                                ? "text-primary"
+                                : "text-primary/60"
                             )}
                           />
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent side="top">Thinking mode enabled</TooltipContent>
+                      <TooltipContent side="top">
+                        Thinking mode enabled
+                      </TooltipContent>
                     </Tooltip>
                   )}
                   {selectedModel.id === model.id && (
@@ -262,5 +314,5 @@ export function ModelDropdown({
         </motion.div>
       </AnimatePresence>
     </div>
-  )
+  );
 }

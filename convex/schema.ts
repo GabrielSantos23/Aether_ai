@@ -141,6 +141,12 @@ export default defineSchema({
     pdfUrl: v.string(), // Public URL to access the PDF
     createdAt: v.number(),
   }).index("by_user", ["userId"]),
+  aiImages: defineTable({
+    userId: v.id("users"),
+    prompt: v.string(),
+    imageUrl: v.string(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
   numbers: defineTable({ value: v.number() }),
   sessions: defineTable({
     userId: v.id("users"),

@@ -3,18 +3,26 @@
 import {
   Sidebar,
   SidebarHeader,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
   SidebarFooter,
-  SidebarTrigger,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { X, Trash2, LogIn, GitBranch, PencilIcon, Share2 } from "lucide-react";
+import {
+  X,
+  Trash2,
+  LogIn,
+  GitBranch,
+  PencilIcon,
+  Share2,
+  Plus,
+  Search,
+  Library,
+  Image,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ComponentProps, memo, useEffect, useState, useCallback } from "react";
 import { siteConfig } from "@/app/config/site.config";
@@ -200,77 +208,53 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
         <SidebarHeader>
           <SidebarMenu className="space-y-2">
             <SidebarMenuItem>
-              <div className="flex items-center justify-center h-8 mt-2 flex-1 *:!text-wordmark-color">
+              <div className="flex items-center justify-end h-8 mt-4 flex-1">
                 <NavLink to="/">
                   <SidebarLogo />
                 </NavLink>
               </div>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <Button className="w-full p-0">
+            <SidebarMenuItem className="mb-0">
+              <Button
+                className="w-full p-0 rounded-2xl hover:bg-transparent "
+                variant="ghost"
+              >
                 <NavLink
                   to="/"
-                  className="w-full h-full grid place-items-center"
+                  className="w-full h-full rounded-2xl flex place-items-center gap-2 px-2 text-sm justify-start hover:bg-transparent"
                 >
-                  New Chat
+                  <Plus size={16} /> New Chat
                 </NavLink>
               </Button>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SearchThreads isSidebar />
+            <SidebarMenuItem className="mb-0">
+              <Button className="w-full p-0 rounded-2xl" variant="ghost">
+                <NavLink
+                  to="/"
+                  className="w-full h-full rounded-2xl flex place-items-center gap-2 px-2 text-sm justify-start hover:bg-transparent"
+                >
+                  <Search size={16} /> Search
+                </NavLink>
+              </Button>
+            </SidebarMenuItem>
+            <SidebarMenuItem className="mb-0">
+              <Button className="w-full p-0 rounded-2xl" variant="ghost">
+                <NavLink
+                  to="/gallery"
+                  className={({ isActive }) =>
+                    [
+                      "w-full h-full rounded-2xl flex place-items-center gap-2 px-2 text-sm justify-start hover:bg-transparent",
+                      isActive ? "bg-accent/50" : "",
+                    ].join(" ")
+                  }
+                  end
+                >
+                  <Image size={16} /> Gallery
+                </NavLink>
+              </Button>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
-
-        {/* Chat Threads List */}
-        {/* <SidebarContent>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-4">
-              <Spinner className="size-4" />
-            </div>
-          ) : (
-            <SidebarGroup>
-              <SidebarGroupContent>
-                {threads.length === 0 ? (
-                  <p className="text-sm text-muted-foreground px-4 py-2">
-                    No chats yet
-                  </p>
-                ) : (
-                  threads.map((thread) => (
-                    <ChatItemContextMenu
-                      key={thread.id}
-                      chatId={thread.id}
-                      chatTitle={thread.title}
-                      isSignedIn={!!user}
-                      onRename={handleRenameChat}
-                      onDelete={handleDeleteChat}
-                      onShare={handleShareChat}
-                    >
-                      <SidebarMenuItem>
-                        <NavLink
-                          to={`/chat/${thread.id}`}
-                          className={({ isActive }) =>
-                            cn(
-                              "flex w-full items-center gap-2 rounded-lg p-2.5 text-sm font-medium truncate transition-colors",
-                              isActive
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                : "hover:bg-sidebar-accent/50"
-                            )
-                          }
-                        >
-                          <span className="truncate flex-1">{thread.title}</span>
-                          {thread.isShared && (
-                            <Share2 className="w-4 h-4 shrink-0 opacity-70" />
-                          )}
-                        </NavLink>
-                      </SidebarMenuItem>
-                    </ChatItemContextMenu>
-                  ))
-                )}
-              </SidebarGroupContent>
-            </SidebarGroup>
-          )}
-        </SidebarContent> */}
         <SidebarThreads />
         <SidebarFooter>
           <SidebarMenu>

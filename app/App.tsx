@@ -20,6 +20,8 @@ import SidebarProvider from "@/components/_components/_sidebar";
 import SettingsPage from "@/components/routes/Settings";
 import DebugGoogle from "@/components/routes/debug";
 import TestDeepResearch from "@/components/routes/testDeepResearch";
+import GalleryPage from "@/components/routes/Gallery";
+import ResearchPage from "@/components/routes/Research";
 
 // Dummy components for illustration
 const SharedChatPage = () => <div>Shared Chat Page (to be implemented)</div>;
@@ -77,6 +79,8 @@ function AppRoutes() {
             <Route path="/chat" element={<Chat />} />
             <Route path="/chat/:id" element={<Chat />} />
             <Route path="/debug/google" element={<DebugGoogle />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/research" element={<ResearchPage />} />
           </Route>
           <Route path="/settings" element={<SettingsPage />} />
 

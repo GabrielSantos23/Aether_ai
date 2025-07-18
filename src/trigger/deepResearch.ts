@@ -11,14 +11,14 @@ import { Exa } from "exa-js";
 import { z } from "zod";
 
 // We'll assign this dynamically per run
-export let mainModel = google("gemini-2.5-flash-preview-04-17");
+export let mainModel = google("gemini-2.5-flash");
 
 // Helper to map a modelId to an AI-SDK model instance so we can use different providers
 export const getAIModel = (modelId: string) => {
   const modelMeta = models.find((m) => m.id === modelId);
   if (!modelMeta) {
     console.warn(`Model ${modelId} not found, defaulting to Gemini Flash.`);
-    return google("gemini-2.5-flash-preview-04-17");
+    return google("gemini-2.5-flash");
   }
 
   const { provider, id } = modelMeta;
@@ -49,12 +49,24 @@ export const getAIModel = (modelId: string) => {
       return moonshot(id);
     }
     console.warn(`Unknown provider ${provider}, falling back to Gemini Flash.`);
-    return google("gemini-2.5-flash-preview-04-17");
+    return google("gemini-2.5-flash");
   } catch (err) {
     console.error("Error creating AI model", err);
-    return google("gemini-2.5-flash-preview-04-17");
+    return google("gemini-2.5-flash");
   }
 };
+
+export function getModelForResearch() {
+  return google("gemini-2.5-flash");
+}
+
+export function getModelForAnalysis() {
+  return google("gemini-2.5-flash");
+}
+
+export function getModelForSummary() {
+  return google("gemini-2.5-flash");
+}
 
 type Learning = {
   learning: string;

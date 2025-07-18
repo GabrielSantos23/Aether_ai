@@ -123,44 +123,48 @@ export async function generateImage(
       let imageUrl;
 
       try {
-        // Direct approach - store the image as a data URL
-        const dataUrl = `data:image/png;base64,${imageData}`;
+        // Convert base64 to binary and store as PNG
+        const byteCharacters = atob(imageData);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const imageBlob = new Blob([byteArray], { type: "image/png" });
 
-        // Create a simple HTML file with the embedded image
-        const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Generated Image</title>
-  <style>
-    body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f5f5f5; }
-    img { max-width: 100%; max-height: 100vh; object-fit: contain; }
-  </style>
-</head>
-<body>
-  <img src="${dataUrl}" alt="Generated image">
-</body>
-</html>`;
-
-        // Store the HTML file
-        storageId = await ctx.storage.store(
-          new Blob([htmlContent], { type: "text/html" })
-        );
-
-        // Get the URL
+        // Store the PNG file
+        storageId = await ctx.storage.store(imageBlob);
         imageUrl = await ctx.storage.getUrl(storageId);
+
+        // Save to aiImages table
+        const identity = await ctx.auth.getUserIdentity();
+        if (identity) {
+          console.log("Saving image for identity:", identity);
+          const userId = await ctx.runMutation(
+            api.chat.mutations.internalGetOrCreateUserId,
+            {
+              tokenIdentifier: identity.tokenIdentifier,
+              email: identity.email,
+            }
+          );
+          console.log("Resolved userId for save:", userId);
+          await ctx.runMutation(api.chat.mutations.internalSaveAIImage, {
+            userId,
+            prompt,
+            imageUrl,
+          });
+        }
 
         return {
           success: true,
           prompt: prompt,
           description: description,
-          // Store only the lightweight public URL to avoid exceeding the 1 MB Convex document limit
           url: imageUrl, // alias for convenience
           imageUrl: imageUrl, // keep original for compatibility
           storageId: storageId,
           timestamp: new Date().toISOString(),
           usedUserKey: !!userGeminiKey,
-          isHtmlWrapper: true,
+          isHtmlWrapper: false,
         };
       } catch (error) {
         console.error("Error storing image data:", error);
@@ -200,4 +204,18 @@ export async function generateImage(
       timestamp: new Date().toISOString(),
     };
   }
+}
+
+export async function saveAIImage(
+  ctx: any,
+  userId: string,
+  prompt: string,
+  imageUrl: string
+) {
+  await ctx.db.insert("aiImages", {
+    userId,
+    prompt,
+    imageUrl,
+    createdAt: Date.now(),
+  });
 }

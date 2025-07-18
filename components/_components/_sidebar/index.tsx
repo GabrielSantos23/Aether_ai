@@ -24,6 +24,7 @@ import ThemeToggler from "@/components/theme-toggle";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import SearchThreads from "../_chat/search-threads";
+import SidebarLogo from "@/components/sidebar-logo";
 
 function ChatLayoutContent({ children }: { children: React.ReactNode }) {
   const user = useQuery(api.myFunctions.getUser);
@@ -90,7 +91,11 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
       </main>
 
       <div
-        className={`pointer-events-auto t3-header-search fixed h-fit left-2 top-4 z-50 flex flex-row gap-0.5 p-1 inset-0 right-auto text-muted-foreground ${isSidebarOpen ? "rounded-2xl border bg-sidebar" : "rounded-md"} backdrop-blur-sm transition-[width] delay-125 duration-100 blur-fallback:bg-sidebar max-sm:delay-125 max-sm:duration-100 max-sm:w-[6.75rem] max-sm:bg-sidebar`}
+        className={`pointer-events-auto t3-header-search fixed h-fit left-2 top-4 z-50 flex flex-row gap-0.5 p-1 inset-0 right-auto text-muted-foreground ${
+          isSidebarOpen
+            ? "rounded-2xl border bg-sidebar justify-end "
+            : "rounded-md "
+        } backdrop-blur-sm transition-[width] delay-125 duration-100 blur-fallback:bg-sidebar max-sm:delay-125 max-sm:duration-100 max-sm:w-[6.75rem] max-sm:bg-sidebar`}
       >
         <SidebarTrigger className="rounded-xl" />
         <div
@@ -101,6 +106,7 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
             type="checkbox"
             name="sidebar-check"
           />
+
           <SearchThreads />
           <Button variant="ghost" className="p-0 rounded-xl" size="icon">
             <NavLink
@@ -110,19 +116,15 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
               <FiPlus />
             </NavLink>
           </Button>
-          {/* Container for model select dropdown rendered via portal */}
           <div id="model-select-container" className="ml-1" />
         </div>
       </div>
+
       <div
         className={`fixed pointer-events-auto right-2 top-2 z-50 flex flex-row p-1 items-center justify-center ${isSidebarOpen ? "rounded-2xl border bg-sidebar" : "rounded-md"} duration-100 transition-[translate-x] ease-snappy max-sm:w-[6.75rem] gap-2 text-muted-foreground has-[.sidebar-check:checked]:backdrop-blur-sm has-[.sidebar-check:not(:checked)]:bg-transparent`}
       >
         <NavLink to="/settings">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-xl hover:bg-red-500"
-          >
+          <Button variant="ghost" size="icon" className="rounded-xl ">
             <LuSettings2 />
           </Button>
         </NavLink>

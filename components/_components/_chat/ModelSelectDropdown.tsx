@@ -6,12 +6,13 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
-import { ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { models, ModelInfo, getVendorColor } from "@/lib/models";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Input } from "@/components/ui/input";
 
 interface ModelSelectDropdownProps {
   selectedModel: ModelInfo;
@@ -28,13 +29,16 @@ export default function ModelSelectDropdown({
 }: ModelSelectDropdownProps) {
   const [open, setOpen] = useState(false);
   const [thinkingEnabled, setThinkingEnabled] = useState(true);
-  const [groupBy, setGroupBy] = useState<"provider" | "vendor">("provider");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [previewModel, setPreviewModel] = useState<ModelInfo | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Reset preview when menu closes
   useEffect(() => {
-    if (!open) setPreviewModel(null);
+    if (!open) {
+      setPreviewModel(null);
+      setSearchQuery("");
+    }
   }, [open]);
 
   /* -------------------------------- Providers -------------------------------- */
@@ -117,25 +121,29 @@ export default function ModelSelectDropdown({
     return true;
   };
 
-  /* ------------------------------ Grouped models ----------------------------- */
-  const groupedModels = models.reduce<Record<string, ModelInfo[]>>((acc, m) => {
-    const key = groupBy === "provider" ? m.provider : m.vendor;
-    acc[key] = acc[key] ? [...acc[key], m] : [m];
-    return acc;
-  }, {});
+  /* ------------------------------ Filtered models ----------------------------- */
+  const filteredModels = models
+    .filter((model) => {
+      // Filter by search query only, don't filter out disabled models
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        return (
+          model.name.toLowerCase().includes(query) ||
+          model.description?.toLowerCase().includes(query) ||
+          model.provider.toLowerCase().includes(query) ||
+          model.vendor.toLowerCase().includes(query)
+        );
+      }
 
-  const sortedGroupedModels = Object.entries(groupedModels)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .reduce<Record<string, ModelInfo[]>>((acc, [k, v]) => {
-      const sorted = v.sort((a, b) => {
-        if (groupBy === "provider" && a.vendor !== b.vendor) {
-          return a.vendor.localeCompare(b.vendor);
-        }
-        return a.name.localeCompare(b.name);
-      });
-      acc[k] = sorted;
-      return acc;
-    }, {});
+      return true;
+    })
+    .sort((a, b) => {
+      // Sort by provider first, then by name
+      if (a.provider !== b.provider) {
+        return a.provider.localeCompare(b.provider);
+      }
+      return a.name.localeCompare(b.name);
+    });
 
   /* --------------------------------- Render --------------------------------- */
   const renderModelInfo = (model: ModelInfo) => {
@@ -199,14 +207,23 @@ export default function ModelSelectDropdown({
             )}
           >
             <div className="flex items-center gap-1">
-              <div
-                className={cn(
-                  "w-2 h-2 rounded-full bg-gradient-to-r",
-                  getVendorColor(
-                    mounted ? selectedModel.vendor : models[0].vendor
-                  )
-                )}
-              />
+              {/* Model logo */}
+              {mounted && selectedModel.logo ? (
+                <selectedModel.logo
+                  size={16}
+                  color="oklch(0.5547 0.2503 297.0156)"
+                  className="rounded object-contain flex-shrink-0 dark:[&>svg]:fill-[oklch(0.7871_0.1187_304.7693)]"
+                />
+              ) : (
+                <div
+                  className={cn(
+                    "w-2 h-2 rounded-full bg-gradient-to-r",
+                    getVendorColor(
+                      mounted ? selectedModel.vendor : models[0].vendor
+                    )
+                  )}
+                />
+              )}
               <span className="truncate max-w-[300px]">
                 {mounted ? selectedModel.name : models[0].name}
               </span>
@@ -221,71 +238,77 @@ export default function ModelSelectDropdown({
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
-          className="w-72 bg-sidebar rounded-2xl p-0 relative overflow-visible"
+          className="w-64 bg-sidebar rounded-2xl p-0 relative overflow-visible"
           onMouseLeave={() => setPreviewModel(null)}
         >
+          {/* Search input */}
+          <div className="p-1 border-b border-border">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search models..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-8 text-sm dark:bg-transparent bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
+              />
+            </div>
+          </div>
+
           {/* Model list */}
           <div
-            className="max-h-[300px] overflow-y-auto p-2"
+            className="max-h-[400px] overflow-y-auto p-2"
             style={{
               scrollbarWidth: "thin",
               scrollbarColor: "hsl(var(--primary)) transparent",
             }}
           >
-            {Object.entries(sortedGroupedModels).map(
-              ([groupKey, groupModels]) => (
-                <div key={groupKey} className="pb-2 last:pb-0">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <div
-                      className={cn(
-                        "w-2.5 h-2.5 rounded-full bg-gradient-to-r",
-                        getVendorColor(
-                          groupBy === "provider"
-                            ? groupModels[0]?.provider || groupKey
-                            : groupKey
-                        )
+            {filteredModels.map((model) => {
+              const disabled = !isModelAvailable(model);
+              return (
+                <button
+                  key={model.id}
+                  disabled={disabled}
+                  onMouseEnter={() => setPreviewModel(model)}
+                  onFocus={() => setPreviewModel(model)}
+                  onClick={() => {
+                    if (disabled) return;
+                    setSelectedModel(model);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "w-full text-left p-2 text-sm truncate rounded-2xl transition-colors",
+                    selectedModel.id === model.id
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-primary hover:bg-accent/40",
+                    disabled && "opacity-40 cursor-not-allowed"
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      {/* Model logo */}
+                      {model.logo ? (
+                        <model.logo
+                          size={16}
+                          color="oklch(0.5547 0.2503 297.0156)"
+                          className="rounded object-contain flex-shrink-0 dark:[&>svg]:fill-[oklch(0.7871_0.1187_304.7693)]"
+                        />
+                      ) : (
+                        <div className="w-4 h-4 flex-shrink-0" />
                       )}
-                    />
-                    <span className="text-xs font-medium text-muted-foreground capitalize">
-                      {groupKey === "openrouter" ? "OpenRouter" : groupKey}
-                    </span>
-                    <span className="text-xs text-muted-foreground/80">
-                      ({groupModels.length})
-                    </span>
+                      <span className="truncate">{model.name}</span>
+                    </div>
+                    {model.isPro && (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs px-1.5 py-0.5 bg-sidebar rounded-2xl border border-border flex-shrink-0"
+                      >
+                        Pro
+                      </Badge>
+                    )}
                   </div>
-
-                  <div className="space-y-1">
-                    {groupModels
-                      .filter((m) => !disabledModels.includes(m.id))
-                      .map((model) => {
-                        const disabled = !isModelAvailable(model);
-                        return (
-                          <button
-                            key={model.id}
-                            disabled={disabled}
-                            onMouseEnter={() => setPreviewModel(model)}
-                            onFocus={() => setPreviewModel(model)}
-                            onClick={() => {
-                              if (disabled) return;
-                              setSelectedModel(model);
-                              setOpen(false);
-                            }}
-                            className={cn(
-                              "w-full text-left p-1.5 text-sm truncate rounded-2xl transition-colors",
-                              selectedModel.id === model.id
-                                ? "text-primary bg-primary/10"
-                                : "text-muted-foreground hover:text-primary hover:bg-accent/40",
-                              disabled && "opacity-40 cursor-not-allowed"
-                            )}
-                          >
-                            {model.name}
-                          </button>
-                        );
-                      })}
-                  </div>
-                </div>
-              )
-            )}
+                </button>
+              );
+            })}
           </div>
 
           {/* Preview panel (absolute, outside dropdown width) */}

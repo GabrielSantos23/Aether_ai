@@ -199,7 +199,6 @@ export const generateAIResponse = async (
         })
       : null;
 
-    // Initialize the AI model based on provider
     let aiModel;
     try {
       if (provider === "gemini") {
@@ -897,30 +896,55 @@ export const generateAIResponse = async (
 };
 
 // Helper function to get or create a user record
-export async function getOrCreateUserId(ctx: any, tokenIdentifier: string) {
+export async function getOrCreateUserId(
+  ctx: any,
+  tokenIdentifier: string,
+  email?: string
+) {
   // First, try to find the user by tokenIdentifier
-  const user = await ctx.db
+  let user = await ctx.db
     .query("users")
     .withIndex("by_token", (q: any) => q.eq("tokenIdentifier", tokenIdentifier))
     .first();
 
-  if (user) {
-    return user._id;
+  // If not found by tokenIdentifier, try to find by email
+  if (!user && email) {
+    user = await ctx.db
+      .query("users")
+      .withIndex("email", (q: any) => q.eq("email", email))
+      .first();
+    // If found by email but missing tokenIdentifier, patch it
+    if (user && !user.tokenIdentifier) {
+      await ctx.db.patch(user._id, { tokenIdentifier });
+    }
   }
 
-  // If we're in a query context, we can't create a user
-  if ("query" in ctx.db && !("insert" in ctx.db)) {
-    // Instead of throwing an error, return null to indicate user not found
-    return null;
+  // If still not found, create a minimal user record
+  if (!user) {
+    const userId = await ctx.db.insert("users", {
+      name: "User",
+      email: email || "user@example.com",
+      image: "",
+      tokenIdentifier: tokenIdentifier,
+    });
+    console.log(
+      "Created new user for tokenIdentifier:",
+      tokenIdentifier,
+      "email:",
+      email,
+      "userId:",
+      userId
+    );
+    return userId;
   }
 
-  // If user doesn't exist, create a minimal user record
-  const userId = await (ctx.db as any).insert("users", {
-    name: "User",
-    email: "user@example.com", // This should be updated with actual user data
-    image: "",
-    tokenIdentifier: tokenIdentifier,
-  });
-
-  return userId;
+  console.log(
+    "Resolved userId for tokenIdentifier:",
+    tokenIdentifier,
+    "email:",
+    email,
+    "userId:",
+    user._id
+  );
+  return user._id;
 }

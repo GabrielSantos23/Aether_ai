@@ -1,4 +1,14 @@
 import { cn } from "./utils";
+import {
+  KimiIcon,
+  QwenIcon,
+  DeepSeekIcon,
+  MetaIcon,
+  ClaudeIcon,
+  GrokIcon,
+  GeminiIcon,
+  GptIcon,
+} from "@/components/icons/logo-icons";
 
 export interface ModelInfo {
   id: string;
@@ -55,6 +65,14 @@ export interface ModelInfo {
    * When true it will appear in the Deep Research agent’s model selector.
    */
   canResearch?: boolean;
+  /**
+   * Logo component for this model.
+   */
+  logo?: React.ComponentType<{
+    className?: string;
+    size?: number;
+    color?: string;
+  }>;
 }
 
 export const models: ModelInfo[] = [
@@ -79,6 +97,7 @@ export const models: ModelInfo[] = [
     toolCalls: false,
     isFree: false,
     canResearch: true,
+    logo: ClaudeIcon,
   },
   {
     id: "claude-sonnet-4-20250514",
@@ -101,6 +120,7 @@ export const models: ModelInfo[] = [
     toolCalls: false,
     isFree: false,
     canResearch: true,
+    logo: ClaudeIcon,
   },
   {
     id: "anthropic/claude-3.5-sonnet",
@@ -110,7 +130,7 @@ export const models: ModelInfo[] = [
     provider: "openrouter",
     category: "anthropic",
     features: ["vision", "code", "weather", "googledrive"],
-    isPro: false,
+    isPro: true,
     supportsThinking: false,
     unauthenticated: false,
     attachmentsSuppport: {
@@ -120,6 +140,7 @@ export const models: ModelInfo[] = [
     isFree: false,
     isApiKeyOnly: true,
     canResearch: true,
+    logo: ClaudeIcon,
   },
   {
     id: "claude-3-5-haiku-20241022",
@@ -141,6 +162,7 @@ export const models: ModelInfo[] = [
     toolCalls: false,
     isFree: false,
     canResearch: true,
+    logo: ClaudeIcon,
   },
   {
     id: "deepseek/deepseek-r1-0528:free",
@@ -162,6 +184,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    logo: DeepSeekIcon,
   },
   {
     id: "deepseek/deepseek-chat-v3-0324:free",
@@ -178,6 +201,7 @@ export const models: ModelInfo[] = [
       pdf: false,
       image: false,
     },
+    logo: DeepSeekIcon,
   },
 
   {
@@ -195,6 +219,7 @@ export const models: ModelInfo[] = [
       pdf: false,
       image: false,
     },
+    logo: MetaIcon,
   },
 
   {
@@ -217,6 +242,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    logo: MetaIcon,
   },
   {
     id: "meta-llama/llama-3.2-90b-vision-instruct",
@@ -237,6 +263,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    logo: MetaIcon,
   },
   {
     id: "meta-llama/llama-3.2-11b-vision-instruct",
@@ -258,6 +285,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    logo: MetaIcon,
   },
   {
     id: "meta-llama/llama-3.2-3b-instruct",
@@ -278,6 +306,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    logo: MetaIcon,
   },
   {
     id: "meta-llama/llama-3.2-1b-instruct",
@@ -298,6 +327,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: false,
     isFree: false,
+    logo: MetaIcon,
   },
   {
     id: "gemini-2.0-flash-lite",
@@ -317,6 +347,7 @@ export const models: ModelInfo[] = [
     },
     isFree: true,
     canResearch: true,
+    logo: GeminiIcon,
   },
   {
     id: "gemini-2.0-flash",
@@ -335,6 +366,7 @@ export const models: ModelInfo[] = [
     },
     toolCalls: true,
     canResearch: true,
+    logo: GeminiIcon,
   },
   {
     id: "gemini-2.0-flash-thinking-exp-01-21",
@@ -351,16 +383,17 @@ export const models: ModelInfo[] = [
       pdf: false,
       image: false,
     },
+    logo: GeminiIcon,
   },
   {
-    id: "gemini-2.5-flash-preview-04-17",
+    id: "gemini-2.5-flash",
     name: "Gemini 2.5 Flash",
     description: "Google's fastest premium model with comprehensive features",
     vendor: "google",
     provider: "gemini",
     category: "google",
     features: ["vision", "code", "web", "weather"],
-    isPro: true,
+    isPro: false,
     isNew: false,
     supportsThinking: true,
     unauthenticated: false,
@@ -372,6 +405,29 @@ export const models: ModelInfo[] = [
     toolCalls: false,
     isFree: true,
     canResearch: true,
+    logo: GeminiIcon,
+  },
+  {
+    id: "gemini-2.5-flash-lite-preview-06-17",
+    name: "Gemini 2.5 Flash Lite",
+    description: "Google's lightweight and efficient model for fast responses",
+    vendor: "google",
+    provider: "gemini",
+    category: "google",
+    features: ["vision", "code", "web", "weather"],
+    isPro: false,
+    isNew: true,
+    supportsThinking: true,
+    unauthenticated: false,
+    attachmentsSuppport: {
+      pdf: true,
+      image: true,
+    },
+    isApiKeyOnly: false,
+    toolCalls: false,
+    isFree: true,
+    canResearch: true,
+    logo: GeminiIcon,
   },
   {
     id: "gemini-2.5-pro-preview-05-06",
@@ -394,6 +450,7 @@ export const models: ModelInfo[] = [
     toolCalls: false,
     isFree: false,
     canResearch: true,
+    logo: GeminiIcon,
   },
   {
     id: "google/gemini-flash-1.5",
@@ -411,6 +468,7 @@ export const models: ModelInfo[] = [
       image: true,
     },
     isFree: true,
+    logo: GeminiIcon,
   },
   {
     id: "llama-3.3-70b-versatile",
@@ -427,6 +485,7 @@ export const models: ModelInfo[] = [
       pdf: false,
       image: false,
     },
+    logo: MetaIcon,
   },
   {
     id: "moonshotai/kimi-k2-instruct",
@@ -435,7 +494,7 @@ export const models: ModelInfo[] = [
     vendor: "moonshot",
     provider: "groq",
     category: "moonshot",
-    features: ["code", "weather"],
+    features: ["web"],
     isPro: false,
     supportsThinking: false,
     unauthenticated: false,
@@ -443,10 +502,11 @@ export const models: ModelInfo[] = [
       pdf: false,
       image: false,
     },
-    isFree: false,
+    isFree: true,
     canResearch: true,
     isApiKeyOnly: false,
-    toolCalls: false,
+    toolCalls: true,
+    logo: KimiIcon,
   },
   {
     id: "deepseek-r1-distill-llama-70b",
@@ -464,6 +524,7 @@ export const models: ModelInfo[] = [
       pdf: false,
       image: false,
     },
+    logo: DeepSeekIcon,
   },
   {
     id: "qwen/qwen3-32b",
@@ -482,6 +543,7 @@ export const models: ModelInfo[] = [
       image: false,
     },
     toolCalls: false,
+    logo: QwenIcon,
   },
 
   // {
@@ -523,6 +585,7 @@ export const models: ModelInfo[] = [
     toolCalls: false,
     isFree: false,
     canResearch: true,
+    logo: GptIcon,
   },
   {
     id: "gpt-4.1-mini",
@@ -544,16 +607,17 @@ export const models: ModelInfo[] = [
     toolCalls: false,
     isFree: false,
     canResearch: true,
+    logo: GptIcon,
   },
   {
     id: "kimi-k2-0711-preview",
     name: "Kimi v2",
-    description: "Moonshot's advanced chat model",
+    description: "Moonshot's advanced chat model, provided by MoonshotAI",
     vendor: "moonshot",
     provider: "moonshot",
     category: "moonshot",
-    features: ["vision", "code", "weather"],
-    isPro: false,
+    features: ["web"],
+    isPro: true,
     isNew: true,
     supportsThinking: true,
     unauthenticated: false,
@@ -565,6 +629,7 @@ export const models: ModelInfo[] = [
     toolCalls: true,
     isFree: false,
     canResearch: true,
+    logo: KimiIcon,
   },
   {
     id: "gemini-1.5-pro-latest",
@@ -585,6 +650,7 @@ export const models: ModelInfo[] = [
     isApiKeyOnly: true,
     toolCalls: true,
     isFree: false,
+    logo: GeminiIcon,
   },
 ] as const;
 

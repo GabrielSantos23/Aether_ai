@@ -26,3 +26,21 @@ export const saveResearchReport = mutation({
     });
   },
 });
+
+// Query to get all research reports for the authenticated user
+export const getUserResearchReports = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+    const userId = identity.subject as Id<"users">;
+    const reports = await ctx.db
+      .query("researchReports")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
+      .collect();
+    return reports;
+  },
+});

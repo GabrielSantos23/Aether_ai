@@ -683,3 +683,42 @@ export const pinChat = mutation({
     await ctx.db.patch(chatId, { isPinned: !chat.isPinned });
   },
 });
+
+export const internalSaveAIImage = mutation({
+  args: {
+    userId: v.id("users"),
+    prompt: v.string(),
+    imageUrl: v.string(),
+  },
+  handler: async (ctx, args) => {
+    console.log("Saving AI image:", args);
+    await ctx.db.insert("aiImages", {
+      userId: args.userId,
+      prompt: args.prompt,
+      imageUrl: args.imageUrl,
+      createdAt: Date.now(),
+    });
+  },
+});
+
+export const internalGetOrCreateUserId = mutation({
+  args: {
+    tokenIdentifier: v.string(),
+    email: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getOrCreateUserId(
+      ctx,
+      args.tokenIdentifier,
+      args.email
+    );
+    return userId;
+  },
+});
+
+export const deleteAIImage = mutation({
+  args: { imageId: v.id("aiImages") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.imageId);
+  },
+});

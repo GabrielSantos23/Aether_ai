@@ -244,3 +244,64 @@ export const exportAllConversations = query({
     };
   },
 });
+
+export const getUserAIGeneratedImages = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+    const userId = await getOrCreateUserId(ctx, identity.tokenIdentifier);
+    if (!userId) {
+      return [];
+    }
+    const chats = await ctx.db
+      .query("chats")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    const chatIds = chats.map((c) => c._id);
+    const aiImages: any[] = [];
+    for (const chatId of chatIds) {
+      const messages = await ctx.db
+        .query("messages")
+        .withIndex("by_chat", (q) => q.eq("chatId", chatId))
+        .filter((q) => q.eq(q.field("role"), "assistant"))
+        .collect();
+      messages.forEach((msg) => {
+        if (msg.attachments && msg.attachments.length > 0) {
+          aiImages.push(
+            ...msg.attachments.filter(
+              (a: any) => a.type && a.type.startsWith("image")
+            )
+          );
+        }
+      });
+    }
+    return aiImages;
+  },
+});
+
+export const getUserAIImages = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+    console.log("Querying images for identity:", identity);
+    const userId = await getOrCreateUserId(
+      ctx,
+      identity.tokenIdentifier,
+      identity.email
+    );
+    console.log("Resolved userId for query:", userId);
+    const images = await ctx.db
+      .query("aiImages")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
+      .collect();
+    console.log("Fetched images for user", userId, images);
+    return images;
+  },
+});

@@ -42,9 +42,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Edit } from "lucide-react";
-import { FiSearch } from "react-icons/fi";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Spinner } from "../ui/spinner";
 
 const BranchOffIcon = dynamic(() => import("@/public/icons/branch-off"), {
   ssr: false,
@@ -150,7 +150,7 @@ const SidebarThreads = () => {
     return (
       <SidebarContent>
         <div className="flex items-center justify-center p-4">
-          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <Spinner size="sm" />
         </div>
       </SidebarContent>
     );
@@ -229,11 +229,13 @@ const SidebarThreads = () => {
         <ContextMenuTrigger asChild>
           <SidebarMenuItem className="hover:bg-sidebar-accent overflow-hidden flex items-center relative px-0 group/link-item rounded-lg">
             <Link
-              className={`p-2 text-nowrap overflow-hidden w-[95%] truncate px-3 ${showBranchIcon ? "truncate flex items-center gap-2" : "block"}`}
+              className={`p-2 text-nowrap text-sm overflow-hidden w-[95%] truncate px-3 ${showBranchIcon ? "truncate flex items-center gap-2" : "block"}`}
               href={`/chat/${chat._id}`}
             >
               {showBranchIcon && <BranchOffIcon />}
-              <p className={showBranchIcon ? "flex-1 truncate" : ""}>
+              <p
+                className={`${showBranchIcon ? "flex-1 truncate" : ""} text-sm`}
+              >
                 {chat.title}
               </p>
             </Link>
@@ -292,10 +294,7 @@ const SidebarThreads = () => {
             <Edit className="mr-2 h-4 w-4" />
             Rename
           </ContextMenuItem>
-          <ContextMenuItem
-            onClick={() => openDeleteDialog(chat)}
-            className="text-destructive focus:text-destructive"
-          >
+          <ContextMenuItem onClick={() => openDeleteDialog(chat)} className="">
             <IoMdClose className="mr-2 h-4 w-4" />
             Delete
           </ContextMenuItem>
