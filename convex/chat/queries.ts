@@ -289,19 +289,16 @@ export const getUserAIImages = query({
     if (!identity) {
       return [];
     }
-    console.log("Querying images for identity:", identity);
     const userId = await getOrCreateUserId(
       ctx,
       identity.tokenIdentifier,
       identity.email
     );
-    console.log("Resolved userId for query:", userId);
     const images = await ctx.db
       .query("aiImages")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
-    console.log("Fetched images for user", userId, images);
     return images;
   },
 });

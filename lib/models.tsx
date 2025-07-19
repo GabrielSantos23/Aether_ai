@@ -8,7 +8,7 @@ import {
   GrokIcon,
   GeminiIcon,
   GptIcon,
-} from "@/components/icons/logo-icons";
+} from "../components/icons/logo-icons";
 
 export interface ModelInfo {
   id: string;

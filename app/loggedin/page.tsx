@@ -19,8 +19,6 @@ export default function LoggedInHome() {
   const storeUser = useMutation(api.myFunctions.storeUser);
   const session = useSession();
 
-  console.log(user, session, storeUser);
-
   useEffect(() => {
     if (session.data?.user?.email && session.status === "authenticated") {
       storeUser({
@@ -74,10 +72,10 @@ export default function LoggedInHome() {
           layouts
         </Link>
       </p>
-        <ConnectGoogleDriveButton />
-        <ConnectNotionButton />
-        <ConnectGitHubButton />
-        <GoogleDriveScopeChecker />
+      <ConnectGoogleDriveButton />
+      <ConnectNotionButton />
+      <ConnectGitHubButton />
+      <GoogleDriveScopeChecker />
     </>
   );
 }

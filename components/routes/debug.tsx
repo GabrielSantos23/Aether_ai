@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useQuery, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -6,28 +6,34 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, FileText, ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
+import {
+  Search,
+  FileText,
+  ExternalLink,
+  FolderOpen,
+  RefreshCw,
+} from "lucide-react";
 
 export default function GoogleDriveDebug() {
   const googleAccount = useQuery(api.accounts.getGoogleAccount);
   const tokenStatus = useQuery(api.accounts.checkGoogleTokenStatus);
   const [isReconnecting, setIsReconnecting] = useState(false);
-  
+
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
-  
+
   // File read state
   const [fileId, setFileId] = useState("");
   const [isReading, setIsReading] = useState(false);
   const [fileContent, setFileContent] = useState<any>(null);
   const [readError, setReadError] = useState<string | null>(null);
-  
+
   // Raw response state for debugging
   const [rawResponse, setRawResponse] = useState<string | null>(null);
-  
+
   // Actions for Google Drive operations
   const searchFiles = useAction(api.files.listGoogleDriveFiles);
   const readFile = useAction(api.files.readGoogleDriveFile);
@@ -42,101 +48,112 @@ export default function GoogleDriveDebug() {
         "https://www.googleapis.com/auth/userinfo.profile",
         "https://www.googleapis.com/auth/drive.readonly",
         "https://www.googleapis.com/auth/drive.file",
-        "https://www.googleapis.com/auth/drive"
+        "https://www.googleapis.com/auth/drive",
       ].join(" ");
 
       // Trigger the sign-in flow with all scopes
-      await signIn("google", {}, { 
-        prompt: "consent", 
-        access_type: "offline",
-        scope: scopesToRequest 
-      });
+      await signIn(
+        "google",
+        {},
+        {
+          prompt: "consent",
+          access_type: "offline",
+          scope: scopesToRequest,
+        }
+      );
     } catch (error) {
       console.error("Error reconnecting Google:", error);
     } finally {
       setIsReconnecting(false);
     }
   };
-  
+
   // Handle file search
   const handleSearch = async () => {
     setIsSearching(true);
     setSearchError(null);
     setRawResponse(null);
     try {
-      console.log("Searching for:", searchQuery);
-      const results = await searchFiles({ 
+      const results = await searchFiles({
         query: searchQuery,
-        limit: 20
+        limit: 20,
       });
       setSearchResults(results || []);
       setRawResponse(JSON.stringify(results, null, 2));
     } catch (error) {
       console.error("Search error:", error);
-      setSearchError(error instanceof Error ? error.message : "Failed to search files");
+      setSearchError(
+        error instanceof Error ? error.message : "Failed to search files"
+      );
       setSearchResults([]);
     } finally {
       setIsSearching(false);
     }
   };
-  
+
   // Handle file read
   const handleReadFile = async () => {
     if (!fileId.trim()) {
       setReadError("Please enter a file ID");
       return;
     }
-    
+
     setIsReading(true);
     setReadError(null);
     setRawResponse(null);
     try {
-      console.log("Reading file:", fileId);
       const content = await readFile({ fileId });
       setFileContent(content);
       setRawResponse(JSON.stringify(content, null, 2));
     } catch (error) {
       console.error("Read error:", error);
-      setReadError(error instanceof Error ? error.message : "Failed to read file");
+      setReadError(
+        error instanceof Error ? error.message : "Failed to read file"
+      );
       setFileContent(null);
     } finally {
       setIsReading(false);
     }
   };
-  
+
   // Handle reading a file from search results
   const handleReadFromSearch = (id: string) => {
     setFileId(id);
     handleReadFile();
   };
 
-  const isFolder = (mimeType: string) => mimeType === 'application/vnd.google-apps.folder';
+  const isFolder = (mimeType: string) =>
+    mimeType === "application/vnd.google-apps.folder";
 
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-2xl font-bold mb-6">Google Drive Debug Page</h1>
-      
+
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-semibold mb-4">Google Account Status</h2>
-        
+
         {googleAccount === undefined ? (
           <p>Loading account information...</p>
         ) : googleAccount === null ? (
           <div>
             <p className="text-red-500 mb-4">No Google account connected</p>
-            <Button 
-              onClick={handleReconnectGoogle}
-              disabled={isReconnecting}
-            >
+            <Button onClick={handleReconnectGoogle} disabled={isReconnecting}>
               {isReconnecting ? "Connecting..." : "Connect Google Account"}
             </Button>
           </div>
         ) : (
           <div>
             <p className="text-green-500 mb-2">Google account connected</p>
-            <p><strong>Provider:</strong> {googleAccount.provider}</p>
-            <p><strong>Type:</strong> {googleAccount.type}</p>
-            <p><strong>Provider Account ID:</strong> {googleAccount.providerAccountId}</p>
+            <p>
+              <strong>Provider:</strong> {googleAccount.provider}
+            </p>
+            <p>
+              <strong>Type:</strong> {googleAccount.type}
+            </p>
+            <p>
+              <strong>Provider Account ID:</strong>{" "}
+              {googleAccount.providerAccountId}
+            </p>
             {googleAccount.refresh_token ? (
               <p className="text-green-500">✓ Has refresh token</p>
             ) : (
@@ -145,11 +162,11 @@ export default function GoogleDriveDebug() {
           </div>
         )}
       </div>
-      
+
       {tokenStatus && tokenStatus.status === "success" && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-xl font-semibold mb-4">Token Status</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p>
@@ -162,8 +179,8 @@ export default function GoogleDriveDebug() {
               </p>
               <p>
                 <strong>Expires In:</strong>{" "}
-                {typeof tokenStatus.expiresIn === "number" 
-                  ? `${Math.floor(tokenStatus.expiresIn / 60)} minutes` 
+                {typeof tokenStatus.expiresIn === "number"
+                  ? `${Math.floor(tokenStatus.expiresIn / 60)} minutes`
                   : tokenStatus.expiresIn}
               </p>
               <p>
@@ -175,7 +192,7 @@ export default function GoogleDriveDebug() {
                 )}
               </p>
             </div>
-            
+
             <div>
               <p>
                 <strong>Has Drive Scope:</strong>{" "}
@@ -185,31 +202,38 @@ export default function GoogleDriveDebug() {
                   <span className="text-red-500">No</span>
                 )}
               </p>
-              <p><strong>Access Token Length:</strong> {tokenStatus.tokenLength} characters</p>
+              <p>
+                <strong>Access Token Length:</strong> {tokenStatus.tokenLength}{" "}
+                characters
+              </p>
             </div>
           </div>
-          
+
           <div className="mt-4">
             <h3 className="font-semibold mb-2">Granted Scopes:</h3>
             <ul className="list-disc pl-5">
-              {(tokenStatus.scopes || []).map((scope: string, index: number) => (
-                <li key={index} className="text-sm">
-                  {scope.includes("drive") ? (
-                    <span className="text-green-500">{scope}</span>
-                  ) : (
-                    scope
-                  )}
-                </li>
-              ))}
+              {(tokenStatus.scopes || []).map(
+                (scope: string, index: number) => (
+                  <li key={index} className="text-sm">
+                    {scope.includes("drive") ? (
+                      <span className="text-green-500">{scope}</span>
+                    ) : (
+                      scope
+                    )}
+                  </li>
+                )
+              )}
             </ul>
           </div>
         </div>
       )}
-      
+
       {/* File Search Section */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
-        <h2 className="text-xl font-semibold mb-4">Search Google Drive Files</h2>
-        
+        <h2 className="text-xl font-semibold mb-4">
+          Search Google Drive Files
+        </h2>
+
         <div className="flex gap-2 mb-4">
           <Input
             placeholder="Enter search query (folder name, file name, etc.)"
@@ -217,7 +241,7 @@ export default function GoogleDriveDebug() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1"
           />
-          <Button 
+          <Button
             onClick={handleSearch}
             disabled={isSearching || !googleAccount}
           >
@@ -225,14 +249,14 @@ export default function GoogleDriveDebug() {
             <Search className="ml-2 h-4 w-4" />
           </Button>
         </div>
-        
+
         {searchError && (
           <div className="text-red-500 mb-4 p-2 bg-red-50 dark:bg-red-900/20 rounded border border-red-200">
             <p className="font-semibold">Error:</p>
             <p className="whitespace-pre-wrap">{searchError}</p>
           </div>
         )}
-        
+
         {searchResults.length > 0 ? (
           <div className="border rounded-md overflow-hidden">
             <table className="w-full">
@@ -256,8 +280,8 @@ export default function GoogleDriveDebug() {
                     </td>
                     <td className="p-2 text-xs">{file.mimeType}</td>
                     <td className="p-2 flex gap-2">
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         onClick={() => handleReadFromSearch(file.id)}
                       >
@@ -273,10 +297,15 @@ export default function GoogleDriveDebug() {
                           </>
                         )}
                       </Button>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="ghost"
-                        onClick={() => window.open(`https://drive.google.com/file/d/${file.id}/view`, '_blank')}
+                        onClick={() =>
+                          window.open(
+                            `https://drive.google.com/file/d/${file.id}/view`,
+                            "_blank"
+                          )
+                        }
                       >
                         <ExternalLink className="h-4 w-4" />
                       </Button>
@@ -286,15 +315,18 @@ export default function GoogleDriveDebug() {
               </tbody>
             </table>
           </div>
-        ) : searchResults.length === 0 && !searchError && !isSearching && searchQuery ? (
+        ) : searchResults.length === 0 &&
+          !searchError &&
+          !isSearching &&
+          searchQuery ? (
           <p className="text-gray-500">No files found matching your search.</p>
         ) : null}
       </div>
-      
+
       {/* File Read Section */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-semibold mb-4">Read File/Folder Content</h2>
-        
+
         <div className="flex gap-2 mb-4">
           <Input
             placeholder="Enter file or folder ID"
@@ -302,7 +334,7 @@ export default function GoogleDriveDebug() {
             onChange={(e) => setFileId(e.target.value)}
             className="flex-1"
           />
-          <Button 
+          <Button
             onClick={handleReadFile}
             disabled={isReading || !googleAccount || !fileId.trim()}
           >
@@ -310,36 +342,45 @@ export default function GoogleDriveDebug() {
             <FileText className="ml-2 h-4 w-4" />
           </Button>
         </div>
-        
+
         {readError && (
           <div className="text-red-500 mb-4 p-2 bg-red-50 dark:bg-red-900/20 rounded border border-red-200">
             <p className="font-semibold">Error:</p>
             <p className="whitespace-pre-wrap">{readError}</p>
           </div>
         )}
-        
+
         {fileContent && (
           <div>
             <div className="flex justify-between items-center mb-2 bg-gray-100 dark:bg-gray-700 p-2 rounded">
               <div>
                 <strong>{fileContent.name}</strong>
-                <span className="ml-2 text-sm text-gray-500">{fileContent.mimeType}</span>
+                <span className="ml-2 text-sm text-gray-500">
+                  {fileContent.mimeType}
+                </span>
               </div>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant="ghost"
-                onClick={() => window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank')}
+                onClick={() =>
+                  window.open(
+                    `https://drive.google.com/file/d/${fileId}/view`,
+                    "_blank"
+                  )
+                }
               >
                 <ExternalLink className="h-4 w-4" />
               </Button>
             </div>
             <div className="border rounded-md p-4 bg-gray-50 dark:bg-gray-900 overflow-auto max-h-[400px]">
-              <pre className="whitespace-pre-wrap text-sm">{fileContent.content}</pre>
+              <pre className="whitespace-pre-wrap text-sm">
+                {fileContent.content}
+              </pre>
             </div>
           </div>
         )}
       </div>
-      
+
       {/* Raw Response Section */}
       {rawResponse && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
@@ -349,12 +390,12 @@ export default function GoogleDriveDebug() {
           </div>
         </div>
       )}
-      
+
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold mb-4">Actions</h2>
-        
+
         <div className="flex flex-col gap-4">
-          <Button 
+          <Button
             onClick={handleReconnectGoogle}
             disabled={isReconnecting}
             variant="outline"
@@ -362,13 +403,14 @@ export default function GoogleDriveDebug() {
             {isReconnecting ? "Reconnecting..." : "Reconnect Google Account"}
             <RefreshCw className="ml-2 h-4 w-4" />
           </Button>
-          
+
           <p className="text-sm text-gray-500 mt-2">
-            Reconnecting will request a new access token and refresh token with all required scopes.
-            This is the recommended solution if you're experiencing authentication issues.
+            Reconnecting will request a new access token and refresh token with
+            all required scopes. This is the recommended solution if you're
+            experiencing authentication issues.
           </p>
         </div>
       </div>
     </div>
   );
-} 
+}

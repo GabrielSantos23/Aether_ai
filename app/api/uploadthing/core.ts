@@ -19,8 +19,6 @@ export const ourFileRouter = {
       return { userId: session.userId };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload complete for userId:", metadata.userId);
-
       return { uploadedBy: metadata.userId, url: file.url };
     }),
   pdfUploader: f({ pdf: { maxFileSize: "16MB" } })

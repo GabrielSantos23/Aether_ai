@@ -1,3 +1,4 @@
+// shared.ts
 import { api } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import {
@@ -18,6 +19,14 @@ import {
   getBasePersonality,
 } from "../../components/prompts/base";
 import { models } from "../../lib/models";
+import { getZepClient } from "../../lib/zep";
+let _zepClient: any | null = null;
+
+async function getZep() {
+  if (_zepClient) return _zepClient;
+  _zepClient = await getZepClient();
+  return _zepClient;
+}
 import { generateImage } from "./node";
 
 export const mapModel = (modelId: string) => {
@@ -38,7 +47,6 @@ export const mapModel = (modelId: string) => {
   if (model.provider === "openrouter") {
     // Make sure the model ID format is correct for OpenRouter
     // Some OpenRouter models need the format "org/model" or "org/model:tag"
-    console.log(`Using OpenRouter model: ${model.id}`);
   }
 
   return {
@@ -58,14 +66,8 @@ export const generateAIResponse = async (
   isNode = false
 ) => {
   try {
-    // Log the chat messages for debugging
-    console.log(
-      `Generating response with ${chatMessages.length} messages in history using model ${modelId}`
-    );
-
     // If this is the first message, add a system message to help the AI understand context
     if (chatMessages.length === 1) {
-      console.log("First message in chat, adding system context");
       const systemMessage: CoreMessage = {
         role: "system",
         content:
@@ -81,10 +83,6 @@ export const generateAIResponse = async (
       console.error(`Model not found in models list: ${modelId}`);
       throw new Error(`Invalid model selected: ${modelId}`);
     }
-
-    console.log(
-      `Using provider: ${provider}, model: ${model.id}, thinking: ${thinking}`
-    );
 
     // Get user's API keys for different providers
     const userGeminiKey = await ctx.runQuery(
@@ -202,7 +200,6 @@ export const generateAIResponse = async (
     let aiModel;
     try {
       if (provider === "gemini") {
-        console.log(`Initializing Gemini model: ${model.id}`);
         aiModel = google(model.id);
       } else if (provider === "openrouter") {
         if (!openrouter) {
@@ -210,13 +207,11 @@ export const generateAIResponse = async (
             "OpenRouter client not initialized due to missing API key"
           );
         }
-        console.log(`Initializing OpenRouter model: ${model.id}`);
         aiModel = openrouter(model.id);
       } else if (provider === "groq") {
         if (!groq) {
           throw new Error("Groq client not initialized due to missing API key");
         }
-        console.log(`Initializing Groq model: ${model.id}`);
         aiModel = groq(model.id);
       } else if (provider === "moonshot") {
         if (!moonshot) {
@@ -224,14 +219,10 @@ export const generateAIResponse = async (
             "Moonshot client not initialized due to missing API key"
           );
         }
-        console.log(`Initializing Moonshot model: ${model.id}`);
         aiModel = moonshot.chatModel
           ? moonshot.chatModel(model.id)
           : moonshot(model.id);
       } else {
-        console.log(
-          `Unknown provider ${provider}, falling back to Gemini 2.0 Flash`
-        );
         aiModel = google("gemini-2.0-flash");
       }
     } catch (error: any) {
@@ -262,6 +253,50 @@ export const generateAIResponse = async (
         personalizedSystemPrompt = `${userSettings.promptTemplate}\n\n${personalization}`;
       } else {
         personalizedSystemPrompt = `${getBasePersonality()}\n\n${personalization}`;
+      }
+    }
+
+    // ---- Zep integration: retrieve relevant memories ----
+    const zepEnabled = !!process.env.ZEP_API_KEY;
+    const userIdentity = await ctx.auth.getUserIdentity();
+    const zepUserId =
+      userIdentity?.tokenIdentifier ||
+      userIdentity?.subject ||
+      userIdentity?.email;
+
+    if (zepEnabled && zepUserId) {
+      try {
+        const lastUserMsg = [...chatMessages]
+          .reverse()
+          .find((m) => m.role === "user");
+
+        if (lastUserMsg) {
+          const queryContent =
+            typeof lastUserMsg.content === "string"
+              ? lastUserMsg.content
+              : JSON.stringify(lastUserMsg.content ?? "");
+
+          console.log("[ZEP] Searching memories", { queryContent });
+          const zep = await getZep();
+          const searchRes: any[] = await zep.memory.search(zepUserId, {
+            text: queryContent,
+            limit: 5,
+          });
+          console.log("[ZEP] Search result count", searchRes?.length);
+
+          if (Array.isArray(searchRes) && searchRes.length > 0) {
+            const context = searchRes
+              .map((m) => {
+                if (m.text) return `- ${m.text}`;
+                if (m.fact) return `- ${m.fact}`;
+                return `- ${JSON.stringify(m)}`;
+              })
+              .join("\n");
+            personalizedSystemPrompt = `### Relevant Memories\n${context}\n\n${personalizedSystemPrompt}`;
+          }
+        }
+      } catch (err) {
+        console.error("Zep search error:", err);
       }
     }
 
@@ -513,10 +548,6 @@ export const generateAIResponse = async (
         };
       },
     });
-    // Stream the response
-    console.log(
-      `Starting stream with provider: ${provider}, model: ${model.id}`
-    );
 
     // Configure provider-specific options
     const providerOptions: any = {
@@ -568,16 +599,10 @@ export const generateAIResponse = async (
       streamOptions.maxTokens = 4000;
     }
 
-    // Log the stream configuration (without sensitive data)
-    console.log(
-      `Stream configuration: provider=${provider}, thinking=${thinking}, tools=${Object.keys(tools).length > 0}`
-    );
-
     let fullStream;
     try {
       const result = streamText(streamOptions);
       fullStream = result.fullStream;
-      console.log("Stream initialized successfully");
     } catch (error: any) {
       console.error(
         `Failed to initialize stream with ${provider}/${model.id}:`,
@@ -644,12 +669,8 @@ export const generateAIResponse = async (
           messageId: assistantMessageId,
         });
         if (message?.isCancelled) {
-          console.log("Message was cancelled by user");
           break;
         }
-
-        // Log chunk type for debugging
-        console.log(`Received chunk type: ${chunk.type}`);
 
         // Handle different chunk types with proper type checking
         if (chunk.type === "text-delta") {
@@ -750,8 +771,6 @@ export const generateAIResponse = async (
           const toolCallId = (chunk as any).toolCallId;
           const result = (chunk as any).result;
 
-          console.log(`Processing tool result for toolCallId: ${toolCallId}`);
-
           const toolCall = accumulatedToolCalls.find(
             (tc) => tc.toolCallId === toolCallId
           );
@@ -771,8 +790,6 @@ export const generateAIResponse = async (
             );
           }
         } else if (chunk.type === "finish") {
-          console.log("Received finish chunk, completing message");
-
           // Track thinking end time
           if (thinkingStartTime && !thinkingEndTime) {
             thinkingEndTime = Date.now();
@@ -796,10 +813,31 @@ export const generateAIResponse = async (
             isComplete: true,
             toolCalls: accumulatedToolCalls,
           });
+
+          // ---- Zep integration: store conversation ----
+          if (zepEnabled && zepUserId) {
+            try {
+              const userContent =
+                chatMessages[chatMessages.length - 1]?.content || "";
+              const assistantContent = accumulatedContent;
+
+              const zep = await getZep();
+              console.log("[ZEP] Adding conversation turn to memory");
+
+              await zep.memory.add(zepUserId, {
+                messages: [
+                  { role_type: "user", content: String(userContent) },
+                  { role_type: "assistant", content: String(assistantContent) },
+                ],
+              });
+              console.log("[ZEP] Memory add complete");
+            } catch (err) {
+              console.error("Zep memory add error:", err);
+            }
+          }
+
           break;
         } else if (chunk.type === "error") {
-          console.log("Received error chunk:", chunk);
-
           // Force final update before handling error
           await scheduleUpdate(true);
 
@@ -818,11 +856,7 @@ export const generateAIResponse = async (
           chunk.type === "step-finish"
         ) {
           // These are normal chunks from the AI SDK, just log them
-          console.log("Step chunk received:", chunk.type);
           // No need to break or update for these chunks
-        } else {
-          // Log any unknown chunk types for debugging
-          console.log("Unknown chunk type received:", chunk.type);
         }
       } catch (updateError) {
         // If we can't update the message (e.g., due to conflicts), continue streaming
@@ -858,8 +892,6 @@ export const generateAIResponse = async (
         isComplete: true,
         toolCalls: accumulatedToolCalls,
       });
-
-      console.log("Successfully completed message generation");
     } catch (finalUpdateError) {
       console.warn("Failed to mark message as complete:", finalUpdateError);
 
@@ -927,24 +959,9 @@ export async function getOrCreateUserId(
       image: "",
       tokenIdentifier: tokenIdentifier,
     });
-    console.log(
-      "Created new user for tokenIdentifier:",
-      tokenIdentifier,
-      "email:",
-      email,
-      "userId:",
-      userId
-    );
+
     return userId;
   }
 
-  console.log(
-    "Resolved userId for tokenIdentifier:",
-    tokenIdentifier,
-    "email:",
-    email,
-    "userId:",
-    user._id
-  );
   return user._id;
 }

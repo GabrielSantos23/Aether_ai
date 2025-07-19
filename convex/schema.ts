@@ -69,6 +69,7 @@ export default defineSchema({
     autoSave: v.optional(v.boolean()),
     showTimestamps: v.optional(v.boolean()),
     disabledModels: v.optional(v.array(v.string())), // Array of disabled model IDs
+    mem0Enabled: v.optional(v.boolean()),
   }).index("by_user", ["userId"]),
 
   apiKeys: defineTable({

@@ -25,6 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import SpeechSettings from "@/components/_components/_settings/SpeechSettings";
+import Mem0Settings from "@/components/_components/_settings/Mem0Settings";
 import {
   settingsSections,
   type SettingsSection,
@@ -38,7 +39,7 @@ export default function SettingsPage() {
   const { data: session, status } = useSession();
   const loading = status === "loading";
   const isAuthenticated = status === "authenticated" && !!session;
-  
+
   const { unmigratedLocalChats } = useConversations();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -69,7 +70,7 @@ export default function SettingsPage() {
   // Update active section based on URL query params
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && settingsSections.some(section => section.id === tab)) {
+    if (tab && settingsSections.some((section) => section.id === tab)) {
       setActiveSection(tab as SettingsSection);
     }
   }, [searchParams]);
@@ -96,7 +97,9 @@ export default function SettingsPage() {
   if (!isAuthenticated) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center">
-        <h2 className="text-xl font-medium mb-4">You need to be logged in to access settings</h2>
+        <h2 className="text-xl font-medium mb-4">
+          You need to be logged in to access settings
+        </h2>
         <NavLink to="/auth">
           <Button>Go to Login</Button>
         </NavLink>
@@ -123,11 +126,9 @@ export default function SettingsPage() {
           // Delete each database
           for (const dbInfo of databases) {
             if (dbInfo.name) {
-              console.log(`Deleting IndexedDB database: ${dbInfo.name}`);
               await new Promise((resolve, reject) => {
                 const deleteReq = indexedDB.deleteDatabase(dbInfo.name!);
                 deleteReq.onsuccess = () => {
-                  console.log(`Successfully deleted database: ${dbInfo.name}`);
                   resolve(undefined);
                 };
                 deleteReq.onerror = () => {
@@ -171,8 +172,6 @@ export default function SettingsPage() {
             localStorage.removeItem(key);
           }
         });
-
-        console.log("Cleared localStorage");
       } catch (localStorageError) {
         console.warn("Failed to clear localStorage:", localStorageError);
       }
@@ -185,12 +184,10 @@ export default function SettingsPage() {
             sessionStorage.removeItem(key);
           }
         });
-        console.log("Cleared sessionStorage");
       } catch (sessionStorageError) {
         console.warn("Failed to clear sessionStorage:", sessionStorageError);
       }
 
-      console.log("All local data cleared successfully");
       toast.success("Local data cleared successfully");
     } catch (error) {
       console.error("Error clearing local data:", error);
@@ -201,12 +198,12 @@ export default function SettingsPage() {
   const handleSignOut = async () => {
     try {
       await signOut({ redirect: false });
-      router.push('/');
+      router.push("/");
     } catch (error) {
       console.error("Error signing out:", error);
       toast.error("Failed to sign out");
       // Fallback: redirect to home
-      router.push('/');
+      router.push("/");
     }
   };
 
@@ -252,6 +249,8 @@ export default function SettingsPage() {
         );
       case "speech":
         return <SpeechSettings />;
+      case "mem0":
+        return <Mem0Settings />;
       case "integrations":
         return <Integrations />;
       default:

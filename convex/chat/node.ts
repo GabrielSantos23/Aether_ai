@@ -44,8 +44,6 @@ export const sendMessage = action({
     userMessageId: Id<"messages">;
     assistantMessageId: Id<"messages">;
   }> => {
-    console.log("attachments", attachments);
-
     const getFileType = (file: { type: string }) => {
       if (file.type.startsWith("image")) {
         return "image";
@@ -139,7 +137,6 @@ export async function generateImage(
         // Save to aiImages table
         const identity = await ctx.auth.getUserIdentity();
         if (identity) {
-          console.log("Saving image for identity:", identity);
           const userId = await ctx.runMutation(
             api.chat.mutations.internalGetOrCreateUserId,
             {
@@ -147,7 +144,6 @@ export async function generateImage(
               email: identity.email,
             }
           );
-          console.log("Resolved userId for save:", userId);
           await ctx.runMutation(api.chat.mutations.internalSaveAIImage, {
             userId,
             prompt,

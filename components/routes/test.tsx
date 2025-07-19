@@ -18,8 +18,6 @@ export default function LoggedInHome() {
   const session = useSession();
   const [basePrompt, setBasePrompt] = useState("");
 
-  console.log(user, session, storeUser);
-
   useEffect(() => {
     if (session.data?.user?.email && session.status === "authenticated") {
       storeUser({
@@ -29,7 +27,7 @@ export default function LoggedInHome() {
         image: session.data.user.image || "",
       });
     }
-    
+
     // Get the current base personality with date
     setBasePrompt(getBasePersonality());
   }, [session.data, session.status, storeUser]);
@@ -50,20 +48,20 @@ export default function LoggedInHome() {
         Click the button below and open this page in another window - this data
         is persisted in the Convex cloud database!
       </p>
-      
+
       <div className="mt-4 p-4 border rounded-md">
         <h3 className="font-bold mb-2">Current AI Prompt with Date:</h3>
         <pre className="whitespace-pre-wrap bg-gray-100 dark:bg-gray-800 p-4 rounded-md text-sm overflow-auto max-h-[400px]">
-          {basePrompt.split('\n').slice(0, 5).join('\n')}...
+          {basePrompt.split("\n").slice(0, 5).join("\n")}...
         </pre>
-        <Button 
-          onClick={() => setBasePrompt(getBasePersonality())} 
+        <Button
+          onClick={() => setBasePrompt(getBasePersonality())}
           className="mt-2"
         >
           Refresh Date
         </Button>
       </div>
-  
+
       <div className="mt-8 flex flex-col space-y-4">
         <ConnectGoogleDriveButton />
         <ConnectNotionButton />

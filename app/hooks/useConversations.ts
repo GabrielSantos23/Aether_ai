@@ -405,7 +405,6 @@ export const useConversations = (
         });
       } else {
         setIsLocalStreaming(true);
-        console.log("message", input);
         abortControllerRef.current = new AbortController();
         let conversationId = currentChatId;
 
@@ -524,7 +523,6 @@ export const useConversations = (
         } catch (error) {
           if ((error as Error).name === "AbortError") {
             // Generation was stopped by user - no need to show error
-            console.log("Generation was stopped by user");
           } else {
             console.error("Error in local stream:", error);
             toast.error("An error occurred while getting the response.");
@@ -675,7 +673,6 @@ export const useConversations = (
       } catch (error) {
         if ((error as Error).name === "AbortError") {
           // Generation was stopped by user - no need to show error
-          console.log("Retry generation was stopped by user");
         } else {
           console.error("Error in retry:", error);
           toast.error("Failed to retry message.");
@@ -825,7 +822,6 @@ export const useConversations = (
         }
       } catch (error) {
         if ((error as Error).name === "AbortError") {
-          console.log("Edit regeneration was stopped by user");
         } else {
           console.error("Error editing message:", error);
           toast.error("Failed to edit message.");

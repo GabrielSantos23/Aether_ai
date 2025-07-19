@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { query, mutation, action } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
 
 /**
@@ -91,6 +91,7 @@ export const updateUserSettings = mutation({
     autoSave: v.optional(v.boolean()),
     showTimestamps: v.optional(v.boolean()),
     disabledModels: v.optional(v.array(v.string())),
+    mem0Enabled: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     // Get the identity of the currently logged-in user.

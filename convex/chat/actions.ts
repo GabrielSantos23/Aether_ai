@@ -272,9 +272,6 @@ export const sendMessage = action({
 
       // Log if this is the first message in the chat
       const isFirstMessage = messages.length === 0;
-      console.log(
-        `Processing ${isFirstMessage ? "first" : "subsequent"} message in chat ${chatId}`
-      );
 
       // Add user message to the database
       const userMessageId: Id<"messages"> = await ctx.runMutation(
@@ -318,13 +315,8 @@ export const sendMessage = action({
         ],
       });
 
-      console.log(
-        `Chat history length: ${chatMessages.length}, Model: ${modelId}`
-      );
-
       // Handle attachments or image generation
       if ((attachments && attachments.length > 0) || imageGen) {
-        console.log("Attachments or Image Gen Found: Using Node Action");
         return await ctx.runAction(api.chat.node.sendMessage, {
           chatMessages,
           modelId,
@@ -337,8 +329,6 @@ export const sendMessage = action({
         });
       }
 
-      // Generate the AI response using shared function
-      console.log(`Sending message with model ${modelId}`);
       try {
         await generateAIResponse(
           ctx,
@@ -399,9 +389,6 @@ export const generateTitle = action({
   },
   handler: async (ctx, { chatId, messageContent, modelId }) => {
     try {
-      // Log all available environment variables (without values)
-      console.log("Available environment variables:", Object.keys(process.env));
-
       // Get the API key from environment or use the fallback
       const envApiKey = process.env.GEMINI_API_KEY || "";
 
@@ -413,8 +400,6 @@ export const generateTitle = action({
         });
         return;
       }
-
-      console.log("Using Gemini API key for title generation");
 
       const google = createGoogleGenerativeAI({ apiKey: envApiKey });
       const aiModel = google("gemini-2.0-flash-lite");
@@ -439,8 +424,6 @@ export const generateTitle = action({
         chatId,
         title: finalTitle,
       });
-
-      console.log("Title generated successfully:", finalTitle);
     } catch (error) {
       console.error("Error generating title:", error);
       // If title generation fails, just set a generic title

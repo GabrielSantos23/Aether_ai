@@ -8,8 +8,8 @@ import Provider from "./providers/providers";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "My App Title",
-  description: "My app description",
+  title: "Aether AI - advanced AI chat",
+  description: "Aether AI is a advanced AI chat with a lot of features",
 };
 
 export default async function RootLayout({

@@ -185,13 +185,8 @@ export function SidebarButtonsRight({ threadId }: { threadId: string }) {
 
   // Function to scroll to a specific message
   const scrollToMessage = (messageId: string) => {
-    console.log("Attempting to scroll to message:", messageId);
     const messageElement = document.getElementById(`message-${messageId}`);
     if (messageElement) {
-      console.log(
-        "Found message element, scrolling into view:",
-        messageElement
-      );
       messageElement.scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -212,10 +207,6 @@ export function SidebarButtonsRight({ threadId }: { threadId: string }) {
       // Try to find the element by just the messageId as a fallback
       const fallbackElement = document.getElementById(messageId);
       if (fallbackElement) {
-        console.log(
-          "Found fallback element, scrolling into view:",
-          fallbackElement
-        );
         fallbackElement.scrollIntoView({
           behavior: "smooth",
           block: "center",

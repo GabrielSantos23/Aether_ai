@@ -166,8 +166,6 @@ export const addMessage = mutation({
         .filter((q) => q.eq(q.field("role"), "user"))
         .first();
 
-      console.log("existingUserMessage", existingUserMessage);
-
       // If no existing user messages found, this is the first user message
       if (!existingUserMessage) {
         await ctx.db.patch(chatId, { isGeneratingTitle: true });
@@ -603,16 +601,9 @@ export const branchChat = mutation({
     }
 
     const userId = await getOrCreateUserId(ctx, identity.tokenIdentifier);
-    console.log("Branch chat - userId:", userId);
 
     const originalChat = await ctx.db.get(chatId);
     if (!originalChat || originalChat.userId !== userId) {
-      console.log(
-        "Access denied - originalChat.userId:",
-        originalChat?.userId,
-        "userId:",
-        userId
-      );
       throw new Error("Chat not found or access denied");
     }
 
@@ -626,7 +617,6 @@ export const branchChat = mutation({
       (m) => m._id === messageId
     );
     if (messageToBranchFromIndex === -1) {
-      console.log("Message not found - messageId:", messageId);
       throw new Error("Message not found in chat");
     }
 
@@ -644,7 +634,6 @@ export const branchChat = mutation({
       updatedAt: now,
       isBranch: true,
     });
-    console.log("Branch chat - newChatId created:", newChatId);
 
     // Copy messages to the new chat
     for (const message of messagesForNewChat) {
@@ -654,10 +643,6 @@ export const branchChat = mutation({
         chatId: newChatId,
       });
     }
-    console.log(
-      "Branch chat - messages copied, returning newChatId:",
-      newChatId
-    );
 
     return newChatId;
   },
@@ -691,7 +676,6 @@ export const internalSaveAIImage = mutation({
     imageUrl: v.string(),
   },
   handler: async (ctx, args) => {
-    console.log("Saving AI image:", args);
     await ctx.db.insert("aiImages", {
       userId: args.userId,
       prompt: args.prompt,

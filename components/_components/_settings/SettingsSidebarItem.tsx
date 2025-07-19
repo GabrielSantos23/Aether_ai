@@ -19,6 +19,9 @@ const mobileLabels = {
   customize: "Custom",
   speech: "Speech",
   data: "Data",
+  mem0: "Mem0",
+  billing: "Billing",
+  integrations: "Integ",
 };
 
 export function SettingsSidebarItem({
