@@ -35,7 +35,6 @@ export const useConversations = (
   const [currentChatId, setCurrentChatId] = useState<string | null>(
     chatIdFromUrl || null
   );
-  // Find the Gemini 2.0 Flash model or fallback to first model
   const defaultModel =
     models.find((m) => m.id === "gemini-2.0-flash") || models[0];
   const [selectedModel, setSelectedModel] = useState<ModelInfo>(defaultModel);
@@ -75,18 +74,16 @@ export const useConversations = (
   const liveLocalMessages = useLiveQuery(
     () => {
       if (!currentChatId) return [];
-      // Now loads from Dexie for both auth'd and unauth'd users
       return db.messages
         .where("conversationId")
         .equals(currentChatId)
         .sortBy("createdAt");
     },
-    [currentChatId], // No longer depends on isAuthenticated
+    [currentChatId],
     []
   );
   const [isLocalStreaming, setIsLocalStreaming] = useState(false);
 
-  // Sync Convex messages to Dexie for local-first access
   useEffect(() => {
     if (isAuthenticated && convexMessages && currentChatId) {
       const syncToDexie = async () => {
@@ -102,7 +99,7 @@ export const useConversations = (
               thinking: m.thinking,
               thinkingDuration: m.thinkingDuration,
               attachments: m.attachments,
-              parts: [], // Assuming parts are not used for Convex messages
+              parts: [],
             }) as DBMessage
         );
 
@@ -122,7 +119,6 @@ export const useConversations = (
 
   const activeMessages = useMemo(() => {
     if (isAuthLoading) {
-      // Still show initial messages if available on first load
       if (initialMessages && currentChatId) {
         return initialMessages.map(
           (msg) =>
@@ -142,8 +138,6 @@ export const useConversations = (
     }
 
     if (isAuthenticated) {
-      // For authed users, we use Dexie messages as the base
-      // and merge with Convex messages as they arrive.
       const localClientMessages = (liveLocalMessages || []).map(
         (msg) =>
           ({
@@ -158,12 +152,10 @@ export const useConversations = (
           }) as ClientMessage & { modelId: string; attachments?: any[] }
       );
 
-      // If convex messages haven't loaded yet, just show local
       if (!convexMessages) {
         return localClientMessages;
       }
 
-      // Once convex messages are loaded, they are the source of truth
       return (convexMessages || []).map(
         (msg) =>
           ({
@@ -184,7 +176,6 @@ export const useConversations = (
       );
     }
 
-    // For anonymous users, just use Dexie
     return (liveLocalMessages || []).map(
       (msg) =>
         ({
@@ -208,10 +199,8 @@ export const useConversations = (
   ]);
 
   const activeChats = useMemo(() => {
-    // If authenticated, ONLY show chats from Convex.
     if (isAuthenticated) {
       const sourceChats = isConvexStreaming ? cachedConvexChats : convexChats;
-      // Use initialChats as fallback if convex chats haven't loaded yet
       const chatsToUse = sourceChats || initialChats || [];
       return chatsToUse
         .map((chat) => ({
@@ -223,7 +212,6 @@ export const useConversations = (
         }))
         .sort((a, b) => b.lastMessageAt.getTime() - a.lastMessageAt.getTime());
     }
-    // For anonymous users, just use Dexie
     return initialChats
       ? initialChats
       : dexieConversations?.map((chat) => ({
@@ -267,7 +255,6 @@ export const useConversations = (
     return newUnmigrated;
   }, [isAuthenticated, dexieConversations, convexChats]);
 
-  // Sync Convex chats to Dexie for local-first access
   useEffect(() => {
     if (isAuthenticated && convexChats) {
       const syncToDexie = async () => {
@@ -290,18 +277,14 @@ export const useConversations = (
     }
   }, [isAuthenticated, convexChats]);
 
-  // This effect will redirect the user if the chat is not found
   useEffect(() => {
     if (!isAuthLoading && currentChatId) {
       if (isAuthenticated) {
-        // For authenticated users, check using the chatExists flag from useConvexChat
-        // This prevents the Convex query error by checking chat existence first
         if (convexChats && !convexChatExists) {
           router.push("/");
           toast.error("Chat not found.");
         }
       } else {
-        // For unauthenticated users, check against local Dexie conversations
         if (dexieConversations) {
           const conversationExists = dexieConversations.some(
             (conv) => conv.id === currentChatId
@@ -330,37 +313,30 @@ export const useConversations = (
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // This effect correctly sets the displayed model on mount and on auth change
-  // without incorrectly writing to localStorage.
   useEffect(() => {
     setMounted(true);
 
     const lastUsedModelId = localStorage.getItem("lastUsedModelId");
     const availableModels = models.filter((m) => {
-      // Check if model is disabled by user
       if (isAuthenticated && disabledModels.includes(m.id)) {
         return false;
       }
-      // For unauthenticated users, only show free models
       if (!isAuthenticated && !m.isFree) {
         return false;
       }
       return true;
     });
 
-    // Find Gemini 2.0 Flash model
     const geminiFlashModel = availableModels.find(
       (m) => m.id === "gemini-2.0-flash"
     );
 
-    // Default to Gemini 2.0 Flash if available, otherwise fallback to first available model
     let modelToDisplay =
       geminiFlashModel ||
       (availableModels.length > 0 ? availableModels[0] : models[0]);
 
     if (lastUsedModelId) {
       const preferredModel = models.find((m) => m.id === lastUsedModelId);
-      // Check if the user's preferred model is valid in the current auth context.
       if (
         preferredModel &&
         availableModels.some((m) => m.id === preferredModel.id)
@@ -371,7 +347,6 @@ export const useConversations = (
     setSelectedModel(modelToDisplay);
   }, [isAuthenticated, disabledModels]);
 
-  // This new function handles manual model selection, saving the user's preference.
   const handleSetSelectedModel = (model: ModelInfo) => {
     localStorage.setItem("lastUsedModelId", model.id);
     setSelectedModel(model);
@@ -391,7 +366,6 @@ export const useConversations = (
         if (!chatId) {
           const newChatId = await createChat({ title: input.substring(0, 50) });
           chatId = newChatId;
-          // Use setTimeout to ensure localStorage write completes before navigation
           setTimeout(() => {
             router.push(`/chat/${newChatId}`);
           }, 0);
@@ -429,7 +403,6 @@ export const useConversations = (
             lastMessageAt: new Date(),
           };
           const newConvId = await db.conversations.add(newConv);
-          // Use setTimeout to ensure localStorage write completes before navigation
           setTimeout(() => {
             router.push(`/chat/${conversationId}`);
           }, 0);
@@ -477,7 +450,6 @@ export const useConversations = (
 
           for await (const chunk of dataStream) {
             if (abortControllerRef.current?.signal.aborted) {
-              // Check if message already has stop text (from immediate UI update)
               const currentMessage = await db.messages.get(assistantId);
               if (
                 currentMessage &&
@@ -513,7 +485,6 @@ export const useConversations = (
             }
           }
 
-          // Only delete if no content and not aborted
           if (
             !streamingContent.trim() &&
             !abortControllerRef.current?.signal.aborted
@@ -522,7 +493,6 @@ export const useConversations = (
           }
         } catch (error) {
           if ((error as Error).name === "AbortError") {
-            // Generation was stopped by user - no need to show error
           } else {
             console.error("Error in local stream:", error);
             toast.error("An error occurred while getting the response.");
@@ -550,7 +520,6 @@ export const useConversations = (
 
       try {
         if (isAuthenticated) {
-          // For Convex: Use the proper retryMessage action
           const messageIndex = activeMessages.findIndex(
             (msg) => msg.id === messageId
           );
@@ -565,7 +534,6 @@ export const useConversations = (
             modelId: modelId || selectedModel.id,
           });
         } else {
-          // For local: Find the message and remove it + subsequent messages, then regenerate
           const messageIndex = activeMessages.findIndex(
             (msg) => msg.id === messageId
           );
@@ -574,20 +542,17 @@ export const useConversations = (
           const messageToRetry = activeMessages[messageIndex];
           if (messageToRetry.role !== "assistant") return;
 
-          // Remove the assistant message and any subsequent messages
           const messagesToDelete = activeMessages.slice(messageIndex);
           for (const msg of messagesToDelete) {
             await db.messages.delete(msg.id);
           }
 
-          // Get conversation history up to the retry point (excluding the deleted messages)
           const historyMessages = activeMessages.slice(0, messageIndex);
           const coreHistory: CoreMessage[] = historyMessages.map((m) => ({
             role: m.role as "user" | "assistant",
             content: typeof m.content === "string" ? m.content : "",
           }));
 
-          // Regenerate the response with the selected model
           const modelToUse = modelId
             ? models.find((m) => m.id === modelId) || selectedModel
             : selectedModel;
@@ -626,7 +591,6 @@ export const useConversations = (
 
           for await (const chunk of dataStream) {
             if (abortControllerRef.current?.signal.aborted) {
-              // Check if message already has stop text (from immediate UI update)
               const currentMessage = await db.messages.get(assistantId);
               if (
                 currentMessage &&
@@ -662,7 +626,6 @@ export const useConversations = (
             }
           }
 
-          // Only delete if no content and not aborted
           if (
             !streamingContent.trim() &&
             !abortControllerRef.current?.signal.aborted
@@ -672,7 +635,6 @@ export const useConversations = (
         }
       } catch (error) {
         if ((error as Error).name === "AbortError") {
-          // Generation was stopped by user - no need to show error
         } else {
           console.error("Error in retry:", error);
           toast.error("Failed to retry message.");
@@ -699,7 +661,6 @@ export const useConversations = (
 
       try {
         if (isAuthenticated) {
-          // For Convex: Use the editMessageAndRegenerate action to edit and regenerate response
           await editMessageAndRegenerate({
             messageId: messageId as Id<"messages">,
             content: content.trim(),
@@ -707,10 +668,8 @@ export const useConversations = (
           });
           toast.success("Message edited and response regenerated.");
         } else {
-          // For local: Update the message and regenerate response
           await db.messages.update(messageId, { content: content.trim() });
 
-          // Find the next assistant message and regenerate from there
           const allMessages = await db.messages
             .where("conversationId")
             .equals(currentChatId)
@@ -720,7 +679,6 @@ export const useConversations = (
             (msg) => msg.id === messageId
           );
           if (editedMessageIndex !== -1) {
-            // Find the next assistant message after the edited user message
             let nextAssistantMessageIndex = -1;
             for (let i = editedMessageIndex + 1; i < allMessages.length; i++) {
               if (allMessages[i].role === "assistant") {
@@ -729,7 +687,6 @@ export const useConversations = (
               }
             }
 
-            // If there's an assistant message, delete it and all subsequent messages
             if (nextAssistantMessageIndex !== -1) {
               const messagesToDelete = allMessages.slice(
                 nextAssistantMessageIndex
@@ -738,7 +695,6 @@ export const useConversations = (
                 await db.messages.delete(msg.id);
               }
 
-              // Regenerate response by sending the conversation history
               const historyMessages = allMessages.slice(
                 0,
                 nextAssistantMessageIndex
@@ -748,7 +704,6 @@ export const useConversations = (
                 content: typeof m.content === "string" ? m.content : "",
               }));
 
-              // Generate new response
               setIsLocalStreaming(true);
               abortControllerRef.current = new AbortController();
 
@@ -837,32 +792,26 @@ export const useConversations = (
 
   const handleStopGeneration = useCallback(async () => {
     if (isAuthenticated && isConvexStreaming) {
-      // For Convex, immediately show stopped in UI, then cancel on server
       const lastMessage = convexMessages?.[convexMessages.length - 1];
       if (
         lastMessage &&
         lastMessage.role === "assistant" &&
         !lastMessage.isComplete
       ) {
-        // Immediately show the stop message in UI
         toast.success("Generation stopped.");
 
-        // Cancel on server in background
         try {
           await cancelMessage({ messageId: lastMessage._id as Id<"messages"> });
         } catch (error) {
           console.error("Failed to cancel on server:", error);
-          // Don't show error to user since they already see "stopped" message
         }
       } else {
         toast.info("No active generation to stop.");
       }
     } else if (isLocalStreaming && abortControllerRef.current) {
-      // For local streaming, immediately stop UI and update message
       setIsLocalStreaming(false);
       toast.success("Generation stopped.");
 
-      // Find and immediately update the last streaming message
       try {
         const localMessages = await db.messages
           .where("conversationId")
@@ -880,7 +829,6 @@ export const useConversations = (
         console.error("Failed to update stopped message:", error);
       }
 
-      // Abort the request in background
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     } else {
@@ -907,7 +855,6 @@ export const useConversations = (
           toast.success("Conversation deleted.");
         }
 
-        // Always redirect to home if we're currently viewing the deleted chat
         if (currentChatId === id) {
           router.push("/");
         }

@@ -70,6 +70,7 @@ export default defineSchema({
     showTimestamps: v.optional(v.boolean()),
     disabledModels: v.optional(v.array(v.string())), // Array of disabled model IDs
     mem0Enabled: v.optional(v.boolean()),
+    observations: v.optional(v.array(v.string())), // AI-generated user preference sentences
   }).index("by_user", ["userId"]),
 
   apiKeys: defineTable({

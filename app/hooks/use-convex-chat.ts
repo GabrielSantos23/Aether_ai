@@ -6,25 +6,21 @@ import { Id } from "@/convex/_generated/dataModel";
 export const useConvexChat = (chatId?: Id<"chats">) => {
   const { isAuthenticated, isLoading } = useConvexAuth();
 
-  // First get the user's chats to verify access
   const chats = useQuery(
     api.chat.queries.getUserChats,
     isAuthenticated ? {} : "skip"
   );
 
-  // Only query messages if the chat exists in the user's chats
   const chatExists = useMemo(() => {
     if (!chatId || !chats) return false;
     return chats.some((chat) => chat._id === chatId);
   }, [chatId, chats]);
 
-  // Queries
   const messages = useQuery(
     api.chat.queries.getChatMessages,
     chatId && isAuthenticated && chatExists ? { chatId } : "skip"
   );
 
-  // Mutations & Actions
   const createChat = useMutation(api.chat.mutations.createChat);
   const sendMessage = useAction(api.chat.actions.sendMessage);
   const retryMessage = useAction(api.chat.actions.retryMessage);
@@ -48,17 +44,14 @@ export const useConvexChat = (chatId?: Id<"chats">) => {
   }, [messages]);
 
   return {
-    // State
     isAuthenticated,
     isLoading,
     isStreaming,
     chatExists,
 
-    // Data
     messages,
     chats,
 
-    // Functions
     createChat,
     sendMessage,
     retryMessage,

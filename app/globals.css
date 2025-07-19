@@ -15,8 +15,8 @@
   --secondary-foreground: oklch(0.4355 0.043 279.325);
   --muted: oklch(0.906 0.0117 264.5071);
   --muted-foreground: oklch(0.5471 0.0343 279.0837);
-  --accent: oklch(0.9221 0.0373 262.141);
-  --accent-foreground: oklch(0.3015 0.0572 282.4176);
+  --accent: oklch(0.5547 0.2503 297.0156);
+  --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.5505 0.2155 19.8095);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.8083 0.0174 271.1982);
@@ -27,18 +27,18 @@
   --chart-3: oklch(0.625 0.1772 140.4448);
   --chart-4: oklch(0.692 0.2041 42.4293);
   --chart-5: oklch(0.7141 0.1045 33.0967);
-  --radius: 0.35rem;
   --sidebar: oklch(0.9335 0.0087 264.5206);
   --sidebar-foreground: oklch(0.4355 0.043 279.325);
   --sidebar-primary: oklch(0.5547 0.2503 297.0156);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.9221 0.0373 262.141);
-  --sidebar-accent-foreground: oklch(0.3015 0.0572 282.4176);
+  --sidebar-accent: oklch(0.682 0.1448 235.3822);
+  --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(0.8083 0.0174 271.1982);
   --sidebar-ring: oklch(0.5547 0.2503 297.0156);
   --font-sans: Montserrat, sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: Fira Code, monospace;
+  --font-mono: "IBM Plex Mono", monospace;
+  --radius: 1rem;
   --shadow-2xs: 0px 4px 6px 0px hsl(240 30% 25% / 0.06);
   --shadow-xs: 0px 4px 6px 0px hsl(240 30% 25% / 0.06);
   --shadow-sm:
@@ -57,62 +57,17 @@
     0px 4px 6px 0px hsl(240 30% 25% / 0.12),
     0px 8px 10px -1px hsl(240 30% 25% / 0.12);
   --shadow-2xl: 0px 4px 6px 0px hsl(240 30% 25% / 0.3);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
-
-  --sidebar-background: var(--sidebar);
-  --gradient-noise-top: var(--background);
-  --color-heading: var(--foreground);
-  --chat-border: var(--border);
-  --chat-background: var(--background);
-  --chat-accent: var(--background);
-  --chat-input-gradient: var(--secondary);
-  --chat-input-background: var(--background);
-  --chat-overlay: var(--background);
-  --wordmark-color: var(--primary);
-
-  --shiki-foreground: rgb(160, 120, 220);
-  --shiki-background: rgb(103, 60, 139);
-  --shiki-token-constant: rgb(180, 140, 255);
-  --shiki-token-string: rgb(120, 180, 160);
-  --shiki-token-comment: rgb(120, 180, 160);
-  --shiki-token-keyword: rgb(160, 120, 220);
-  --shiki-token-parameter: rgb(103, 60, 139);
-  --shiki-token-function: rgb(160, 120, 220);
-  --shiki-token-string-expression: rgb(120, 180, 160);
-  --shiki-token-link: rgb(180, 140, 255);
-  --shiki-ansi-black: rgb(103, 60, 139);
-  --shiki-ansi-black-dim: rgba(103, 60, 139, 0.5);
-  --shiki-ansi-red: rgb(180, 140, 255);
-  --shiki-ansi-red-dim: rgba(180, 140, 255, 0.5);
-  --shiki-ansi-green: rgb(120, 180, 160);
-  --shiki-ansi-green-dim: rgba(120, 180, 160, 0.5);
-  --shiki-ansi-yellow: rgb(180, 140, 255);
-  --shiki-ansi-yellow-dim: rgba(180, 140, 255, 0.5);
-  --shiki-ansi-blue: rgb(160, 120, 220);
-  --shiki-ansi-blue-dim: rgba(160, 120, 220, 0.5);
-  --shiki-ansi-magenta: rgb(160, 120, 220);
-  --shiki-ansi-magenta-dim: rgba(160, 120, 220, 0.5);
-  --shiki-ansi-cyan: rgb(120, 180, 160);
-  --shiki-ansi-cyan-dim: rgba(120, 180, 160, 0.5);
-  --shiki-ansi-white: rgb(180, 140, 255);
-  --shiki-ansi-white-dim: rgba(180, 140, 255, 0.5);
-  --shiki-ansi-bright-black: rgb(103, 60, 139);
-  --shiki-ansi-bright-black-dim: rgba(103, 60, 139, 0.5);
-  --shiki-ansi-bright-red: rgb(180, 140, 255);
-  --shiki-ansi-bright-red-dim: rgba(180, 140, 255, 0.5);
-  --shiki-ansi-bright-green: rgb(120, 180, 160);
-  --shiki-ansi-bright-green-dim: rgba(120, 180, 160, 0.5);
-  --shiki-ansi-bright-yellow: rgb(180, 140, 255);
-  --shiki-ansi-bright-yellow-dim: rgba(180, 140, 255, 0.5);
-  --shiki-ansi-bright-blue: rgb(160, 120, 220);
-  --shiki-ansi-bright-blue-dim: rgba(160, 120, 220, 0.5);
-  --shiki-ansi-bright-magenta: rgb(160, 120, 220);
-  --shiki-ansi-bright-magenta-dim: rgba(160, 120, 220, 0.5);
-  --shiki-ansi-bright-cyan: rgb(120, 180, 160);
-  --shiki-ansi-bright-cyan-dim: rgba(120, 180, 160, 0.5);
-  --shiki-ansi-bright-white: rgb(180, 140, 255);
-  --shiki-ansi-bright-white-dim: rgba(180, 140, 255, 0.5);
+  --shiki-color-text: oklch(0.4355 0.043 279.325);
+  --shiki-color-background: oklch(0.9078 0.0058 264.5321);
+  --shiki-token-constant: oklch(0.682 0.1448 235.3822);
+  --shiki-token-string: oklch(0.625 0.1772 140.4448);
+  --shiki-token-comment: oklch(0.5471 0.0343 279.0837);
+  --shiki-token-keyword: oklch(0.5547 0.2503 297.0156);
+  --shiki-token-parameter: oklch(0.4355 0.043 279.325);
+  --shiki-token-function: oklch(0.682 0.1448 235.3822);
+  --shiki-token-string-expression: oklch(0.625 0.1772 140.4448);
+  --shiki-token-punctuation: oklch(0.5471 0.0343 279.0837);
+  --shiki-token-link: oklch(0.5547 0.2503 297.0156);
 }
 
 .boring-dark,
@@ -129,8 +84,8 @@
   --secondary-foreground: oklch(0.8787 0.0426 272.2767);
   --muted: oklch(0.2973 0.0294 276.2144);
   --muted-foreground: oklch(0.751 0.0396 273.932);
-  --accent: oklch(0.3354 0.0828 280.9705);
-  --accent-foreground: oklch(0.9185 0.0257 285.8834);
+  --accent: oklch(0.7871 0.1187 304.7693);
+  --accent-foreground: oklch(0.8787 0.0426 272.2767);
   --destructive: oklch(0.7556 0.1297 2.7642);
   --destructive-foreground: oklch(0.2429 0.0304 283.911);
   --border: oklch(0.324 0.0319 281.9784);
@@ -145,14 +100,14 @@
   --sidebar-foreground: oklch(0.8787 0.0426 272.2767);
   --sidebar-primary: oklch(0.7871 0.1187 304.7693);
   --sidebar-primary-foreground: oklch(0.2429 0.0304 283.911);
-  --sidebar-accent: oklch(0.3354 0.0828 280.9705);
-  --sidebar-accent-foreground: oklch(0.9185 0.0257 285.8834);
+  --sidebar-accent: oklch(0.8467 0.0833 210.2545);
+  --sidebar-accent-foreground: oklch(0.2429 0.0304 283.911);
   --sidebar-border: oklch(0.4037 0.032 280.152);
   --sidebar-ring: oklch(0.7871 0.1187 304.7693);
-  --font-sans: Montserrat, sans-serif;
+  --font-sans: "IBM Plex Sans", sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: Fira Code, monospace;
-  --radius: 0.35rem;
+  --font-mono: "IBM Plex Mono", monospace;
+  --radius: 1rem;
   --shadow-2xs: 0px 4px 6px 0px hsl(240 30% 25% / 0.06);
   --shadow-xs: 0px 4px 6px 0px hsl(240 30% 25% / 0.06);
   --shadow-sm:
@@ -171,60 +126,17 @@
     0px 4px 6px 0px hsl(240 30% 25% / 0.12),
     0px 8px 10px -1px hsl(240 30% 25% / 0.12);
   --shadow-2xl: 0px 4px 6px 0px hsl(240 30% 25% / 0.3);
-
-  --sidebar-background: var(--sidebar);
-  --gradient-noise-top: var(--background);
-  --color-heading: var(--primary);
-  --chat-border: var(--border);
-  --chat-background: var(--background);
-  --chat-accent: var(--background);
-  --chat-overlay: var(--background);
-  --chat-input-gradient: var(--secondary);
-  --chat-input-background: var(--background);
-  --wordmark-color: var(--primary);
-
-  --shiki-foreground: rgb(210, 199, 225);
-  --shiki-background: rgb(29, 25, 33);
-  --shiki-token-constant: rgb(220, 180, 255);
-  --shiki-token-string: rgb(150, 208, 187);
-  --shiki-token-comment: rgb(122, 100, 131);
-  --shiki-token-keyword: rgb(210, 180, 255);
-  --shiki-token-parameter: rgb(150, 208, 187);
-  --shiki-token-function: rgb(186, 164, 237);
-  --shiki-token-string-expression: rgb(150, 208, 187);
-  --shiki-token-link: rgb(210, 180, 255);
-  --shiki-ansi-black: rgb(122, 100, 131);
-  --shiki-ansi-black-dim: rgba(122, 100, 131, 0.5);
-  --shiki-ansi-red: rgb(210, 180, 255);
-  --shiki-ansi-red-dim: rgba(210, 180, 255, 0.5);
-  --shiki-ansi-green: rgb(150, 208, 187);
-  --shiki-ansi-green-dim: rgba(150, 208, 187, 0.5);
-  --shiki-ansi-yellow: rgb(220, 180, 255);
-  --shiki-ansi-yellow-dim: rgba(220, 180, 255, 0.5);
-  --shiki-ansi-blue: rgb(186, 164, 237);
-  --shiki-ansi-blue-dim: rgba(186, 164, 237, 0.5);
-  --shiki-ansi-magenta: rgb(210, 180, 255);
-  --shiki-ansi-magenta-dim: rgba(210, 180, 255, 0.5);
-  --shiki-ansi-cyan: rgb(150, 208, 187);
-  --shiki-ansi-cyan-dim: rgba(150, 208, 187, 0.5);
-  --shiki-ansi-white: rgb(210, 199, 225);
-  --shiki-ansi-white-dim: rgba(210, 199, 225, 0.5);
-  --shiki-ansi-bright-black: rgb(122, 100, 131);
-  --shiki-ansi-bright-black-dim: rgba(122, 100, 131, 0.5);
-  --shiki-ansi-bright-red: rgb(210, 180, 255);
-  --shiki-ansi-bright-red-dim: rgba(210, 180, 255, 0.5);
-  --shiki-ansi-bright-green: rgb(150, 208, 187);
-  --shiki-ansi-bright-green-dim: rgba(150, 208, 187, 0.5);
-  --shiki-ansi-bright-yellow: rgb(220, 180, 255);
-  --shiki-ansi-bright-yellow-dim: rgba(220, 180, 255, 0.5);
-  --shiki-ansi-bright-blue: rgb(186, 164, 237);
-  --shiki-ansi-bright-blue-dim: rgba(186, 164, 237, 0.5);
-  --shiki-ansi-bright-magenta: rgb(210, 180, 255);
-  --shiki-ansi-bright-magenta-dim: rgba(210, 180, 255, 0.5);
-  --shiki-ansi-bright-cyan: rgb(150, 208, 187);
-  --shiki-ansi-bright-cyan-dim: rgba(150, 208, 187, 0.5);
-  --shiki-ansi-bright-white: rgb(210, 199, 225);
-  --shiki-ansi-bright-white-dim: rgba(210, 199, 225, 0.5);
+  --shiki-color-text: oklch(0.8787 0.0426 272.28);
+  --shiki-color-background: oklch(0.2903 0.0226 272.28);
+  --shiki-token-constant: oklch(0.7948 0.1186 64.77);
+  --shiki-token-string: oklch(0.8804 0.1292 138.5);
+  --shiki-token-comment: oklch(0.7481 0.0335 272.28);
+  --shiki-token-keyword: oklch(0.8242 0.0989 304.77);
+  --shiki-token-parameter: oklch(0.7818 0.0911 14.82);
+  --shiki-token-function: oklch(0.7711 0.1066 261.02);
+  --shiki-token-string-expression: oklch(0.8601 0.0881 328.71);
+  --shiki-token-punctuation: oklch(0.6787 0.0279 272.28);
+  --shiki-token-link: oklch(0.8741 0.0818 208.71);
 }
 
 .boring-light {
@@ -363,19 +275,6 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
-
-  --border-radius: var(--radius);
-  --color-sidebar-background: var(--sidebar);
-  --color-gradient-noise-top: var(--gradient-noise-top);
-  --color-color-heading: var(--color-heading);
-  --color-chat-border: var(--chat-border);
-  --color-chat-background: var(--chat-background);
-  --color-chat-accent: var(--chat-accent);
-  --color-chat-input-gradient: var(--chat-input-gradient);
-  --color-chat-input-background: var(--chat-input-background);
-  --color-chat-overlay: var(--chat-overlay);
-  --color-wordmark-color: var(--wordmark-color);
-  --font-proxima-vara: var(--font-proxima-vara);
 }
 
 :host,
@@ -727,5 +626,52 @@ span {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* Fade gradient styles for ScrollableHorizontalFade component */
+  .fade-gradient-left {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(
+      to right,
+      var(--background) 0%,
+      transparent 100%
+    );
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .fade-gradient-right {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(
+      to left,
+      var(--background) 0%,
+      transparent 100%
+    );
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .dark .fade-gradient-left {
+    background: linear-gradient(
+      to right,
+      var(--background) 0%,
+      transparent 100%
+    );
+  }
+
+  .dark .fade-gradient-right {
+    background: linear-gradient(
+      to left,
+      var(--background) 0%,
+      transparent 100%
+    );
   }
 }

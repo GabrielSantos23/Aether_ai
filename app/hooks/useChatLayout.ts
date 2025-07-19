@@ -42,7 +42,6 @@ export function useChatLayout(initialChats?: ConvexChat[] | null) {
 
   const createNewChat = () => {
     router.push(`/`);
-    // Only close the sidebar if it's currently open on small screens
     if (
       typeof window !== "undefined" &&
       window.innerWidth < 768 &&
@@ -52,13 +51,11 @@ export function useChatLayout(initialChats?: ConvexChat[] | null) {
     }
   };
 
-  // Use a consistent sidebar state for SSR - default to open for desktop, closed for mobile
   const effectiveSidebarOpen = mounted
     ? sidebarOpen
     : typeof window !== "undefined"
       ? window.innerWidth >= 768
       : false;
-  // Check if we're on home page (no current conversation)
   const isOnHomePage = !currentChatId;
 
   return {

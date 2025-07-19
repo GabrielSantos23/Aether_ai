@@ -28,13 +28,11 @@ export const AuthButtons = ({ providers, redirect }: AuthButtonsProps) => {
           onClick={async () => {
             setIsLoading(provider.id);
             try {
-              // Use NextAuth's signIn directly
               const result = await nextAuthSignIn(provider.id, {
                 redirect: false,
                 callbackUrl: "/",
               });
 
-              // If authentication was successful, manually navigate
               if (result?.ok) {
                 window.location.href = "/";
               } else {

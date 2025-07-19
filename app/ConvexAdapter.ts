@@ -16,10 +16,11 @@ type Session = AdapterSession & { userId: Id<"users"> };
 type Account = AdapterAccount & { userId: Id<"users"> };
 type Authenticator = AdapterAuthenticator & { userId: Id<"users"> };
 
-// 1. Simplest form, a plain object.
 export const ConvexAdapter: Adapter = {
   async createAuthenticator(authenticator: Authenticator) {
-    await callMutation(api.authAdapter.createAuthenticator, { authenticator } as any);
+    await callMutation(api.authAdapter.createAuthenticator, {
+      authenticator,
+    } as any);
     return authenticator;
   },
   async createSession(session: Session) {
@@ -44,15 +45,18 @@ export const ConvexAdapter: Adapter = {
     return maybeSessionFromDB(
       await callMutation(api.authAdapter.deleteSession, {
         sessionToken,
-      }),
+      })
     );
   },
   async deleteUser(id: Id<"users">) {
     return maybeUserFromDB(
-      await callMutation(api.authAdapter.deleteUser, { id }),
+      await callMutation(api.authAdapter.deleteUser, { id })
     );
   },
-  async getAccount(providerAccountId: string, provider: string): Promise<AdapterAccount | null> {
+  async getAccount(
+    providerAccountId: string,
+    provider: string
+  ): Promise<AdapterAccount | null> {
     const result = await callQuery(api.authAdapter.getAccount, {
       provider,
       providerAccountId,
@@ -84,18 +88,21 @@ export const ConvexAdapter: Adapter = {
       await callQuery(api.authAdapter.getUserByAccount, {
         provider,
         providerAccountId,
-      }),
+      })
     );
   },
   async getUserByEmail(email) {
     return maybeUserFromDB(
-      await callQuery(api.authAdapter.getUserByEmail, { email }),
+      await callQuery(api.authAdapter.getUserByEmail, { email })
     );
   },
-  async linkAccount(account: Account): Promise<AdapterAccount | null | undefined> {
-    const result = await callMutation(api.authAdapter.linkAccount, { account } as any);
+  async linkAccount(
+    account: Account
+  ): Promise<AdapterAccount | null | undefined> {
+    const result = await callMutation(api.authAdapter.linkAccount, {
+      account,
+    } as any);
     if (!result) return result;
-    // Fix: ensure token_type is Lowercase<string> if present
     if (result.token_type && typeof result.token_type === "string") {
       result.token_type = result.token_type.toLowerCase() as Lowercase<string>;
     }
@@ -108,10 +115,10 @@ export const ConvexAdapter: Adapter = {
   },
   async unlinkAccount({ provider, providerAccountId }) {
     return (
-      (await callMutation(api.authAdapter.unlinkAccount, {
+      ((await callMutation(api.authAdapter.unlinkAccount, {
         provider,
         providerAccountId,
-      }) as any) ?? undefined
+      })) as any) ?? undefined
     );
   },
   async updateAuthenticatorCounter(credentialID, newCounter) {
@@ -120,12 +127,13 @@ export const ConvexAdapter: Adapter = {
       newCounter,
     } as any);
   },
-  async updateSession(session: Session): Promise<AdapterSession | null | undefined> {
+  async updateSession(
+    session: Session
+  ): Promise<AdapterSession | null | undefined> {
     const result = await callMutation(api.authAdapter.updateSession, {
       session: toDB(session),
     } as any);
     if (!result) return result;
-    // Convert expires from number to Date if necessary
     if (result.expires && typeof result.expires === "number") {
       result.expires = new Date(result.expires) as unknown as number;
     }
@@ -140,30 +148,28 @@ export const ConvexAdapter: Adapter = {
       await callMutation(api.authAdapter.useVerificationToken, {
         identifier,
         token,
-      }),
+      })
     );
   },
 };
 
-/// Helpers
-
 function callQuery<Query extends FunctionReference<"query">>(
   query: Query,
-  args: Omit<FunctionArgs<Query>, "secret">,
+  args: Omit<FunctionArgs<Query>, "secret">
 ) {
   return fetchQuery(query, addSecret(args) as any);
 }
 
 function callMutation<Mutation extends FunctionReference<"mutation">>(
   mutation: Mutation,
-  args: Omit<FunctionArgs<Mutation>, "secret">,
+  args: Omit<FunctionArgs<Mutation>, "secret">
 ) {
   return fetchMutation(mutation, addSecret(args) as any);
 }
 
 if (process.env.CONVEX_AUTH_ADAPTER_SECRET === undefined) {
   throw new Error(
-    "Missing CONVEX_AUTH_ADAPTER_SECRET Next.js environment variable",
+    "Missing CONVEX_AUTH_ADAPTER_SECRET Next.js environment variable"
   );
 }
 
@@ -198,7 +204,7 @@ function sessionFromDB(session: Doc<"sessions">) {
 }
 
 function maybeVerificationTokenFromDB(
-  verificationToken: Doc<"verificationTokens"> | null,
+  verificationToken: Doc<"verificationTokens"> | null
 ) {
   if (verificationToken === null) {
     return null;
@@ -215,7 +221,7 @@ function maybeDate(value: number | undefined) {
 }
 
 function toDB<T extends object>(
-  obj: T,
+  obj: T
 ): {
   [K in keyof T]: T[K] extends Date
     ? number

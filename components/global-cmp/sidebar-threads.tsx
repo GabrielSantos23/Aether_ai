@@ -43,7 +43,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Edit } from "lucide-react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useNavigate, useParams } from "react-router-dom";
 import { Spinner } from "../ui/spinner";
 
 const BranchOffIcon = dynamic(() => import("@/public/icons/branch-off"), {
@@ -62,11 +62,14 @@ interface Chat {
 }
 
 const SidebarThreads = () => {
-  const router = useRouter();
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [newTitle, setNewTitle] = useState("");
+  // Loading state for delete action
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch chats using Convex query
   const chats = useQuery(api.chat.queries.getUserChats);
@@ -91,15 +94,21 @@ const SidebarThreads = () => {
   };
 
   const handleDeleteChat = async (chatId: Id<"chats">) => {
+    setIsDeleting(true);
     try {
       await deleteChat({ chatId });
       toast.success("Chat deleted successfully");
-      setDeleteDialogOpen(false);
+      setDeleteDialogOpen(false); // Close dialog after deletion succeeds
       setSelectedChat(null);
-      router.push("/chat");
+      // Redirect to /chat only if the deleted chat is the one currently open
+      if (id === chatId) {
+        navigate("/chat");
+      }
     } catch (error) {
       console.error("Error deleting chat:", error);
       toast.error("Failed to delete chat");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -227,7 +236,7 @@ const SidebarThreads = () => {
     return (
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          <SidebarMenuItem className="hover:bg-sidebar-accent overflow-hidden flex items-center relative px-0 group/link-item rounded-lg">
+          <SidebarMenuItem className="hover:bg-muted overflow-hidden flex items-center relative px-0 group/link-item rounded-lg">
             <Link
               className={`p-2 text-nowrap text-sm overflow-hidden w-[95%] truncate px-3 ${showBranchIcon ? "truncate flex items-center gap-2" : "block"}`}
               href={`/chat/${chat._id}`}
@@ -239,7 +248,7 @@ const SidebarThreads = () => {
                 {chat.title}
               </p>
             </Link>
-            <div className="flex bg-sidebar-accent rounded-lg duration-300 ease-out *:size-7 backdrop-blur-sm transition-all items-center gap-1 absolute group-hover/link-item:right-1 -right-[100px]">
+            <div className="flex bg-muted/50 backdrop-blur-sm rounded-lg duration-300 ease-out *:size-7 transition-all items-center gap-1 absolute group-hover/link-item:right-1 -right-[100px]">
               <Button
                 variant="ghost"
                 size="icon"
@@ -420,7 +429,15 @@ const SidebarThreads = () => {
       </SidebarContent>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          // Prevent closing while delete request is running
+          if (!isDeleting) {
+            setDeleteDialogOpen(open);
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Chat</AlertDialogTitle>
@@ -440,9 +457,10 @@ const SidebarThreads = () => {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => selectedChat && handleDeleteChat(selectedChat._id)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 flex justify-center"
+              disabled={isDeleting}
             >
-              Delete
+              {isDeleting ? <Spinner size="sm" /> : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

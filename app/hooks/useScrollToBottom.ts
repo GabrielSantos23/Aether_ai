@@ -17,7 +17,6 @@ export function useScrollToBottom(
   const lastScrollTopRef = useRef(0);
   const programmaticScrollRef = useRef(false);
 
-  // Update streaming ref when isStreaming changes
   useEffect(() => {
     isStreamingRef.current = !!isStreaming;
   }, [isStreaming]);
@@ -25,35 +24,29 @@ export function useScrollToBottom(
   const scrollToBottom = (behavior: "smooth" | "auto" = "smooth") => {
     programmaticScrollRef.current = true;
     messagesEndRef.current?.scrollIntoView({ behavior });
-    // Reset the user scroll flag when we programmatically scroll to bottom
     userScrolledUpDuringStreamingRef.current = false;
-    // Clear the programmatic flag after a short delay
     setTimeout(() => {
       programmaticScrollRef.current = false;
     }, 100);
   };
 
   const handleScroll = useCallback(() => {
-    // Try multiple selectors to find the scrollable viewport
     let viewport = scrollAreaRef.current?.querySelector(
       "div[data-radix-scroll-area-viewport]"
     );
 
-    // Fallback: if radix viewport not found, try to find any scrollable element
     if (!viewport) {
       viewport = scrollAreaRef.current?.querySelector(
         "[data-radix-scroll-area-viewport]"
       );
     }
 
-    // Another fallback: look for the scroll area itself
     if (!viewport) {
       viewport = scrollAreaRef.current?.querySelector(
         "[data-radix-scroll-area-root]"
       );
     }
 
-    // Final fallback: use the scroll area ref directly if it's scrollable
     if (!viewport && scrollAreaRef.current) {
       const scrollArea = scrollAreaRef.current;
       if (scrollArea.scrollHeight > scrollArea.clientHeight) {
@@ -70,29 +63,22 @@ export function useScrollToBottom(
       isAtBottomRef.current = isAtBottom;
       setShowScrollToBottom(!isAtBottom);
 
-      // Detect any upward scroll during streaming (not programmatic)
       if (isStreamingRef.current && !programmaticScrollRef.current) {
-        // If user scrolled up (even slightly) during streaming
         if (scrollTop < lastScrollTop) {
           userScrolledUpDuringStreamingRef.current = true;
-        }
-        // Also catch the case where user was at bottom and scrolled up
-        else if (wasAtBottom && !isAtBottom) {
+        } else if (wasAtBottom && !isAtBottom) {
           userScrolledUpDuringStreamingRef.current = true;
         }
       }
 
-      // If user scrolls back to bottom, reset the flag
       if (isAtBottom) {
         userScrolledUpDuringStreamingRef.current = false;
       }
 
-      // Update last scroll position
       lastScrollTopRef.current = scrollTop;
     }
   }, []);
 
-  // Reset the user scroll flag when streaming stops
   useEffect(() => {
     if (!isStreaming) {
       userScrolledUpDuringStreamingRef.current = false;
@@ -100,13 +86,11 @@ export function useScrollToBottom(
   }, [isStreaming]);
 
   useEffect(() => {
-    // Wait a bit for the DOM to be ready
     const timeoutId = setTimeout(() => {
       let viewport = scrollAreaRef.current?.querySelector(
         "div[data-radix-scroll-area-viewport]"
       );
 
-      // Try fallback selectors
       if (!viewport) {
         viewport = scrollAreaRef.current?.querySelector(
           "[data-radix-scroll-area-viewport]"
@@ -126,10 +110,10 @@ export function useScrollToBottom(
 
       if (viewport) {
         viewport.addEventListener("scroll", handleScroll);
-        handleScroll(); // Initial check
+        handleScroll();
         return () => viewport.removeEventListener("scroll", handleScroll);
       }
-    }, 100); // Small delay to ensure DOM is ready
+    }, 100);
 
     return () => clearTimeout(timeoutId);
   }, [handleScroll]);
@@ -139,9 +123,7 @@ export function useScrollToBottom(
     const messageCountChanged = messageCount !== lastMessageCountRef.current;
     lastMessageCountRef.current = messageCount;
 
-    // For initial load with server messages, scroll immediately
     if (messageCount > 0 && !hasInitialScrolled.current) {
-      // Use timeout to ensure DOM has been updated
       setTimeout(() => {
         scrollToBottom("auto");
         hasInitialScrolled.current = true;
@@ -149,29 +131,21 @@ export function useScrollToBottom(
       return;
     }
 
-    // Handle auto-scroll for new messages (when message count changes)
     if (messageCountChanged && isAtBottomRef.current) {
-      // Don't auto-scroll if user scrolled up during streaming
       if (isStreaming && userScrolledUpDuringStreamingRef.current) {
         return;
       }
-      // For new messages, only scroll if already at bottom
       scrollToBottom("auto");
     }
   }, [activeMessages.length, isStreaming]);
 
-  // Handle auto-scroll during streaming content updates
   useEffect(() => {
-    // Don't auto-scroll if user scrolled up during streaming
     if (isStreaming && userScrolledUpDuringStreamingRef.current) {
       return;
     }
 
-    // Auto-scroll during streaming if we're at the bottom
     if (isStreaming && isAtBottomRef.current && activeMessages.length > 0) {
-      // Small delay to ensure content is rendered
       const timeoutId = setTimeout(() => {
-        // Double-check we're still at bottom and user hasn't scrolled up
         if (
           isAtBottomRef.current &&
           !userScrolledUpDuringStreamingRef.current
@@ -182,7 +156,7 @@ export function useScrollToBottom(
 
       return () => clearTimeout(timeoutId);
     }
-  }, [activeMessages, isStreaming]); // This effect handles content updates during streaming
+  }, [activeMessages, isStreaming]);
 
   return {
     showScrollToBottom,

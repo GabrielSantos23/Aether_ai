@@ -92,6 +92,11 @@ export const updateUserSettings = mutation({
     showTimestamps: v.optional(v.boolean()),
     disabledModels: v.optional(v.array(v.string())),
     mem0Enabled: v.optional(v.boolean()),
+    observations: v.optional(v.array(v.string())),
+    action: v.optional(
+      v.union(v.literal("create"), v.literal("update"), v.literal("delete"))
+    ),
+    existing_knowledge_id: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Get the identity of the currently logged-in user.
@@ -105,19 +110,48 @@ export const updateUserSettings = mutation({
     // Use a more robust cast to prevent code formatters from breaking the type.
     const userId = identity.subject as any as Id<"users">;
 
+    // Separate control fields from actual settings
+    const { action, existing_knowledge_id, ...incomingSettings } = args as any;
+
     // Check if user settings already exist using the 'by_user' index.
     const existingSettings = await ctx.db
       .query("userSettings")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
 
+    if (action === "delete") {
+      // If deletion requested, clear provided fields
+      if (existingSettings) {
+        const fieldsToClear: any = {};
+        for (const key of Object.keys(incomingSettings)) {
+          // Only clear if the field exists in schema
+          fieldsToClear[key] = undefined;
+        }
+        if (Object.keys(fieldsToClear).length > 0) {
+          await ctx.db.patch(existingSettings._id, fieldsToClear);
+        }
+      }
+      return;
+    }
+
     if (existingSettings) {
+      // Merge observations uniquely if provided
+      let patchArgs: any = { ...incomingSettings };
+      if (
+        incomingSettings.observations &&
+        incomingSettings.observations.length > 0
+      ) {
+        const existingObs = existingSettings.observations || [];
+        const combined = Array.from(
+          new Set([...existingObs, ...incomingSettings.observations])
+        );
+        patchArgs.observations = combined;
+      }
       // If settings exist, patch the document with the new arguments.
-      await ctx.db.patch(existingSettings._id, args);
+      await ctx.db.patch(existingSettings._id, patchArgs);
     } else {
       // If settings do not exist, create a new document.
-      // The 'userId' is included along with the arguments provided.
-      await ctx.db.insert("userSettings", { userId, ...args });
+      await ctx.db.insert("userSettings", { userId, ...incomingSettings });
     }
   },
 });

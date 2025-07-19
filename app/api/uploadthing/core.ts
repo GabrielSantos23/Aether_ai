@@ -6,16 +6,12 @@ const f = createUploadthing();
 
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } })
-    // Set permissions and file types for this FileRoute
     .middleware(async ({ req }) => {
-      // Use NextAuth session to authenticate the user
       const session = await auth();
 
-      // If you throw, the user will not be able to upload
       if (!session || !session.userId)
         throw new UploadThingError("Unauthorized");
 
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
       return { userId: session.userId };
     })
     .onUploadComplete(async ({ metadata, file }) => {

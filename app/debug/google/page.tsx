@@ -19,29 +19,24 @@ export default function GoogleDriveDebug() {
   const tokenStatus = useQuery(api.accounts.checkGoogleTokenStatus);
   const [isReconnecting, setIsReconnecting] = useState(false);
 
-  // Search state
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  // File read state
   const [fileId, setFileId] = useState("");
   const [isReading, setIsReading] = useState(false);
   const [fileContent, setFileContent] = useState<any>(null);
   const [readError, setReadError] = useState<string | null>(null);
 
-  // Raw response state for debugging
   const [rawResponse, setRawResponse] = useState<string | null>(null);
 
-  // Actions for Google Drive operations
   const searchFiles = useAction(api.files.listGoogleDriveFiles);
   const readFile = useAction(api.files.readGoogleDriveFile);
 
   const handleReconnectGoogle = async () => {
     setIsReconnecting(true);
     try {
-      // Request all needed scopes
       const scopesToRequest = [
         "openid",
         "https://www.googleapis.com/auth/userinfo.email",
@@ -51,7 +46,6 @@ export default function GoogleDriveDebug() {
         "https://www.googleapis.com/auth/drive",
       ].join(" ");
 
-      // Trigger the sign-in flow with all scopes
       await signIn(
         "google",
         {},
@@ -68,7 +62,6 @@ export default function GoogleDriveDebug() {
     }
   };
 
-  // Handle file search
   const handleSearch = async () => {
     setIsSearching(true);
     setSearchError(null);
@@ -91,7 +84,6 @@ export default function GoogleDriveDebug() {
     }
   };
 
-  // Handle file read
   const handleReadFile = async () => {
     if (!fileId.trim()) {
       setReadError("Please enter a file ID");
@@ -116,7 +108,6 @@ export default function GoogleDriveDebug() {
     }
   };
 
-  // Handle reading a file from search results
   const handleReadFromSearch = (id: string) => {
     setFileId(id);
     handleReadFile();
@@ -228,7 +219,6 @@ export default function GoogleDriveDebug() {
         </div>
       )}
 
-      {/* File Search Section */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-semibold mb-4">
           Search Google Drive Files
@@ -323,7 +313,6 @@ export default function GoogleDriveDebug() {
         ) : null}
       </div>
 
-      {/* File Read Section */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-semibold mb-4">Read File/Folder Content</h2>
 
@@ -381,7 +370,6 @@ export default function GoogleDriveDebug() {
         )}
       </div>
 
-      {/* Raw Response Section */}
       {rawResponse && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-xl font-semibold mb-4">Raw API Response</h2>

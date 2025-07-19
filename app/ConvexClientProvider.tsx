@@ -44,9 +44,7 @@ function useAuth() {
         return convexToken;
       },
     }),
-    // We only care about the user changes, and don't want to
-    // bust the memo when we fetch a new token.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [JSON.stringify(session?.user)]
   );
 }

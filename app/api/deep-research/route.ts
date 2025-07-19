@@ -14,7 +14,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Trigger the Trigger.dev task. The generic type helps with payload validation.
     const handle = await tasks.trigger<typeof deepResearchOrchestrator>(
       "deep-research",
       {

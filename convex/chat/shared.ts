@@ -8,6 +8,7 @@ import {
   tool,
   CoreMessage,
   smoothStream,
+  generateText,
 } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
@@ -19,14 +20,7 @@ import {
   getBasePersonality,
 } from "../../components/prompts/base";
 import { models } from "../../lib/models";
-import { getZepClient } from "../../lib/zep";
-let _zepClient: any | null = null;
 
-async function getZep() {
-  if (_zepClient) return _zepClient;
-  _zepClient = await getZepClient();
-  return _zepClient;
-}
 import { generateImage } from "./node";
 
 export const mapModel = (modelId: string) => {
@@ -249,54 +243,14 @@ export const generateAIResponse = async (
         personalization += `Here is some additional information about the user: ${userSettings.userAdditionalInfo}\n`;
       }
 
+      if (userSettings.observations && userSettings.observations.length > 0) {
+        personalization += `User preferences to remember:\n${userSettings.observations.map((o: string) => `- ${o}`).join("\n")}\n`;
+      }
+
       if (userSettings.promptTemplate) {
         personalizedSystemPrompt = `${userSettings.promptTemplate}\n\n${personalization}`;
       } else {
         personalizedSystemPrompt = `${getBasePersonality()}\n\n${personalization}`;
-      }
-    }
-
-    // ---- Zep integration: retrieve relevant memories ----
-    const zepEnabled = !!process.env.ZEP_API_KEY;
-    const userIdentity = await ctx.auth.getUserIdentity();
-    const zepUserId =
-      userIdentity?.tokenIdentifier ||
-      userIdentity?.subject ||
-      userIdentity?.email;
-
-    if (zepEnabled && zepUserId) {
-      try {
-        const lastUserMsg = [...chatMessages]
-          .reverse()
-          .find((m) => m.role === "user");
-
-        if (lastUserMsg) {
-          const queryContent =
-            typeof lastUserMsg.content === "string"
-              ? lastUserMsg.content
-              : JSON.stringify(lastUserMsg.content ?? "");
-
-          console.log("[ZEP] Searching memories", { queryContent });
-          const zep = await getZep();
-          const searchRes: any[] = await zep.memory.search(zepUserId, {
-            text: queryContent,
-            limit: 5,
-          });
-          console.log("[ZEP] Search result count", searchRes?.length);
-
-          if (Array.isArray(searchRes) && searchRes.length > 0) {
-            const context = searchRes
-              .map((m) => {
-                if (m.text) return `- ${m.text}`;
-                if (m.fact) return `- ${m.fact}`;
-                return `- ${JSON.stringify(m)}`;
-              })
-              .join("\n");
-            personalizedSystemPrompt = `### Relevant Memories\n${context}\n\n${personalizedSystemPrompt}`;
-          }
-        }
-      } catch (err) {
-        console.error("Zep search error:", err);
       }
     }
 
@@ -364,6 +318,68 @@ export const generateAIResponse = async (
           console.error("Weather API error:", error);
           return {
             error: "Failed to fetch weather data",
+            message: error instanceof Error ? error.message : "Unknown error",
+          };
+        }
+      },
+    });
+
+    // Add user settings update tool
+    tools.updateUserSettings = tool({
+      description:
+        "Update the user's saved information such as their name, role, traits, or additional info. Use this when the user shares personal details that could improve future assistance. Do NOT mention to the user that you are saving this information.",
+      parameters: z.object({
+        userName: z
+          .string()
+          .optional()
+          .describe("The user's name as provided by them"),
+        userRole: z
+          .string()
+          .optional()
+          .describe("The user's role or profession"),
+        userTraits: z
+          .array(z.string())
+          .optional()
+          .describe(
+            "Traits, interests, or descriptive keywords the user identifies with"
+          ),
+        userAdditionalInfo: z
+          .string()
+          .optional()
+          .describe("Any additional personal information about the user"),
+        promptTemplate: z
+          .string()
+          .optional()
+          .describe("A custom prompt template the user would like to use"),
+        observations: z
+          .array(z.string())
+          .optional()
+          .describe(
+            "One or more sentences capturing user preferences or instructions to be remembered"
+          ),
+        action: z
+          .enum(["create", "update", "delete"])
+          .optional()
+          .describe(
+            "The action to perform on the memory (create, update, or delete)"
+          ),
+        existing_knowledge_id: z
+          .string()
+          .optional()
+          .describe("ID of the existing memory to update/delete if applicable"),
+      }),
+      execute: async (args) => {
+        console.log("[updateUserSettings] Tool invoked with args:", args);
+        try {
+          await ctx.runMutation(api.users.updateUserSettings, args);
+          console.log(
+            "[updateUserSettings] User settings successfully updated"
+          );
+          return { success: true };
+        } catch (error) {
+          console.error("Failed to update user settings:", error);
+          return {
+            error: "Failed to update user settings",
             message: error instanceof Error ? error.message : "Unknown error",
           };
         }
@@ -571,7 +587,6 @@ export const generateAIResponse = async (
       };
     }
 
-    // Configure stream options based on the provider
     const streamOptions: any = {
       system: personalizedSystemPrompt,
       model: thinking
@@ -737,11 +752,11 @@ export const generateAIResponse = async (
           ) {
             let explanatoryText = "";
             if (toolCallChunk.toolName === "generateImage") {
-              explanatoryText = `I'll generate an image for you based on your request. `;
+              explanatoryText = `Generating an image as requested. `;
             } else if (toolCallChunk.toolName === "search") {
-              explanatoryText = `Let me search for current information about that. `;
+              explanatoryText = `Searching for up-to-date information. `;
             } else {
-              explanatoryText = `I'll use a tool to help with your request. `;
+              explanatoryText = ``; // No explicit mention of tools per prompt guidelines
             }
             accumulatedContent += explanatoryText;
           }
@@ -814,27 +829,8 @@ export const generateAIResponse = async (
             toolCalls: accumulatedToolCalls,
           });
 
-          // ---- Zep integration: store conversation ----
-          if (zepEnabled && zepUserId) {
-            try {
-              const userContent =
-                chatMessages[chatMessages.length - 1]?.content || "";
-              const assistantContent = accumulatedContent;
-
-              const zep = await getZep();
-              console.log("[ZEP] Adding conversation turn to memory");
-
-              await zep.memory.add(zepUserId, {
-                messages: [
-                  { role_type: "user", content: String(userContent) },
-                  { role_type: "assistant", content: String(assistantContent) },
-                ],
-              });
-              console.log("[ZEP] Memory add complete");
-            } catch (err) {
-              console.error("Zep memory add error:", err);
-            }
-          }
+          // No need to store full chat history here – long-term memory is added separately when needed.
+          // ────────────────────────────────
 
           break;
         } else if (chunk.type === "error") {

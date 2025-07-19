@@ -22,20 +22,16 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Script to apply boring theme before React hydration */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  // Check if boring theme is enabled
                   const boringTheme = localStorage.getItem("boring-theme") === "true";
                   if (boringTheme) {
-                    // Check if dark mode is active
                     const isDarkMode = document.documentElement.classList.contains("dark") || 
                                       window.matchMedia("(prefers-color-scheme: dark)").matches;
                     
-                    // Apply the appropriate boring theme class
                     document.documentElement.classList.add(isDarkMode ? "boring-dark" : "boring-light");
                   }
                 } catch (e) {

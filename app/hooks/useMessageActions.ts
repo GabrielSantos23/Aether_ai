@@ -32,7 +32,6 @@ export function useMessageActions(props?: UseMessageActionsProps) {
 
   const handleReadAloud = (text: string, messageId: string) => {
     if (speakingMessageId === messageId) {
-      // If the same message is clicked, 'speak' will handle cancellation
       speak(text, () => setSpeakingMessageId(null));
     } else {
       setSpeakingMessageId(messageId);

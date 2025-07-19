@@ -78,7 +78,7 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <div className="h-screen w-full flex flex-col overflow-hidden bg-sidebar">
       <ChatHeader />
-      <main className="flex-1 overflow-hidden z-20 border-chat-border bg-chat-background transition-[margin-top,height] mt-3.5 h-full border rounded-tl-xl duration-100 ease-snappy has-[.sidebar-check:checked]:mt-0 has-[.sidebar-check:checked]:h-screen has-[.sidebar-check:checked]:rounded-none">
+      <main className="flex-1 overflow-hidden z-20  bg-background transition-[margin-top,height] mt-3.5 h-full border rounded-tl-xl duration-100 ease-snappy has-[.sidebar-check:checked]:mt-0 has-[.sidebar-check:checked]:h-screen has-[.sidebar-check:checked]:rounded-none">
         <input
           className="hidden sidebar-check"
           type="checkbox"

@@ -49,10 +49,8 @@ export function useChatInterface(
       });
 
       if (newChatId) {
-        // Show success message first
         toast.success("Chat branched successfully!");
 
-        // Add a small delay before navigation to ensure Convex has time to process
         setTimeout(() => {
           router.push(`/chat/${newChatId}`);
           setIsBranching(false);
@@ -115,7 +113,6 @@ export function useChatInterface(
   };
 
   return {
-    // State
     inputValue,
     setInputValue,
     isTyping,
@@ -131,20 +128,16 @@ export function useChatInterface(
     userSettings,
     isBranching,
 
-    // Attachments
     attachments,
     setAttachments,
 
-    // Actions
     handleSend,
     handlePromptClick,
     handleStopGeneration,
     isCurrentlyStreaming,
 
-    // Message actions
     ...messageActions,
 
-    // Scroll
     ...scrollToBottom,
   };
 }

@@ -3,7 +3,6 @@ import { SignJWT, importPKCS8 } from "jose";
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 
-// --- 1. ADD GOOGLE PROVIDER IMPORT ---
 import Google from "next-auth/providers/google";
 
 if (process.env.CONVEX_AUTH_PRIVATE_KEY === undefined) {
@@ -18,17 +17,14 @@ if (process.env.NEXT_PUBLIC_CONVEX_URL === undefined) {
   );
 }
 
-// Ensure you have these in your .env.local file
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   throw new Error("Missing Google Client ID or Secret");
 }
 
-// Ensure Notion env vars exist
 if (!process.env.NOTION_CLIENT_ID || !process.env.NOTION_CLIENT_SECRET) {
   throw new Error("Missing Notion Client ID or Secret");
 }
 
-// Ensure GitHub env vars exist
 if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
   throw new Error("Missing GitHub Client ID or Secret");
 }
@@ -45,35 +41,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       authorization: {
         params: {
-          // Minimal scopes for login. Additional scopes can be requested later via signIn("github", { scope: "repo" })
           scope: "read:user user:email",
         },
       },
     }),
-    // --- 2. ADD AND CONFIGURE GOOGLE PROVIDER ---
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
-          prompt: "consent", // Important for re-asking for permissions
-          access_type: "offline", // This is crucial for getting refresh tokens
+          prompt: "consent",
+          access_type: "offline",
           response_type: "code",
-          // Define the initial, basic scopes for login
           scope:
             "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
         },
       },
     }),
   ],
-  // Cast to `any` to sidestep type incompatibility between duplicated @auth/core versions.
   adapter: ConvexAdapter as any,
   callbacks: {
-    // Allow sign-in / linking without extra checks
     async signIn({ user, account }) {
-      // When the authenticated provider is the same one already linked, we still
-      // want to update stored access/refresh tokens and scopes. Auth.js does
-      // not call `linkAccount` in this situation, so we do it manually.
       if (user && account && (ConvexAdapter as any).linkAccount) {
         try {
           await (ConvexAdapter as any).linkAccount({
@@ -88,11 +76,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async session({ session, token }) {
-      // Obtain Convex user id from JWT token if present, else existing session
       const userId =
         (token?.sub as string | undefined) ?? (session.user as any)?.id;
 
-      // Attach id to session
       (session.user as any).id = userId;
       (session as any).userId = userId;
 

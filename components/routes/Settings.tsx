@@ -25,7 +25,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import SpeechSettings from "@/components/_components/_settings/SpeechSettings";
-import Mem0Settings from "@/components/_components/_settings/Mem0Settings";
 import {
   settingsSections,
   type SettingsSection,
@@ -249,8 +248,13 @@ export default function SettingsPage() {
         );
       case "speech":
         return <SpeechSettings />;
-      case "mem0":
-        return <Mem0Settings />;
+      case "billing":
+        return (
+          <div className="p-4">
+            <h2 className="text-xl font-semibold mb-4">Billing</h2>
+            <p>Billing settings coming soon.</p>
+          </div>
+        );
       case "integrations":
         return <Integrations />;
       default:
