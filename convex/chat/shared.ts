@@ -15,10 +15,7 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createGroq } from "@ai-sdk/groq";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { z } from "zod";
-import {
-  basePersonality,
-  getBasePersonality,
-} from "../../components/prompts/base";
+import { getPrompt } from "../../components/prompts/base";
 import { models } from "../../lib/models";
 
 import { generateImage } from "./node";
@@ -228,31 +225,9 @@ export const generateAIResponse = async (
 
     // Fetch user settings
     const userSettings = await ctx.runQuery(api.users.getMySettings);
-    let personalizedSystemPrompt = getBasePersonality();
+    let personalizedSystemPrompt = "";
 
-    if (userSettings) {
-      let personalization = "### User Personalization\n";
-      if (userSettings.userName)
-        personalization += `The user's name is ${userSettings.userName}.\n`;
-      if (userSettings.userRole)
-        personalization += `The user is a ${userSettings.userRole}.\n`;
-      if (userSettings.userTraits && userSettings.userTraits.length > 0) {
-        personalization += `The user has the following traits/interests: ${userSettings.userTraits.join(", ")}.\n`;
-      }
-      if (userSettings.userAdditionalInfo) {
-        personalization += `Here is some additional information about the user: ${userSettings.userAdditionalInfo}\n`;
-      }
-
-      if (userSettings.observations && userSettings.observations.length > 0) {
-        personalization += `User preferences to remember:\n${userSettings.observations.map((o: string) => `- ${o}`).join("\n")}\n`;
-      }
-
-      if (userSettings.promptTemplate) {
-        personalizedSystemPrompt = `${userSettings.promptTemplate}\n\n${personalization}`;
-      } else {
-        personalizedSystemPrompt = `${getBasePersonality()}\n\n${personalization}`;
-      }
-    }
+    // tools will be populated later – we'll generate the prompt once tools are defined
 
     // Determine which key to use for image generation
     const shouldUseUserGeminiKey = !!userGeminiKey;
@@ -564,6 +539,26 @@ export const generateAIResponse = async (
         };
       },
     });
+
+    // Build the system prompt now that the available tools are known
+    {
+      const promptUser: any = {
+        preferences: {
+          nickname: userSettings?.userName,
+          biography: userSettings?.userAdditionalInfo,
+          instructions: userSettings?.promptTemplate,
+          userTraits: userSettings?.userTraits,
+          observations: userSettings?.observations,
+        },
+      };
+
+      const activeToolNames = Object.keys(tools) as any;
+      personalizedSystemPrompt = getPrompt({
+        ctx,
+        user: promptUser,
+        activeTools: activeToolNames,
+      });
+    }
 
     // Configure provider-specific options
     const providerOptions: any = {

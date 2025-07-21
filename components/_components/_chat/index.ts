@@ -12,3 +12,5 @@ export { TopControls } from "./TopControls";
 export { VoiceChatInterface } from "./VoiceChatInterface";
 export { SimpleVoiceChat } from "./SimpleVoiceChat";
 export { ChatSearchResults } from "./ChatSearchResults";
+export { ChatImageResult } from "./ChatImageResult";
+export { ChatResearchResults } from "./ChatResearchResults";

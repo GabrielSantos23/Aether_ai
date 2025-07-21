@@ -71,7 +71,7 @@ Uma coisa maneira é como implementei a proteção de rotas usando React Router 
 import { Navigate, Outlet } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Spinner } from "@/components/ui/spinner";
+
 
 const ProtectedRoute = () => {
   const user = useQuery(api.myFunctions.getUser);
@@ -221,6 +221,7 @@ Cada modelo tem suas próprias capacidades especiais, como processamento de vis�
 Estou trabalhando em uma integração bacana com Notion e Google Drive, que vai permitir:
 
 ### Google Drive
+
 ```183:184:lib/models.tsx
   features: ["vision", "web", "code", "imagegen", "weather", "googledrive"],
 ```
@@ -231,6 +232,7 @@ Estou trabalhando em uma integração bacana com Notion e Google Drive, que vai 
 - Gerar resumos e extrair informações importantes
 
 ### Notion
+
 ```37:48:auth.ts
 // --- NOTION PROVIDER ---
 Notion({

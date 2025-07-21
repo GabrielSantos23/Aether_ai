@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { signIn, useSession } from "next-auth/react";
-import { Spinner } from "@/components/ui/spinner";
+import { CircularLoader } from "@/components/ui/spinner";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ALL_DRIVE_SCOPES } from "@/components/GoogleDriveScopeChecker";
@@ -69,15 +69,15 @@ export default function Integrations() {
   // Fetch Google account data
   const googleAccount = useQuery(api.accounts.getGoogleAccount);
   const deleteGoogleAccount = useMutation(api.accounts.deleteGoogleAccount);
-  
+
   // Fetch Notion account data
   const notionAccount = useQuery(api.accounts.getNotionAccount);
   const deleteNotionAccount = useMutation(api.accounts.deleteNotionAccount);
-  
+
   // Parse granted scopes
   const grantedDriveScopes = new Set(googleAccount?.scope?.split(" ") ?? []);
   const driveConnected = googleAccount !== null && googleAccount !== undefined;
-  
+
   const grantedNotionScopes = new Set(notionAccount?.scope?.split(" ") ?? []);
   const notionConnected = notionAccount !== null && notionAccount !== undefined;
 
@@ -85,45 +85,45 @@ export default function Integrations() {
     if (service === "drive") {
       if (driveConnected) {
         // If already connected, disconnect
-        setIsLoading(prev => ({ ...prev, drive: true }));
+        setIsLoading((prev) => ({ ...prev, drive: true }));
         try {
           await deleteGoogleAccount();
         } finally {
-          setIsLoading(prev => ({ ...prev, drive: false }));
+          setIsLoading((prev) => ({ ...prev, drive: false }));
         }
       } else {
         // Connect to Google Drive
-        setIsLoading(prev => ({ ...prev, drive: true }));
+        setIsLoading((prev) => ({ ...prev, drive: true }));
         try {
           const scopesToRequest = [
             "openid",
             "https://www.googleapis.com/auth/userinfo.email",
             "https://www.googleapis.com/auth/userinfo.profile",
-            ...ALL_DRIVE_SCOPES.map((s: DriveScope) => s.scope)
+            ...ALL_DRIVE_SCOPES.map((s: DriveScope) => s.scope),
           ].join(" ");
-          
+
           await signIn("google", {}, { scope: scopesToRequest });
         } finally {
-          setIsLoading(prev => ({ ...prev, drive: false }));
+          setIsLoading((prev) => ({ ...prev, drive: false }));
         }
       }
     } else if (service === "notion") {
       if (notionConnected) {
         // If already connected, disconnect
-        setIsLoading(prev => ({ ...prev, notion: true }));
+        setIsLoading((prev) => ({ ...prev, notion: true }));
         try {
           await deleteNotionAccount();
         } finally {
-          setIsLoading(prev => ({ ...prev, notion: false }));
+          setIsLoading((prev) => ({ ...prev, notion: false }));
         }
       } else {
         // Connect to Notion
-        setIsLoading(prev => ({ ...prev, notion: true }));
+        setIsLoading((prev) => ({ ...prev, notion: true }));
         try {
           const scopesToRequest = NOTION_SCOPES.join(" ");
           await signIn("notion", {}, { scope: scopesToRequest });
         } finally {
-          setIsLoading(prev => ({ ...prev, notion: false }));
+          setIsLoading((prev) => ({ ...prev, notion: false }));
         }
       }
     } else {
@@ -262,7 +262,7 @@ export default function Integrations() {
       >
         {isLoading ? (
           <div className="flex items-center gap-2">
-            <Spinner className="w-4 h-4 " />
+            <CircularLoader className="w-4 h-4 " />
             <span>Connecting...</span>
           </div>
         ) : isConnected ? (
@@ -281,11 +281,9 @@ export default function Integrations() {
         <div className="max-w-2xl mx-auto">
           <div className="mb-8">
             <h1 className="text-2xl font-semibold mb-2">Manage Integrations</h1>
-            <p className="text-muted-foreground">
-              Loading integrations...
-            </p>
+            <p className="text-muted-foreground">Loading integrations...</p>
           </div>
-          <Spinner className="w-6 h-6" />
+          <CircularLoader className="w-6 h-6" />
         </div>
       </div>
     );
@@ -340,7 +338,7 @@ export default function Integrations() {
               isConnected={connectedServices.calendar}
               infoKey="calendar"
             />
-            
+
             <DataSourceItem
               icon={FileText}
               title="Google Drive"
@@ -351,9 +349,13 @@ export default function Integrations() {
               isConnected={driveConnected}
               isLoading={isLoading.drive}
               infoKey="drive"
-              scopes={driveConnected ? Array.from(grantedDriveScopes).filter(scope => 
-                (scope as string).includes("drive")
-              ) : []}
+              scopes={
+                driveConnected
+                  ? Array.from(grantedDriveScopes).filter((scope) =>
+                      (scope as string).includes("drive")
+                    )
+                  : []
+              }
             />
           </div>
         </div>
@@ -382,14 +384,16 @@ export default function Integrations() {
         </div>
 
         {/* Status Messages */}
-        {(Object.values(connectedServices).some(Boolean) || driveConnected || notionConnected) && (
+        {(Object.values(connectedServices).some(Boolean) ||
+          driveConnected ||
+          notionConnected) && (
           <div className="mt-8 p-4 bg-green-900/20 border border-green-800 rounded-lg">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               <span className="text-sm text-green-400">
-                {(Object.values(connectedServices).filter(Boolean).length + 
-                  (driveConnected ? 1 : 0) + 
-                  (notionConnected ? 1 : 0))}{" "}
+                {Object.values(connectedServices).filter(Boolean).length +
+                  (driveConnected ? 1 : 0) +
+                  (notionConnected ? 1 : 0)}{" "}
                 service(s) connected
               </span>
             </div>

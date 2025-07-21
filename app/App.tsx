@@ -11,8 +11,8 @@ import { api } from "@/convex/_generated/api";
 import LoginPage from "@/components/routes/Login";
 import Chat from "@/components/routes/Chat";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
+import { CircularLoader } from "@/components/ui/spinner";
 
-import { Spinner } from "@/components/ui/spinner";
 import Test from "@/components/routes/test";
 import SidebarProvider from "@/components/_components/_sidebar";
 import SettingsPage from "@/components/routes/Settings";
@@ -39,7 +39,7 @@ function AppRoutes() {
   if (user === undefined) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Spinner />
+        <CircularLoader />
       </div>
     );
   }

@@ -4,7 +4,7 @@ import { AuthProviderIcon } from "@/components/icons/provider-icon";
 import { Button } from "@/components/ui/button";
 import { signIn as nextAuthSignIn } from "next-auth/react";
 import { useState } from "react";
-import { Spinner } from "@/components/ui/spinner";
+import { CircularLoader } from "../ui/spinner";
 
 interface AuthButtonsProps {
   providers: {
@@ -46,7 +46,7 @@ export const AuthButtons = ({ providers, redirect }: AuthButtonsProps) => {
           }}
         >
           {isLoading === provider.id ? (
-            <Spinner size="sm" />
+            <CircularLoader size="sm" />
           ) : (
             <AuthProviderIcon provider={provider.name} />
           )}

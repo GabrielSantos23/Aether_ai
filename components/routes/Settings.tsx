@@ -32,7 +32,7 @@ import {
 import { toast } from "sonner";
 import { NavLink } from "react-router-dom";
 import { useSession, signOut } from "next-auth/react";
-import { Spinner } from "../ui/spinner";
+import { CircularLoader } from "../ui/spinner";
 
 export default function SettingsPage() {
   const { data: session, status } = useSession();
@@ -88,7 +88,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <Spinner className="w-5 h-5 animate-spin" />
+        <CircularLoader className="w-5 h-5 animate-spin" />
       </div>
     );
   }

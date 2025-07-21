@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Spinner } from "@/components/ui/spinner";
+import { CircularLoader } from "../ui/spinner";
 
 const ProtectedRoute = () => {
   const user = useQuery(api.myFunctions.getUser);
@@ -9,7 +9,7 @@ const ProtectedRoute = () => {
   if (user === undefined) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Spinner />
+        <CircularLoader />
       </div>
     );
   }

@@ -638,9 +638,9 @@ span {
     background: linear-gradient(
       to right,
       var(--background) 0%,
-      transparent 100%
+      rgba(255, 255, 255, 0) 100%
     );
-    z-index: 10;
+    z-index: 5;
     pointer-events: none;
   }
 
@@ -653,9 +653,9 @@ span {
     background: linear-gradient(
       to left,
       var(--background) 0%,
-      transparent 100%
+      rgba(255, 255, 255, 0) 100%
     );
-    z-index: 10;
+    z-index: 5;
     pointer-events: none;
   }
 
@@ -663,7 +663,7 @@ span {
     background: linear-gradient(
       to right,
       var(--background) 0%,
-      transparent 100%
+      rgba(0, 0, 0, 0) 100%
     );
   }
 
@@ -671,7 +671,7 @@ span {
     background: linear-gradient(
       to left,
       var(--background) 0%,
-      transparent 100%
+      rgba(0, 0, 0, 0) 100%
     );
   }
 }

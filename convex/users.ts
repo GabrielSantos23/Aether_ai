@@ -168,3 +168,8 @@ export const storeUser = mutation({
     return user;
   },
 });
+
+export function checkUserCredits(ctx: any, user: any, cost: number): boolean {
+  // TODO: implement real credit checking logic; currently always returns true
+  return true;
+}

@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Mic,
   MicOff,
@@ -13,22 +13,26 @@ import {
   Pause,
   Play,
   MessageSquare,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useVoiceChat } from '@/app/hooks/useVoiceChat'
-import { Spinner } from '@/components/ui/spinner'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useVoiceChat } from "@/app/hooks/useVoiceChat";
+import { CircularLoader } from "@/components/ui/spinner";
 
 interface VoiceChatInterfaceProps {
-  isOpen: boolean
-  onClose: () => void
-  onMessageSend: (message: string) => void
-  onResponse: (response: string) => void
-  lastAIResponse?: string
-  className?: string
+  isOpen: boolean;
+  onClose: () => void;
+  onMessageSend: (message: string) => void;
+  onResponse: (response: string) => void;
+  lastAIResponse?: string;
+  className?: string;
 }
 
 export function VoiceChatInterface({
@@ -39,8 +43,8 @@ export function VoiceChatInterface({
   lastAIResponse,
   className,
 }: VoiceChatInterfaceProps) {
-  const [isMuted, setIsMuted] = useState(false)
-  const [showTranscript, setShowTranscript] = useState(true)
+  const [isMuted, setIsMuted] = useState(false);
+  const [showTranscript, setShowTranscript] = useState(true);
 
   const {
     isActive,
@@ -63,45 +67,45 @@ export function VoiceChatInterface({
     autoSpeak: !isMuted,
     continuousMode: true,
     silenceDetectionTime: 2000,
-  })
+  });
 
   // Speak AI responses when they come in
   useEffect(() => {
     if (lastAIResponse && isActive && !isMuted) {
-      speakResponse(lastAIResponse)
+      speakResponse(lastAIResponse);
     }
-  }, [lastAIResponse, isActive, isMuted, speakResponse])
+  }, [lastAIResponse, isActive, isMuted, speakResponse]);
 
   const handleToggleCall = () => {
     if (isActive) {
-      stopVoiceChat()
+      stopVoiceChat();
     } else {
-      startVoiceChat()
+      startVoiceChat();
     }
-  }
+  };
 
   const handleMuteToggle = () => {
-    setIsMuted(!isMuted)
+    setIsMuted(!isMuted);
     if (isSpeaking) {
-      window.speechSynthesis.cancel()
+      window.speechSynthesis.cancel();
     }
-  }
+  };
 
   const getStatusText = () => {
-    if (!isActive) return 'Tap to start voice chat'
-    if (isProcessing) return 'Processing...'
-    if (isSpeaking) return 'AI is speaking...'
-    if (isListening) return 'Listening...'
-    return 'Voice chat active'
-  }
+    if (!isActive) return "Tap to start voice chat";
+    if (isProcessing) return "Processing...";
+    if (isSpeaking) return "AI is speaking...";
+    if (isListening) return "Listening...";
+    return "Voice chat active";
+  };
 
   const getStatusColor = () => {
-    if (!isActive) return 'text-gray-500 dark:text-gray-400'
-    if (isProcessing) return 'text-blue-500 dark:text-blue-400'
-    if (isSpeaking) return 'text-white'
-    if (isListening) return 'text-white'
-    return 'text-rose-500 dark:text-rose-400'
-  }
+    if (!isActive) return "text-gray-500 dark:text-gray-400";
+    if (isProcessing) return "text-blue-500 dark:text-blue-400";
+    if (isSpeaking) return "text-white";
+    if (isListening) return "text-white";
+    return "text-rose-500 dark:text-rose-400";
+  };
 
   if (!isSupported) {
     return (
@@ -112,16 +116,19 @@ export function VoiceChatInterface({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             className={cn(
-              'fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-96 md:h-auto z-50',
-              className,
+              "fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-96 md:h-auto z-50",
+              className
             )}
           >
             <Card className="h-full shadow-2xl border-red-200 dark:border-red-800">
               <CardContent className="p-6 flex flex-col items-center justify-center h-full text-center">
                 <MicOff className="w-16 h-16 text-red-500 mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Voice Chat Not Supported</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  Voice Chat Not Supported
+                </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                  Your browser doesn't support speech recognition. Please try Chrome, Edge, or Safari.
+                  Your browser doesn't support speech recognition. Please try
+                  Chrome, Edge, or Safari.
                 </p>
                 <Button onClick={onClose} variant="outline">
                   Close
@@ -131,7 +138,7 @@ export function VoiceChatInterface({
           </motion.div>
         )}
       </AnimatePresence>
-    )
+    );
   }
 
   return (
@@ -153,8 +160,8 @@ export function VoiceChatInterface({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className={cn(
-              'fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-96 md:h-auto z-50',
-              className,
+              "fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-96 md:h-auto z-50",
+              className
             )}
           >
             <Card className="h-full md:h-auto shadow-2xl border-rose-200 dark:border-rose-800 bg-gradient-to-br from-white to-rose-50/50 dark:from-gray-900 dark:to-rose-950/50">
@@ -167,7 +174,9 @@ export function VoiceChatInterface({
                     </div>
                     <div>
                       <h2 className="font-semibold text-lg">Voice Chat</h2>
-                      <p className={cn('text-sm', getStatusColor())}>{getStatusText()}</p>
+                      <p className={cn("text-sm", getStatusColor())}>
+                        {getStatusText()}
+                      </p>
                     </div>
                   </div>
                   <Button
@@ -182,21 +191,45 @@ export function VoiceChatInterface({
 
                 {/* Status Indicators */}
                 <div className="flex justify-center gap-4 mb-6">
-                  <Badge variant={isListening ? 'default' : 'secondary'} className="flex items-center gap-1">
+                  <Badge
+                    variant={isListening ? "default" : "secondary"}
+                    className="flex items-center gap-1"
+                  >
                     <div
-                      className={cn('w-2 h-2 rounded-full', isListening ? 'bg-green-500 animate-pulse' : 'bg-gray-400')}
+                      className={cn(
+                        "w-2 h-2 rounded-full",
+                        isListening
+                          ? "bg-green-500 animate-pulse"
+                          : "bg-gray-400"
+                      )}
                     />
                     Listening
                   </Badge>
-                  <Badge variant={isSpeaking ? 'default' : 'secondary'} className="flex items-center gap-1">
+                  <Badge
+                    variant={isSpeaking ? "default" : "secondary"}
+                    className="flex items-center gap-1"
+                  >
                     <div
-                      className={cn('w-2 h-2 rounded-full', isSpeaking ? 'bg-purple-500 animate-pulse' : 'bg-gray-400')}
+                      className={cn(
+                        "w-2 h-2 rounded-full",
+                        isSpeaking
+                          ? "bg-purple-500 animate-pulse"
+                          : "bg-gray-400"
+                      )}
                     />
                     Speaking
                   </Badge>
-                  <Badge variant={isProcessing ? 'default' : 'secondary'} className="flex items-center gap-1">
+                  <Badge
+                    variant={isProcessing ? "default" : "secondary"}
+                    className="flex items-center gap-1"
+                  >
                     <div
-                      className={cn('w-2 h-2 rounded-full', isProcessing ? 'bg-blue-500 animate-pulse' : 'bg-gray-400')}
+                      className={cn(
+                        "w-2 h-2 rounded-full",
+                        isProcessing
+                          ? "bg-blue-500 animate-pulse"
+                          : "bg-gray-400"
+                      )}
                     />
                     Processing
                   </Badge>
@@ -208,14 +241,14 @@ export function VoiceChatInterface({
                     {/* Outer ripple effect */}
                     <motion.div
                       className={cn(
-                        'absolute inset-0 rounded-full border-2',
+                        "absolute inset-0 rounded-full border-2",
                         isListening
-                          ? 'border-green-500/30'
+                          ? "border-green-500/30"
                           : isSpeaking
-                            ? 'border-purple-500/30'
+                            ? "border-purple-500/30"
                             : isProcessing
-                              ? 'border-blue-500/30'
-                              : 'border-gray-300/30',
+                              ? "border-blue-500/30"
+                              : "border-gray-300/30"
                       )}
                       animate={
                         isActive
@@ -228,23 +261,23 @@ export function VoiceChatInterface({
                       transition={{
                         duration: 2,
                         repeat: Infinity,
-                        ease: 'easeInOut',
+                        ease: "easeInOut",
                       }}
                     />
 
                     {/* Main circle */}
                     <motion.div
                       className={cn(
-                        'w-32 h-32 rounded-full flex items-center justify-center shadow-xl',
+                        "w-32 h-32 rounded-full flex items-center justify-center shadow-xl",
                         isListening
-                          ? 'bg-gradient-to-br from-green-400 to-green-600'
+                          ? "bg-gradient-to-br from-green-400 to-green-600"
                           : isSpeaking
-                            ? 'bg-gradient-to-br from-purple-400 to-purple-600'
+                            ? "bg-gradient-to-br from-purple-400 to-purple-600"
                             : isProcessing
-                              ? 'bg-gradient-to-br from-blue-400 to-blue-600'
+                              ? "bg-gradient-to-br from-blue-400 to-blue-600"
                               : isActive
-                                ? 'bg-gradient-to-br from-rose-400 to-rose-600'
-                                : 'bg-gradient-to-br from-gray-400 to-gray-600',
+                                ? "bg-gradient-to-br from-rose-400 to-rose-600"
+                                : "bg-gradient-to-br from-gray-400 to-gray-600"
                       )}
                       animate={
                         isActive
@@ -256,11 +289,11 @@ export function VoiceChatInterface({
                       transition={{
                         duration: 1,
                         repeat: Infinity,
-                        ease: 'easeInOut',
+                        ease: "easeInOut",
                       }}
                     >
                       {isProcessing ? (
-                        <Spinner className="w-12 h-12 text-white " />
+                        <CircularLoader className="w-12 h-12 text-white " />
                       ) : (
                         <Mic className="w-12 h-12 text-white" />
                       )}
@@ -272,15 +305,19 @@ export function VoiceChatInterface({
                 {showTranscript && (currentTranscript || interimTranscript) && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4 max-h-32 overflow-y-auto"
                   >
                     <div className="text-sm">
                       {currentTranscript && (
-                        <span className="text-gray-900 dark:text-gray-100">{currentTranscript}</span>
+                        <span className="text-gray-900 dark:text-gray-100">
+                          {currentTranscript}
+                        </span>
                       )}
                       {interimTranscript && (
-                        <span className="text-gray-500 dark:text-gray-400 italic">{interimTranscript}</span>
+                        <span className="text-gray-500 dark:text-gray-400 italic">
+                          {interimTranscript}
+                        </span>
                       )}
                     </div>
                   </motion.div>
@@ -293,7 +330,9 @@ export function VoiceChatInterface({
                     animate={{ opacity: 1 }}
                     className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4"
                   >
-                    <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      {error}
+                    </p>
                   </motion.div>
                 )}
 
@@ -306,16 +345,22 @@ export function VoiceChatInterface({
                         onClick={handleToggleCall}
                         size="lg"
                         className={cn(
-                          'w-14 h-14 rounded-full shadow-lg transition-all duration-300',
+                          "w-14 h-14 rounded-full shadow-lg transition-all duration-300",
                           isActive
-                            ? 'bg-red-500 hover:bg-red-600 text-white'
-                            : 'bg-green-500 hover:bg-green-600 text-white',
+                            ? "bg-red-500 hover:bg-red-600 text-white"
+                            : "bg-green-500 hover:bg-green-600 text-white"
                         )}
                       >
-                        {isActive ? <PhoneOff className="w-6 h-6" /> : <Phone className="w-6 h-6" />}
+                        {isActive ? (
+                          <PhoneOff className="w-6 h-6" />
+                        ) : (
+                          <Phone className="w-6 h-6" />
+                        )}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{isActive ? 'End voice chat' : 'Start voice chat'}</TooltipContent>
+                    <TooltipContent>
+                      {isActive ? "End voice chat" : "Start voice chat"}
+                    </TooltipContent>
                   </Tooltip>
 
                   {/* Mute Button */}
@@ -328,10 +373,16 @@ export function VoiceChatInterface({
                           size="lg"
                           className="w-12 h-12 rounded-full"
                         >
-                          {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                          {isMuted ? (
+                            <VolumeX className="w-5 h-5" />
+                          ) : (
+                            <Volume2 className="w-5 h-5" />
+                          )}
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>{isMuted ? 'Unmute AI voice' : 'Mute AI voice'}</TooltipContent>
+                      <TooltipContent>
+                        {isMuted ? "Unmute AI voice" : "Mute AI voice"}
+                      </TooltipContent>
                     </Tooltip>
                   )}
 
@@ -357,7 +408,7 @@ export function VoiceChatInterface({
                 {isActive && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     className="flex items-center justify-center gap-2 mt-4"
                   >
                     <Button
@@ -366,10 +417,15 @@ export function VoiceChatInterface({
                       size="sm"
                       className="text-xs"
                     >
-                      {showTranscript ? 'Hide' : 'Show'} Transcript
+                      {showTranscript ? "Hide" : "Show"} Transcript
                     </Button>
                     {currentTranscript && (
-                      <Button onClick={clearTranscript} variant="ghost" size="sm" className="text-xs">
+                      <Button
+                        onClick={clearTranscript}
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs"
+                      >
                         Clear
                       </Button>
                     )}
@@ -381,5 +437,5 @@ export function VoiceChatInterface({
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }

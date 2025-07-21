@@ -44,7 +44,7 @@ import { Label } from "@/components/ui/label";
 import { Edit } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router-dom";
-import { Spinner } from "../ui/spinner";
+import { CircularLoader } from "../ui/spinner";
 
 const BranchOffIcon = dynamic(() => import("@/public/icons/branch-off"), {
   ssr: false,
@@ -159,7 +159,7 @@ const SidebarThreads = () => {
     return (
       <SidebarContent>
         <div className="flex items-center justify-center p-4">
-          <Spinner size="sm" />
+          <CircularLoader size="sm" />
         </div>
       </SidebarContent>
     );
@@ -460,7 +460,7 @@ const SidebarThreads = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 flex justify-center"
               disabled={isDeleting}
             >
-              {isDeleting ? <Spinner size="sm" /> : "Delete"}
+              {isDeleting ? <CircularLoader size="sm" /> : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

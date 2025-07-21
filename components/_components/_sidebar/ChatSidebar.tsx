@@ -45,9 +45,7 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Spinner } from "@/components/ui/spinner";
 import SidebarLogo from "@/components/sidebar-logo";
-import SearchThreads from "../_chat/search-threads";
 import SidebarThreads from "@/components/global-cmp/sidebar-threads";
 
 export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {

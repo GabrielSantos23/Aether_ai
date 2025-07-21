@@ -67,11 +67,11 @@ function NonMemoizedChatSearchResults(props: ChatSearchResultsProps) {
   }, [result, annotations]);
 
   return (
-    <div className="py-2">
+    <div className="py-2 relative z-0">
       <button
         onClick={toggleExpanded}
         className={cn(
-          "group border-border text-muted-foreground flex items-center justify-between gap-2 rounded-full border px-4 py-2",
+          "group border-border text-muted-foreground flex items-center justify-between gap-2 rounded-full border px-4 py-2 z-10 relative",
           "hover:bg-muted/20 transition-colors",
           isExpanded && "bg-muted/50"
         )}
@@ -97,8 +97,10 @@ function NonMemoizedChatSearchResults(props: ChatSearchResultsProps) {
       </button>
       <div
         className={cn(
-          "flex flex-col gap-2 transition-all duration-300",
-          isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+          "flex flex-col gap-2 transition-all duration-300 relative z-0",
+          isExpanded
+            ? "max-h-screen opacity-100 pointer-events-auto"
+            : "max-h-0 opacity-0 pointer-events-none overflow-hidden"
         )}
       >
         <ScrollableHorizontalFade className="pt-4 pb-2">

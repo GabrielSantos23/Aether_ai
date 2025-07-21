@@ -61,6 +61,13 @@ export const ScrollableHorizontalFade: React.FC<ScrollableFadeProps> = ({
 
   return (
     <div className={`relative ${className}`}>
+      <div
+        ref={scrollContainerRef}
+        className="no-scrollbar relative flex gap-2 overflow-x-auto"
+      >
+        {children}
+      </div>
+
       <motion.div
         className="fade-gradient-left"
         animate={{ opacity: isOverflowingLeft ? 1 : 0 }}
@@ -71,13 +78,6 @@ export const ScrollableHorizontalFade: React.FC<ScrollableFadeProps> = ({
         animate={{ opacity: isOverflowingRight ? 1 : 0 }}
         transition={{ duration: 0.3 }}
       />
-
-      <div
-        ref={scrollContainerRef}
-        className="no-scrollbar relative flex gap-2 overflow-x-auto"
-      >
-        {children}
-      </div>
     </div>
   );
 };

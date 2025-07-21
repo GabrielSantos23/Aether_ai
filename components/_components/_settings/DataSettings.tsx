@@ -5,7 +5,6 @@ import { Conversation, db } from "@/lib/dexie";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
-import { Spinner } from "@/components/ui/spinner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Card } from "@/components/ui/card";
+import { CircularLoader } from "@/components/ui/spinner";
 
 interface DataSettingsProps {
   unmigratedLocalChats: Conversation[];
@@ -69,7 +69,7 @@ export function DataSettings({ unmigratedLocalChats }: DataSettingsProps) {
               <Download className="w-4 h-4 mr-2" />
               {isExporting ? (
                 <>
-                  <Spinner className="mr-2" />
+                  <CircularLoader className="mr-2" />
                   Exporting...
                 </>
               ) : (
@@ -117,7 +117,7 @@ export function DataSettings({ unmigratedLocalChats }: DataSettingsProps) {
                   >
                     {isDeleting ? (
                       <>
-                        <Spinner className="mr-2" />
+                        <CircularLoader className="mr-2" />
                         Deleting...
                       </>
                     ) : (

@@ -24,8 +24,8 @@ import DevInput from "@/components/global-cmp/dev-input";
 import { IoMdClose } from "react-icons/io";
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/app/hooks/use-debounce";
-import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { CircularLoader } from "@/components/ui/spinner";
 
 interface Chat {
   _id: Id<"chats">;
@@ -133,7 +133,7 @@ export default function SearchThreads({
         onKeyDown={handleKeyDown}
         icon={
           isLoading ? (
-            <Spinner className="w-3.5 h-3.5 text-muted-foreground ml-1 animate-spin" />
+            <CircularLoader className="w-3.5 h-3.5 text-muted-foreground ml-1 animate-spin" />
           ) : (
             <FiSearch className="w-3.5 h-3.5 text-muted-foreground ml-1" />
           )
@@ -176,7 +176,7 @@ export default function SearchThreads({
                 autoFocus
               />
               {isLoading && (
-                <Spinner className="size-4 animate-spin text-muted-foreground" />
+                <CircularLoader className="size-4 animate-spin text-muted-foreground" />
               )}
             </div>
           </div>
@@ -187,7 +187,7 @@ export default function SearchThreads({
           {isLoading && (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Spinner className="size-4 animate-spin" />
+                <CircularLoader className="size-4 animate-spin" />
                 Searching...
               </div>
             </div>
