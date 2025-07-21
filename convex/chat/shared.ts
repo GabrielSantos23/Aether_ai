@@ -54,7 +54,8 @@ export const generateAIResponse = async (
   modelId: string,
   assistantMessageId: Id<"messages">,
   webSearch?: boolean,
-  isNode = false
+  isNode = false,
+  research?: boolean // <-- Add this argument
 ) => {
   try {
     // If this is the first message, add a system message to help the AI understand context
@@ -234,6 +235,7 @@ export const generateAIResponse = async (
 
     // Prepare tools
     const tools: any = {};
+    let activeToolNames: ("image" | "search" | "research")[] = [];
 
     // Add weather tool - always available
     tools.getWeather = tool({
@@ -298,6 +300,7 @@ export const generateAIResponse = async (
         }
       },
     });
+    // Do not push getWeather to activeToolNames (not a valid Tool)
 
     // Add user settings update tool
     tools.updateUserSettings = tool({
@@ -401,6 +404,7 @@ export const generateAIResponse = async (
           }
         },
       });
+      // Do not push Google Drive tools to activeToolNames (not a valid Tool)
 
       // Add Google Drive file read tool
       tools.readGoogleDriveFile = tool({
@@ -430,6 +434,7 @@ export const generateAIResponse = async (
           }
         },
       });
+      // Do not push Google Drive tools to activeToolNames (not a valid Tool)
     }
 
     if (webSearch) {
@@ -495,6 +500,7 @@ export const generateAIResponse = async (
           }
         },
       });
+      activeToolNames.push("search");
     }
 
     //Add image generation tool
@@ -512,33 +518,37 @@ export const generateAIResponse = async (
           return generateImage(ctx, prompt, userGeminiKey);
         },
       });
+      activeToolNames.push("image");
     }
 
-    // Add deep research tool - always available
-    tools.startDeepResearch = tool({
-      description:
-        "Perform an in-depth multi-layered web research on a given topic and deliver a structured PDF report. Use this when the user explicitly requests a comprehensive research report.",
-      parameters: z.object({
-        topic: z
-          .string()
-          .describe("The research topic the user wants to investigate"),
-        depth: z
-          .number()
-          .min(1)
-          .max(5)
-          .optional()
-          .describe("Number of recursive research layers (default 3)"),
-      }),
-      execute: async ({ topic, depth }) => {
-        // The actual Trigger.dev workflow will be started client-side.
-        // We simply return a payload the UI can use to kick it off.
-        return {
-          type: "deep-research",
-          query: topic,
-          depth: depth ?? 3,
-        };
-      },
-    });
+    // Only add research tool if research is explicitly requested
+    if (research) {
+      tools.startDeepResearch = tool({
+        description:
+          "Perform an in-depth multi-layered web research on a given topic and deliver a structured PDF report. Use this when the user explicitly requests a comprehensive research report.",
+        parameters: z.object({
+          topic: z
+            .string()
+            .describe("The research topic the user wants to investigate"),
+          depth: z
+            .number()
+            .min(1)
+            .max(5)
+            .optional()
+            .describe("Number of recursive research layers (default 3)"),
+        }),
+        execute: async ({ topic, depth }) => {
+          // The actual Trigger.dev workflow will be started client-side.
+          // We simply return a payload the UI can use to kick it off.
+          return {
+            type: "deep-research",
+            query: topic,
+            depth: depth ?? 3,
+          };
+        },
+      });
+      activeToolNames.push("research");
+    }
 
     // Build the system prompt now that the available tools are known
     {
@@ -552,7 +562,6 @@ export const generateAIResponse = async (
         },
       };
 
-      const activeToolNames = Object.keys(tools) as any;
       personalizedSystemPrompt = getPrompt({
         ctx,
         user: promptUser,

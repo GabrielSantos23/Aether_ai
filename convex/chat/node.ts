@@ -26,6 +26,7 @@ export const sendMessage = action({
     webSearch: v.optional(v.boolean()),
     imageGen: v.optional(v.boolean()),
     message: v.string(),
+    research: v.optional(v.boolean()),
   },
   handler: async (
     ctx,
@@ -38,6 +39,7 @@ export const sendMessage = action({
       attachments,
       message,
       imageGen,
+      research,
     }
   ): Promise<{
     success: boolean;
@@ -71,7 +73,7 @@ export const sendMessage = action({
       modelId,
       assistantMessageId,
       webSearch,
-      true
+      research
     );
 
     return {

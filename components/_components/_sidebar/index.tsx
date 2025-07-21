@@ -97,7 +97,7 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
             : "rounded-md "
         } backdrop-blur-sm transition-[width] delay-125 duration-100 blur-fallback:bg-sidebar max-sm:delay-125 max-sm:duration-100 max-sm:w-[6.75rem] max-sm:bg-sidebar`}
       >
-        <SidebarTrigger className="rounded-xl" />
+        <SidebarTrigger className="rounded-xl hover:bg-muted" />
         <div
           className={`transition-[opacity, translate-x] has-[.sidebar-check:not(:checked)]:pointer-events-none  flex flex-nowrap duration-200 ease-snappy gap-0.5 has-[.sidebar-check:not(:checked)]:-translate-x-[20px] has-[.sidebar-check:not(:checked)]:opacity-0 has-[.sidebar-check:not(:checked)]:w-0 has-[.sidebar-check:not(:checked)]:-z-50 has-[.sidebar-check:not(:checked)]:h-0 `}
         >
@@ -108,14 +108,12 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
           />
 
           <SearchThreads />
-          <Button variant="ghost" className="p-0 rounded-xl" size="icon">
-            <NavLink
-              to="/"
-              className="w-full h-full grid place-items-center rounded-xl"
-            >
-              <FiPlus />
-            </NavLink>
-          </Button>
+          <NavLink
+            to="/"
+            className="w-full h-full grid place-items-center rounded-xl hover:bg-muted p-2"
+          >
+            <FiPlus />
+          </NavLink>
           <div id="model-select-container" className="ml-1" />
         </div>
       </div>
@@ -124,11 +122,15 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
         className={`fixed pointer-events-auto right-2 top-2 z-50 flex flex-row p-1 items-center justify-center ${isSidebarOpen ? "rounded-2xl border bg-sidebar" : "rounded-md"} duration-100 transition-[translate-x] ease-snappy max-sm:w-[6.75rem] gap-2 text-muted-foreground has-[.sidebar-check:checked]:backdrop-blur-sm has-[.sidebar-check:not(:checked)]:bg-transparent`}
       >
         <NavLink to="/settings">
-          <Button variant="ghost" size="icon" className="rounded-xl ">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-xl hover:bg-muted "
+          >
             <LuSettings2 />
           </Button>
         </NavLink>
-        <ThemeToggler className="rounded-xl" />
+        <ThemeToggler className="rounded-xl hover:bg-muted" />
       </div>
     </div>
   );

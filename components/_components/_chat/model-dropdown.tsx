@@ -33,31 +33,6 @@ interface ModelDropdownProps {
   apiKeys?: Array<{ service: string }>;
 }
 
-const getVendorColor = (vendor: string) => {
-  switch (vendor) {
-    case "google":
-    case "gemini":
-      return "from-blue-500 to-purple-500";
-    case "anthropic":
-    case "claude":
-      return "from-purple-500 to-pink-500";
-    case "openai":
-    case "gpt":
-      return "from-green-500 to-teal-500";
-    case "deepseek":
-      return "from-cyan-500 to-blue-500";
-    case "meta":
-    case "llama":
-      return "from-indigo-500 to-blue-500";
-    case "o-series":
-      return "from-orange-500 to-red-500";
-    case "openrouter":
-      return "from-gray-500 to-gray-600";
-    default:
-      return "from-gray-500 to-gray-600";
-  }
-};
-
 export function ModelDropdown({
   selectedModel,
   onModelSelect,
@@ -187,12 +162,7 @@ export function ModelDropdown({
                   ) : (
                     <div className="w-5 h-5 mr-1" />
                   )}
-                  <div
-                    className={cn(
-                      "w-2 h-2 rounded-full bg-gradient-to-r flex-shrink-0",
-                      getVendorColor(model.vendor)
-                    )}
-                  />
+
                   <span className="text-sm truncate">{model.name}</span>
                 </div>
                 <div className="relative z-10 flex items-center gap-1">

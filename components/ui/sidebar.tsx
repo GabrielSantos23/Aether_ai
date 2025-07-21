@@ -371,7 +371,7 @@ const SidebarTrigger = React.forwardRef<
         toggleSidebar();
       }}
       {...props}
-      className="rounded-xl"
+      className="rounded-xl hover:bg-muted"
     >
       <PanelLeft />
       <span className="sr-only">Toggle Sidebar</span>

@@ -272,24 +272,26 @@ export default function ChatInterface({
           onUploadError={(error: Error) => handleUploadError(error, "file")}
           appearance={{
             button:
-              "w-7 h-7 md:w-8 md:h-8 text-primary/60 dark:text-primary/60 hover:text-primary dark:hover:text-primary transition-all duration-200 rounded-lg bg-white/50 dark:bg-[oklch(0.22_0.015_25)]/40 hover:bg-primary/5 dark:hover:bg-white/5 flex items-center justify-center max-w-7 max-h-7 md:max-w-8 md:max-h-8",
+              "w-7 h-7 md:w-8 md:h-8  transition-all duration-200 rounded-lg bg-white/50 dark:bg-transparent border border-border text-muted-foreground hover:bg-primary/5 dark:hover:bg-white/5 flex items-center justify-center max-w-7 max-h-7 md:max-w-8 md:max-h-8" +
+              (isUploading ? " opacity-50 pointer-events-none" : ""),
             container: "w-auto h-auto",
             allowedContent: "hidden",
           }}
           content={{
-            button({ isUploading }) {
-              if (isUploading)
+            button({ isUploading: btnUploading }) {
+              if (btnUploading)
                 return (
                   <div className="w-3.5 md:w-4 h-3.5 md:h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                 );
               return (
-                <Paperclip className="w-3.5 md:w-4 h-3.5 md:h-4 text-primary/60 hover:text-primary" />
+                <Paperclip className="w-3.5 md:w-4 h-3.5 md:h-4 text-muted-foreground" />
               );
             },
             allowedContent() {
               return null;
             },
           }}
+          disabled={isUploading}
         />
       </div>
     ) : null;

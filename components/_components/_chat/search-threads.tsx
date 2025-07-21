@@ -145,12 +145,12 @@ export default function SearchThreads({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-xl">
+        <div className="rounded-xl hover:bg-muted p-2 flex items-center justify-center cursor-pointer">
           <FiSearch />
           {/* <kbd className="ml-2 hidden text-xs text-muted-foreground sm:inline-flex items-center gap-1">
             <span className="text-[10px]">{navigator.platform.indexOf("Mac") === 0 ? "⌘" : "Ctrl"}</span>K
           </kbd> */}
-        </Button>
+        </div>
       </DialogTrigger>
       <DialogContent
         className={cn(

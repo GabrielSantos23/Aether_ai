@@ -287,8 +287,9 @@ const SidebarThreads = () => {
             </div>
           </SidebarMenuItem>
         </ContextMenuTrigger>
-        <ContextMenuContent className="w-36">
+        <ContextMenuContent className="w-36 bg-background border border-border">
           <ContextMenuItem
+            className="dark:data-[state=open]:bg-muted data-[state=open]:bg-muted dark:data-[highlighted]:bg-muted data-[highlighted]:bg-muted data-[state=open]:text-black dark:data-[state=open]:text-white data-[highlighted]:text-black dark:data-[highlighted]:text-white "
             onClick={() => handlePinChat(chat._id)}
             disabled={isPending}
           >
@@ -299,15 +300,24 @@ const SidebarThreads = () => {
             )}
             {chat.isPinned ? "Unpin" : "Pin"}
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => openRenameDialog(chat)}>
+          <ContextMenuItem
+            className="dark:data-[state=open]:bg-muted data-[state=open]:bg-muted dark:data-[highlighted]:bg-muted data-[highlighted]:bg-muted data-[state=open]:text-black dark:data-[state=open]:text-white data-[highlighted]:text-black dark:data-[highlighted]:text-white "
+            onClick={() => openRenameDialog(chat)}
+          >
             <Edit className="mr-2 h-4 w-4" />
             Rename
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => openDeleteDialog(chat)} className="">
+          <ContextMenuItem
+            className="dark:data-[state=open]:bg-muted data-[state=open]:bg-muted dark:data-[highlighted]:bg-muted data-[highlighted]:bg-muted data-[state=open]:text-black dark:data-[state=open]:text-white data-[highlighted]:text-black dark:data-[highlighted]:text-white "
+            onClick={() => openDeleteDialog(chat)}
+          >
             <IoMdClose className="mr-2 h-4 w-4" />
             Delete
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => handleExportChat(chat)}>
+          <ContextMenuItem
+            className="dark:data-[state=open]:bg-muted data-[state=open]:bg-muted dark:data-[highlighted]:bg-muted data-[highlighted]:bg-muted data-[state=open]:text-black dark:data-[state=open]:text-white data-[highlighted]:text-black dark:data-[highlighted]:text-white "
+            onClick={() => handleExportChat(chat)}
+          >
             <LuDownload className="mr-2 h-4 w-4" />
             Export
             <span className="ml-auto text-xs bg-primary/10 px-1.5 py-0.5 rounded">

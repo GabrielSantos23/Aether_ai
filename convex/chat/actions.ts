@@ -244,10 +244,11 @@ export const sendMessage = action({
     ),
     webSearch: v.optional(v.boolean()),
     imageGen: v.optional(v.boolean()),
+    research: v.optional(v.boolean()), // <-- Add this line
   },
   handler: async (
     ctx,
-    { chatId, message, modelId, attachments, webSearch, imageGen }
+    { chatId, message, modelId, attachments, webSearch, imageGen, research } // <-- Add research here
   ): Promise<{
     success: boolean;
     userMessageId: Id<"messages">;
@@ -326,6 +327,7 @@ export const sendMessage = action({
           webSearch,
           userMessageId,
           imageGen,
+          // research, // REMOVE this line, only pass if node.sendMessage supports it
         });
       }
 
@@ -335,7 +337,9 @@ export const sendMessage = action({
           chatMessages,
           modelId,
           assistantMessageId,
-          webSearch
+          webSearch,
+          undefined, // isNode
+          research // Pass research as 7th argument
         );
 
         return {

@@ -201,7 +201,7 @@ export default function ModelSelectDropdown({
             type="button"
             className={cn(
               "h-10 px-2.5 text-xs transition-all duration-200 bg-sidebar border rounded-2xl",
-              "flex items-center gap-1 text-muted-foreground hover:text-foreground hover:bg-accent",
+              "flex items-center gap-1 text-muted-foreground hover:text-foreground hover:bg-muted",
               isSidebarOpen && "ml-32 mt-2",
               !isSidebarOpen && "ml-2 mt-5"
             )}
@@ -279,7 +279,7 @@ export default function ModelSelectDropdown({
                     "w-full text-left p-2 text-sm truncate rounded-2xl transition-colors",
                     selectedModel.id === model.id
                       ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-primary hover:bg-accent/40",
+                      : "text-muted-foreground hover:text-primary hover:bg-muted",
                     disabled && "opacity-40 cursor-not-allowed"
                   )}
                 >

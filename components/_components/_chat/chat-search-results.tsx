@@ -3,9 +3,12 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { match } from "ts-pattern";
-import { PulseLoader } from "@/components/ui/spinner";
 import { ChevronDown } from "lucide-react";
-import { useReasoningDuration, setReasoningDuration } from "@/app/stores/chat";
+import { PulseLoader } from "@/components/ui/spinner";
+import {
+  setReasoningDuration,
+  useReasoningDuration,
+} from "@/components/stores/chat";
 
 type SearchResult = {
   title: string;

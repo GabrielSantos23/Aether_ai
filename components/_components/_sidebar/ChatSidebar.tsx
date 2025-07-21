@@ -7,7 +7,6 @@ import {
   SidebarMenuItem,
   SidebarFooter,
   SidebarRail,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
@@ -214,12 +213,12 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
             </SidebarMenuItem>
             <SidebarMenuItem className="mb-0">
               <Button
-                className="w-full p-0 rounded-2xl hover:bg-transparent "
+                className="w-full p-0 rounded-2xl hover:bg-muted "
                 variant="ghost"
               >
                 <NavLink
                   to="/"
-                  className="w-full h-full rounded-2xl flex place-items-center gap-2 px-2 text-sm justify-start hover:bg-transparent"
+                  className="w-full h-full rounded-2xl flex place-items-center gap-2 px-2 text-sm justify-start hover:bg-muted"
                 >
                   <Plus size={16} /> New Chat
                 </NavLink>
@@ -229,7 +228,7 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
               <Button className="w-full p-0 rounded-2xl" variant="ghost">
                 <NavLink
                   to="/"
-                  className="w-full h-full rounded-2xl flex place-items-center gap-2 px-2 text-sm justify-start hover:bg-transparent"
+                  className="w-full h-full rounded-2xl flex place-items-center gap-2 px-2 text-sm justify-start hover:bg-muted"
                 >
                   <Search size={16} /> Search
                 </NavLink>
@@ -241,7 +240,7 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
                   to="/gallery"
                   className={({ isActive }) =>
                     [
-                      "w-full h-full rounded-2xl flex place-items-center gap-2 px-2 text-sm justify-start hover:bg-transparent",
+                      "w-full h-full rounded-2xl flex place-items-center gap-2 px-2 text-sm justify-start hover:bg-muted",
                       isActive ? "bg-accent/50" : "",
                     ].join(" ")
                   }
@@ -260,7 +259,7 @@ export default function ChatSidebar(props: ComponentProps<typeof Sidebar>) {
               <SidebarMenuItem>
                 <NavLink
                   to="/settings"
-                  className="flex rounded-lg  p-2.5 mb-2 w-full hover:bg-sidebar-accent min-w-0 flex-row items-center gap-3"
+                  className="flex rounded-lg  p-2.5 mb-2 w-full hover:bg-muted min-w-0 flex-row items-center gap-3"
                 >
                   <img
                     src={user?.image || ""}
@@ -453,7 +452,7 @@ const PureFooter = () => {
       {user ? (
         <Link
           to="/settings"
-          className="flex items-center gap-2 w-full hover:bg-accent/50 transition-colors duration-200 rounded-md p-2 cursor-pointer"
+          className="flex items-center gap-2 w-full hover:bg-muted transition-colors duration-200 rounded-md p-2 cursor-pointer"
         >
           <Avatar className="w-8 h-8">
             <AvatarImage src={user?.image || ""} alt={user?.name || ""} />

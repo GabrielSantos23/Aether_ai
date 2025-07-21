@@ -1,29 +1,22 @@
-import { useQuery, useMutation } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useState } from "react";
 
 export default function GalleryPage() {
   const images = useQuery(api.chat.queries.getUserAIImages) || [];
-  const deleteImage = useMutation(api.chat.mutations.deleteAIImage);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<any>(null);
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const openModal = (img: any) => {
     setSelectedImage(img);
+    setImageLoaded(false);
     setModalOpen(true);
   };
   const closeModal = () => {
     setModalOpen(false);
     setSelectedImage(null);
-  };
-  const handleDelete = async (imageId: string) => {
-    setDeleting(imageId);
-    await deleteImage({ imageId });
-    setDeleting(null);
-    if (selectedImage && selectedImage._id === imageId) {
-      closeModal();
-    }
+    setImageLoaded(false);
   };
 
   return (
@@ -53,29 +46,6 @@ export default function GalleryPage() {
       {modalOpen && selectedImage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur bg-black/30">
           <div className="relative bg-transparent">
-            {/* Delete button in modal */}
-            <button
-              onClick={() => handleDelete(selectedImage._id)}
-              disabled={deleting === selectedImage._id}
-              className="absolute top-2 right-14 text-white bg-black/60 hover:bg-red-600 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-80 z-20"
-              aria-label="Delete"
-              title="Delete image"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
             {/* Close button */}
             <button
               onClick={closeModal}
@@ -107,11 +77,23 @@ export default function GalleryPage() {
                 />
               </svg>
             </a>
-            <img
-              src={selectedImage.imageUrl}
-              alt="Full size"
-              className="max-w-[80vw] max-h-[80vh] rounded-xl shadow-lg"
-            />
+            {/* Only show the image when it is fully loaded */}
+            <div className="flex items-center justify-center min-w-[200px] min-h-[200px]">
+              {!imageLoaded && (
+                <div className="flex items-center justify-center w-full h-full min-w-[200px] min-h-[200px]">
+                  <span className="text-white/80 text-lg animate-pulse">
+                    Loading...
+                  </span>
+                </div>
+              )}
+              <img
+                src={selectedImage.imageUrl}
+                alt="Full size"
+                className={`max-w-[80vw] max-h-[80vh] rounded-xl shadow-lg transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+                style={{ display: imageLoaded ? "block" : "none" }}
+                onLoad={() => setImageLoaded(true)}
+              />
+            </div>
           </div>
         </div>
       )}
